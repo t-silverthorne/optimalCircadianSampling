@@ -5,12 +5,12 @@ close all
 tps=0:1:24;
 % stngs short for settings
 stngs.osc_fraction=0.05; 
-stngs.num_samples=400;
-stngs.mean_amp=0.1;
+stngs.num_samples=100;
+stngs.mean_amp=0.4;
 stngs.noise_to_amp=0.3;
 amps=exprnd(stngs.mean_amp,1,stngs.num_samples);
 
-stngs.bimodal_frac=0.5; % 1 means just dist 1 0 means just dist 2
+stngs.bimodal_frac=0.9; % 1 means just dist 1 0 means just dist 2
 stngs.acro_mu1= pi/2; % phase
 stngs.acro_mu2= 3*pi/2;
 stngs.acro_sigma1 = 0.3;
