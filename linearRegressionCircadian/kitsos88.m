@@ -27,11 +27,13 @@ w_vec=ones(1,numel(theta_vec))/numel(theta_vec);
 d_opt=det(get_info_matrix(theta_vec,w_vec))
 yline(d_opt)
 %% First order iteration, now with deletion
-theta_vec=linspace(0,1,6)+.05*randn(1,6);
-theta_vec=theta_vec(1:end-1);
-w_vec=ones(1,numel(theta_vec))/numel(theta_vec);
+%theta_vec=linspace(0,1,6)+.05*randn(1,6);
+%theta_vec=theta_vec(1:end-1);
+theta_vec=[0];
+w_vec=[1];
+%w_vec=ones(1,numel(theta_vec))/numel(theta_vec);
 M_list=[]
-for s=1:25
+for s=1:20
     xs_plus=fminbnd(@(x) psi(x,theta_vec,w_vec),0,1);
     psi_known=arrayfun( @(ind) psi(theta_vec(ind),theta_vec,w_vec),1:numel(theta_vec) );
     [psi_xs_minus,xs_minus_ind]=max(psi_known);
@@ -63,18 +65,6 @@ polarscatter(theta_vec*2*pi,1,'.k')
 nexttile
 plot(1:numel(M_list),M_list)
 
-
-%%
-x_example=randn(5,1);%[0 0.4 0.9 0.5]';
-w_example=ones(numel(x_example),1);
-psi(x_example,w_example)
-
-%%
-n=4;
-x= [1 cos(theta) sin(theta)];
-xi=arrayfun( @(k) dirac(theta-2*pi*k/n),0:1:(n-1));
-
-int( I(theta)*sum(xi),theta,-.1,-.1+2*pi)
 
 function M = get_info_matrix(theta_vec,w_vec)
 % TODO: check normalization
