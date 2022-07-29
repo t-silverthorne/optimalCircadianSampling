@@ -65,8 +65,7 @@ per2guess=per2*(1+0*rand);
 
 results_unif=fit_biharmonic_cosinor(Xdat_unif,zts_unif,per1guess,per2guess);
 results_nu=fit_biharmonic_cosinor(Xdat_nu,zts_nu,per1guess,per2guess);
-
-
+%%
 
 
 % show histograms for linear regression problem
@@ -144,15 +143,15 @@ end
 res_unif=cell2mat(res_unif);
 
 
-%% Top half plot period estimation part
-tiledlayout(4,10,'Padding','tight','TileSpacing','tight')
+%% Bottom half plot period estimation part
+tiledlayout(2,10,'TileSpacing','tight','Padding','tight')
 nexttile(1,[2 3])
 min_bin =min(vertcat(res_unif(:,6),res_nu(:,6)));
 max_bin =max(vertcat(res_unif(:,6),res_nu(:,6)));
 histogram(res_unif(:,6),ceil(sqrt(nreps)),'LineStyle','none','FaceColor','black','FaceAlpha',.6,BinLimits=[min_bin max_bin])
 hold on
-xline(avec(6),'LineWidth',1)
 histogram(res_nu(:,6),ceil(sqrt(nreps)),'LineStyle','none','FaceColor',[0 .44 1],'FaceAlpha',.6,BinLimits=[min_bin max_bin])
+xline(avec(6),'LineWidth',1,'color','green')
 hold off
 ylabel('count','interpreter','latex')
 xlabel('NLR estimate','interpreter','latex')
@@ -166,8 +165,8 @@ set(gca,'YTickLabel',[]);
 xlabel('count','interpreter','latex')
 histogram(res_unif(:,7),ceil(sqrt(nreps)),'LineStyle','none','FaceColor','black','FaceAlpha',.6,BinLimits=[min_bin max_bin])
 hold on
-xline(avec(7),'LineWidth',1)
 histogram(res_nu(:,7),ceil(sqrt(nreps)),'LineStyle','none','FaceColor',[0 .44 1],'FaceAlpha',.6,BinLimits=[min_bin max_bin])
+xline(avec(7),'LineWidth',1,'color','green')
 title('$T_2$','Interpreter','latex')
 xlabel('NLR estimate','interpreter','latex')
 
@@ -181,6 +180,9 @@ plot(t,res(ss,1)+res(ss,2)*sin(2*pi*t/res(ss,6))+ ...
 res(ss,3)*cos(2*pi*t/res(ss,6))+res(ss,4)*sin(2*pi*t/res(ss,7))+ ...
 res(ss,5)*cos(2*pi*t/res(ss,7)),'color',[1 1 1]*.3)
 xlim([0 24])
+yticks([-1.5 1.5])
+xticks([0 12 24])
+ylim([-1.5 1.5])
 set(gca,'XTickLabel',[]);
 ylabel('$y(t)$','Interpreter','latex')
 
@@ -194,25 +196,41 @@ res(ss,3)*cos(2*pi*t/res(ss,6))+res(ss,4)*sin(2*pi*t/res(ss,7))+ ...
 res(ss,5)*cos(2*pi*t/res(ss,7)),'color',[0 .44 1]*.7 + .3*[1 1 1])
 hold off
 xlim([0 24])
-set(gca,'YTickLabel',[]);
 xticks([0 12 24])
 ylabel('$y(t)$','Interpreter','latex')
+yticks([-1.5 1.5])
+ylim([-1.5 1.5])
 xlabel('$t$','Interpreter','latex')
 
-% Second half do histograms
+plot_filename='nonlinear_regression_histogram_top'
+ht=2; % height
+wd=6; % width
+set(gcf,'PaperUnits','inches')
+set(gcf,'PaperPositionMode','manual','PaperSize',[wd,ht],'PaperPosition',[0 0 wd ht])
+print(gcf,plot_filename,'-dpng','-r600') % -r sets the resolution
+savefig(gcf,strcat(plot_filename,'.fig'))% save matlab .fig too
 
+%%
+% Second half do histograms
+tiledlayout(2,10,'TileSpacing','tight')
 for i=1:5
     min_bin =min(vertcat(res_unif(:,i),res_nu(:,i)));
     max_bin =max(vertcat(res_unif(:,i),res_nu(:,i)));
-    nexttile(20+1+2*(i-1),[2 2])
+    nexttile(1+2*(i-1),[2 2])
     histogram(res_unif(:,i),ceil(sqrt(nreps)),'LineStyle','none','FaceColor','black','FaceAlpha',.6,BinLimits=[min_bin max_bin])
     hold on
-    xline(avec(i),'LineWidth',1)
+    ylim([0 1000])
     histogram(res_nu(:,i),ceil(sqrt(nreps)),'LineStyle','none','FaceColor',[0 .44 1],'FaceAlpha',.6,BinLimits=[min_bin max_bin])
+    xline(avec(i),'LineWidth',1,'color','green')
+    if i>1
+        set(gca,'YTickLabel',[]);
+    end
 end
-nexttile(21)
+
+
+nexttile(1)
 ylabel('count')
-nexttile(20+1+2*(3-1))
+nexttile(1+2*(3-1))
 
 xlabel('non-linear regression estimate','interpreter','latex')
 legend({'uniform','non-uniform','true value'},'Location','southoutside','NumColumns',3)
@@ -221,8 +239,8 @@ legend({'uniform','non-uniform','true value'},'Location','southoutside','NumColu
 
 
 %%
-plot_filename='nonlinear_regression_histogram'
-ht=4; % height
+plot_filename='nonlinear_regression_histogram_bottom'
+ht=2; % height
 wd=6; % width
 set(gcf,'PaperUnits','inches')
 set(gcf,'PaperPositionMode','manual','PaperSize',[wd,ht],'PaperPosition',[0 0 wd ht])
