@@ -119,16 +119,16 @@ savefig(gcf,strcat(plot_filename,'.fig'))% save matlab .fig too
 % ss=randsample(1:numel(nreps),1);
 % tiledlayout(2,1)
 % nexttile
-% nonlinfit(zts_unif, Xdat_unif(ss,:));
+% nonlinfit(zts_unif, Xdat_unif(ss,:), 12, 5);
 % nexttile
-% nonlinfit(zts_nu, Xdat_nu(ss,:));
+% nonlinfit(zts_nu, Xdat_nu(ss,:), 12, 5);
 
 res_nu=cell(nreps,1);
 res_unif=cell(nreps,1);
 tic
 parfor ii=1:nreps
-    res_nu{ii}=nonlinfit(zts_nu, Xdat_nu(ii,:));
-    res_unif{ii}=nonlinfit(zts_unif, Xdat_unif(ii,:));
+    res_nu{ii}=nonlinfit(zts_nu, Xdat_nu(ii,:), 12, 5);
+    res_unif{ii}=nonlinfit(zts_unif, Xdat_unif(ii,:), 12, 5);
 end
 toc
 

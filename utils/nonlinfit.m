@@ -1,4 +1,4 @@
-function [fitresult, gof] = nonlinfit(zts, Xdat)
+function [fitresult, gof] = nonlinfit(zts, Xdat, per1guess, per2guess)
 %CREATEFIT(ZTS_UNIF,XDAT_UNIF_EXAMPLE)
 %  Create a fit.
 %
@@ -23,9 +23,10 @@ opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
 opts.Algorithm = 'Trust-Region';
 opts.Display = 'Off';
 opts.Lower = [0 0 0 0 0 1 1];
-opts.StartPoint = [0 0 0 0 0 12 5];
+opts.StartPoint = [0 0 0 0 0  per1guess per2guess];
 opts.Upper = [Inf Inf Inf Inf Inf 24 24];
-
+opts.TolFun=1e-3;
+opts.TolX=1e-3;
 % Fit model to data.
 [fitresult, gof] = fit( xData, yData, ft, opts );
 
