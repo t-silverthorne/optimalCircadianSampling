@@ -5,12 +5,11 @@ set(groot,'defaultAxesTickLabelInterpreter','latex');
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
-<<<<<<< HEAD
 method=2; % method that gave actual difference
 Nleft=10;
 Nright=4;
 for outer_index=1:5
-	display(outer_index)
+	disp(outer_index)
     switch method
         case 1
             Ntimes=14; 
