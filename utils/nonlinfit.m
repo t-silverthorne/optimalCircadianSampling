@@ -25,8 +25,8 @@ opts.Display = 'Off';
 opts.Lower = [0 0 0 0 0 1 1];
 opts.StartPoint = [0 0 0 0 0  per1guess per2guess];
 opts.Upper = [Inf Inf Inf Inf Inf 24 24];
-%opts.TolFun=1e-3;
-%opts.TolX=1e-3;
+opts.TolFun=1e-2;
+opts.TolX=1e-2;
 
 % Fit model to data.
 [fitresult, gof] = fit( xData, yData, ft, opts );

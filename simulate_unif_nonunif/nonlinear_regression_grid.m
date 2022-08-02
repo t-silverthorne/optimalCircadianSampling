@@ -5,7 +5,7 @@ set(groot,'defaultAxesTickLabelInterpreter','latex');
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
-method=2; % method that gave actual difference
+method=3; % method that gave actual difference
 Nleft=10;
 for outer_index=1:5
     Nright=4;
@@ -39,7 +39,7 @@ for outer_index=1:5
             Nsamples=1; % number of samples at each time point
             nreps=1e2;  % number of times to repeat experiment
         % better setup for looping over indices
-        case 2 || 3
+        case {2,3} 
             Nleft=Nleft+2;
             Nright=Nright+2;
             Ntimes=Nleft+Nright;
@@ -78,13 +78,13 @@ for outer_index=1:5
     gof_nu=cell(nreps,1);
     gof_unif=cell(nreps,1);
     
-    clf
-    scatter(zts_unif,Xdat_unif(1,:))
-    hold on
-    scatter(zts_nu,Xdat_nu(1,:))
-    zts=0:.01:24;
-    plot(zts,a0+a1*sin(2*pi*zts/per1)+a2*cos(2*pi*zts/per1) + a3*sin(2*pi*zts/per2)+a4*cos(2*pi*zts/per2))
-    hold off
+%     clf
+%     scatter(zts_unif,Xdat_unif(1,:))
+%     hold on
+%     scatter(zts_nu,Xdat_nu(1,:))
+%     zts=0:.01:24;
+%     plot(zts,a0+a1*sin(2*pi*zts/per1)+a2*cos(2*pi*zts/per1) + a3*sin(2*pi*zts/per2)+a4*cos(2*pi*zts/per2))
+%     hold off
     
     Xdat_unif=parallel.pool.Constant(Xdat_unif);
     Xdat_nu=parallel.pool.Constant(Xdat_nu);
