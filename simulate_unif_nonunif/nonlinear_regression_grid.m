@@ -5,6 +5,7 @@ set(groot,'defaultAxesTickLabelInterpreter','latex');
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
+<<<<<<< HEAD
 method=2; % method that gave actual difference
 Nleft=10;
 Nright=4;
@@ -37,7 +38,8 @@ for outer_index=1:5
             % sampling options
             Nsamples=1; % number of samples at each time point
             nreps=1e2;  % number of times to repeat experiment
-        case 2
+        % better setup for looping over indices
+        case {2,3} 
             Nleft=Nleft+2;
             Nright=Nright+2;
             Ntimes=Nleft+Nright;
@@ -76,25 +78,38 @@ for outer_index=1:5
     gof_nu=cell(nreps,1);
     gof_unif=cell(nreps,1);
     
-    clf
-    scatter(zts_unif,Xdat_unif(1,:))
-    hold on
-    scatter(zts_nu,Xdat_nu(1,:))
-    zts=0:.01:24;
-    plot(zts,a0+a1*sin(2*pi*zts/per1)+a2*cos(2*pi*zts/per1) + a3*sin(2*pi*zts/per2)+a4*cos(2*pi*zts/per2))
-    hold off
+%     clf
+%     scatter(zts_unif,Xdat_unif(1,:))
+%     hold on
+%     scatter(zts_nu,Xdat_nu(1,:))
+%     zts=0:.01:24;
+%     plot(zts,a0+a1*sin(2*pi*zts/per1)+a2*cos(2*pi*zts/per1) + a3*sin(2*pi*zts/per2)+a4*cos(2*pi*zts/per2))
+%     hold off
     
     Xdat_unif=parallel.pool.Constant(Xdat_unif);
     Xdat_nu=parallel.pool.Constant(Xdat_nu);
     
-    tic
-    parfor ii=1:nreps
-        [res_nu{ii},gof_nu{ii}]=nonlinfit_grid(zts_nu, Xdat_nu.Value(ii,:));
-        [res_unif{ii},gof_unif{ii}]=nonlinfit_grid(zts_unif, Xdat_unif.Value(ii,:));
-    end
-    toc
     
-    %%
+    switch method
+        case {1,2}
+            tic
+            parfor ii=1:nreps
+                [res_nu{ii},gof_nu{ii}]=nonlinfit_grid(zts_nu, Xdat_nu.Value(ii,:));
+                [res_unif{ii},gof_unif{ii}]=nonlinfit_grid(zts_unif, Xdat_unif.Value(ii,:));
+            end
+            toc
+        case 3
+            % run first sample and generate an initial guess at period
+            [res_nu{1},gof_nu{1},per1_init_nu,per2_init_nu]=nonlinfit_grid(zts_nu, Xdat_nu.Value(1,:));
+            [res_unif{1},gof_unif{1},per1_init_unif,per2_init_unif]=nonlinfit_grid(zts_unif, Xdat_unif.Value(1,:));
+
+            % reuse initial period guess
+            parfor ii=2:nreps
+                [res_nu{ii},gof_nu{ii}]=nonlinfit(zts_nu, Xdat_nu.Value(ii,:),per1_init_nu,per2_init_nu);
+                [res_unif{ii},gof_unif{ii}]=nonlinfit(zts_unif, Xdat_unif.Value(ii,:),per1_init_unif,per2_init_unif);
+            end
+            
+    end
     switch method
         case 1
             save(strcat( ...
