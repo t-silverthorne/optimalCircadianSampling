@@ -1,4 +1,4 @@
-function [best_fitresult,best_gof] = nonlinfit_grid(zts, Xdat)
+function [best_fitresult,best_gof,ii_best,jj_best] = nonlinfit_grid(zts, Xdat)
 pergrid=1:1:24;
 
 best_fitresult=NaN;
@@ -7,9 +7,13 @@ for ii=pergrid
     for jj=ii+1:24
         [fitresult,gof]=nonlinfit(zts, Xdat, ii, jj);
         if ii==1 && jj==2
+            ii_best=ii;
+            jj_best=jj;
             best_fitresult=fitresult;
             best_gof=gof;
         elseif gof.adjrsquare > best_gof.adjrsquare
+            ii_best=ii;
+            jj_best=jj;
             best_fitresult=fitresult;
             best_gof=gof;
         end
