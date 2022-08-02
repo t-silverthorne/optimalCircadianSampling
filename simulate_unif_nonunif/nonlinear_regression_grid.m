@@ -5,14 +5,13 @@ set(groot,'defaultAxesTickLabelInterpreter','latex');
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
-method=3; % method that gave actual difference
+method=2; % method that gave actual difference
 Nleft=10;
 Nright=4;
 for outer_index=1:5
+	disp(outer_index)
     switch method
-        % instance where there was performance difference
-        % had nreps low so this should be checked more carefully
-        case 1 
+        case 1
             Ntimes=14; 
             frq1=1;  % samples per hour in first region
             frq2=.3; % sph in second region
@@ -89,6 +88,7 @@ for outer_index=1:5
     Xdat_unif=parallel.pool.Constant(Xdat_unif);
     Xdat_nu=parallel.pool.Constant(Xdat_nu);
     
+    
     switch method
         case {1,2}
             tic
@@ -109,7 +109,6 @@ for outer_index=1:5
             end
             
     end
-    %%
     switch method
         case 1
             save(strcat( ...
