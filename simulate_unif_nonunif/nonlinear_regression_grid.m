@@ -7,8 +7,8 @@ set(groot,'defaultLegendInterpreter','latex');
 
 method=3; % method that gave actual difference
 Nleft=10;
+Nright=4;
 for outer_index=1:5
-    Nright=4;
     switch method
         % instance where there was performance difference
         % had nreps low so this should be checked more carefully
@@ -90,7 +90,7 @@ for outer_index=1:5
     Xdat_nu=parallel.pool.Constant(Xdat_nu);
     
     switch method
-        case 1 || 2
+        case {1,2}
             tic
             parfor ii=1:nreps
                 [res_nu{ii},gof_nu{ii}]=nonlinfit_grid(zts_nu, Xdat_nu.Value(ii,:));
@@ -125,9 +125,9 @@ for outer_index=1:5
             num2str(per2), ...
             '_Ntimes_',...
             num2str(Ntimes)))
-        case 2
+        case {2,3}
             save(strcat( ...
-            'method_', ...
+            'hightol_method_', ...
             num2str(method),...
             '_Nsamp_',...
             num2str(Nsamples),... 
