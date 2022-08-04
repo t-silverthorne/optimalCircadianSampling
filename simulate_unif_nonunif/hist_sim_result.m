@@ -1,5 +1,5 @@
 clear
-close all
+clf
 
 set(groot,'defaultAxesTickLabelInterpreter','latex');  
 set(groot,'defaulttextinterpreter','latex');
@@ -11,12 +11,17 @@ other_options='';
 mkplots(plot_option,other_options)
 plot_option='sse';
 mkplots(plot_option,other_options)
+
+lg=legend({'uniform','non-uniform'},'NumColumns',2)
+lg.Layout.Tile='South'
+%%
+
 %%
 set(findall(gcf,'-property','FontSize'),'FontSize',10)
 
 plot_filename='figures/hist_sim_result'
 % save
-ht=3.5; % height
+ht=3.8; % height
 wd=6; % width
 set(gcf,'PaperUnits','inches')
 set(gcf,'PaperPositionMode','manual','PaperSize',[wd,ht],'PaperPosition',[0 0 wd ht])
@@ -26,10 +31,10 @@ savefig(gcf,strcat(plot_filename,'.fig'))% save matlab .fig too
 
 
 function mkplots(plot_option,other_options)
-fname_list={'method_2_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_12_Nright_6.mat', ...
-        'method_2_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_14_Nright_8.mat', ...
-        'method_2_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_16_Nright_10.mat', ...
-        'method_2_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_18_Nright_12.mat'};
+fname_list={'hightol_method_2_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_12_Nright_6.mat', ...
+        'hightol_method_2_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_14_Nright_8.mat', ...
+        'hightol_method_2_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_16_Nright_10.mat', ...
+        'hightol_method_2_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_18_Nright_12.mat'};
 for ii=1:4
     nexttile
     X=open(fname_list{ii});
@@ -70,7 +75,7 @@ for ii=1:4
             if ii==1
                 ylabel('count')
             end
-            ylim([0 150])
+            ylim([0 200])
             xlim([0 0.5])
             xticks([0 0.2 0.4])
             if ii>1
@@ -83,7 +88,7 @@ for ii=1:4
             histogram(per_nu_min,floor(sqrt(X.nreps)),'BinLimits', ...
                 [0 4.3])
             if ii==1
-                legend({'unif','nu'},'location','north')
+                
                 ylabel('count')
             end
             hold off
@@ -118,4 +123,5 @@ for ii=1:4
     end
 
 end
+
 end

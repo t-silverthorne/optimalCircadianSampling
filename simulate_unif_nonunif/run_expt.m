@@ -74,9 +74,9 @@ for i=1:size(results_unif,1)
     min_bin =min(horzcat(results_unif(i,:),results_nu(i,:)));
     max_bin =max(horzcat(results_unif(i,:),results_nu(i,:)));
     nexttile([1 2])
-    histogram(results_unif(i,:),ceil(sqrt(nreps)),'LineStyle','none','FaceColor','black','FaceAlpha',.6,BinLimits=[min_bin max_bin])
+    histogram(results_unif(i,:),ceil(sqrt(nreps)),'LineStyle','none',BinLimits=[min_bin max_bin])
     hold on
-    histogram(results_nu(i,:),ceil(sqrt(nreps)),'LineStyle','none','FaceColor',[0 .44 1],'FaceAlpha',.6,BinLimits=[min_bin max_bin])
+    histogram(results_nu(i,:),ceil(sqrt(nreps)),'LineStyle','none',BinLimits=[min_bin max_bin])
     xline(avec(i),'-k','LineWidth',1,'Alpha',1,'Color','black')
     ylim([0 120])
 end
@@ -148,37 +148,38 @@ tiledlayout(2,10,'TileSpacing','tight','Padding','tight')
 nexttile(1,[2 3])
 min_bin =min(vertcat(res_unif(:,6),res_nu(:,6)));
 max_bin =max(vertcat(res_unif(:,6),res_nu(:,6)));
-histogram(res_unif(:,6),ceil(sqrt(nreps)),'LineStyle','none','FaceColor','black','FaceAlpha',.6,BinLimits=[min_bin max_bin])
+histogram(res_unif(:,6),ceil(sqrt(nreps)),'LineStyle','none',BinLimits=[min_bin max_bin])
 hold on
-histogram(res_nu(:,6),ceil(sqrt(nreps)),'LineStyle','none','FaceColor',[0 .44 1],'FaceAlpha',.6,BinLimits=[min_bin max_bin])
-xline(avec(6),'LineWidth',1,'color','green')
+histogram(res_nu(:,6),ceil(sqrt(nreps)),'LineStyle','none',BinLimits=[min_bin max_bin])
+xline(avec(6),'LineWidth',1,'color','black')
 hold off
 ylabel('count','interpreter','latex')
 xlabel('NLR estimate','interpreter','latex')
+xlim([0 24])
 title('$T_1$','Interpreter','latex')
 
 nexttile(4,[2 3])
 min_bin =min(vertcat(res_unif(:,6),res_nu(:,7)));
 max_bin =max(vertcat(res_unif(:,6),res_nu(:,7)));
-
 set(gca,'YTickLabel',[]);
 xlabel('count','interpreter','latex')
-histogram(res_unif(:,7),ceil(sqrt(nreps)),'LineStyle','none','FaceColor','black','FaceAlpha',.6,BinLimits=[min_bin max_bin])
+histogram(res_unif(:,7),ceil(sqrt(nreps)),'LineStyle','none',BinLimits=[min_bin max_bin])
 hold on
-histogram(res_nu(:,7),ceil(sqrt(nreps)),'LineStyle','none','FaceColor',[0 .44 1],'FaceAlpha',.6,BinLimits=[min_bin max_bin])
-xline(avec(7),'LineWidth',1,'color','green')
+histogram(res_nu(:,7),ceil(sqrt(nreps)),'LineStyle','none',BinLimits=[min_bin max_bin])
+xlim([0 24])
+xline(avec(7),'LineWidth',1,'color','black')
 title('$T_2$','Interpreter','latex')
 xlabel('NLR estimate','interpreter','latex')
 
 nexttile(7,[1 4])
 t=0:.01:24;
 ss=randsample(1:numel(nreps),1);
-plot(zts_unif,Xdat_unif(ss,:),'.k','color',[1 1 1]*.3)
+plot(zts_unif,Xdat_unif(ss,:),'.k','color',[0 0.4470 0.7410])
 hold on
 res=res_unif;
 plot(t,res(ss,1)+res(ss,2)*sin(2*pi*t/res(ss,6))+ ...
 res(ss,3)*cos(2*pi*t/res(ss,6))+res(ss,4)*sin(2*pi*t/res(ss,7))+ ...
-res(ss,5)*cos(2*pi*t/res(ss,7)),'color',[1 1 1]*.3)
+res(ss,5)*cos(2*pi*t/res(ss,7)),'color',[0 0.4470 0.7410])
 xlim([0 24])
 yticks([-1.5 1.5])
 xticks([0 12 24])
@@ -188,12 +189,12 @@ ylabel('$y(t)$','Interpreter','latex')
 
 hold off
 nexttile(17,[1 4])
-plot(zts_nu,Xdat_nu(ss,:),'.r','color',[0 .44 1]*.7 + .3*[1 1 1])
+plot(zts_nu,Xdat_nu(ss,:),'.r','color',[0.8500 0.3250 0.0980])
 hold on
 res=res_nu;
 plot(t,res(ss,1)+res(ss,2)*sin(2*pi*t/res(ss,6))+ ...
 res(ss,3)*cos(2*pi*t/res(ss,6))+res(ss,4)*sin(2*pi*t/res(ss,7))+ ...
-res(ss,5)*cos(2*pi*t/res(ss,7)),'color',[0 .44 1]*.7 + .3*[1 1 1])
+res(ss,5)*cos(2*pi*t/res(ss,7)),'color',[0.8500 0.3250 0.0980])
 hold off
 xlim([0 24])
 xticks([0 12 24])
