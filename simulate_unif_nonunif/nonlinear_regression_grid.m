@@ -5,10 +5,14 @@ set(groot,'defaultAxesTickLabelInterpreter','latex');
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
+warning('off','MATLAB:nearlySingularMatrix')
+pctRunOnAll warning off
+
 method=2; % method that gave actual difference
-Nleft=10;
-Nright=4;
-for outer_index=1:5
+Nleft=8;
+Nright=2;
+regularize=true;
+for outer_index=1:4
 	disp(outer_index)
     switch method
         case 1
@@ -93,8 +97,8 @@ for outer_index=1:5
         case {1,2}
             tic
             parfor ii=1:nreps
-                [res_nu{ii},gof_nu{ii}]=nonlinfit_grid(zts_nu, Xdat_nu.Value(ii,:));
-                [res_unif{ii},gof_unif{ii}]=nonlinfit_grid(zts_unif, Xdat_unif.Value(ii,:));
+                [res_nu{ii},gof_nu{ii}]=nonlinfit_grid_fast(zts_nu, Xdat_nu.Value(ii,:),regularize);
+                [res_unif{ii},gof_unif{ii}]=nonlinfit_grid_fast(zts_unif, Xdat_unif.Value(ii,:),regularize);
             end
             toc
         case 3
@@ -128,6 +132,8 @@ for outer_index=1:5
             save(strcat( ...
             'hightol_method_', ...
             num2str(method),...
+            '_regularize_',...
+            num2str(regularize),...
             '_Nsamp_',...
             num2str(Nsamples),... 
             '_nreps_',...
@@ -142,3 +148,5 @@ for outer_index=1:5
             num2str(Nright)))
     end
 end
+warning('on','MATLAB:nearlySingularMatrix')
+pctRunOnAll warning on

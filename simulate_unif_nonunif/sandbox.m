@@ -25,8 +25,8 @@ mt_unif=mt_unif(1:end-1);
 Nsamples=1; % number of samples at each time point
 nreps=1e3;  % number of times to repeat experiment
 
-per1=16;
-per2=5;
+per1=2s;
+per2=12;
 zts_unif = repmat(mt_unif,1,Nsamples);
 zts_nu   = repmat(mt_nu,1,Nsamples);
 a0=0; a1=0; a2=.5; a3=.25; a4=.25;
@@ -41,7 +41,7 @@ Xdat_unif=get_Xdat(zts_unif); % sample on uniform grid
 Xdat_nu=get_Xdat(zts_nu); % sample on non-uniform grid
 
 tic
-nonlinfit_grid_fast(zts_unif, Xdat_unif(10,:))
+nonlinfit_grid_fast(zts_nu, Xdat_nu(10,:),'false')
 toc
 %%
 
