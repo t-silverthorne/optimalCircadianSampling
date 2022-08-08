@@ -1,7 +1,7 @@
 % ignore problem structure, just do naive approach to minimize -det(M)
 addpath('../utils')
 clear
-N=8; % number of sampling points
+N=3; % number of sampling points
 w=rand(1,N);
 w=w/sum(w);
 options=optimoptions('simulannealbnd','PlotFcns',{'saplotf','saplotbestf'}, ...
@@ -10,7 +10,7 @@ simulannealbnd( @(x) sa_info_matrix_cost_fun([x(1:N) x((N+1):end)/sum(x((N+1):en
     rand(1,2*N),zeros(1,2*N),[ones(1,N) ones(1,N)],options)
 %%
 
-theta_unif=linspace(0,1,N+1)';
+theta_unif=linspace(0,1,6+1)';
 theta_unif=theta_unif(1:end-1);
 w_vec_unif=ones(numel(theta_unif),1)/numel(theta_unif);
 -log(det(get_memory_info_matrix(theta_unif,w_vec_unif,'exp')))

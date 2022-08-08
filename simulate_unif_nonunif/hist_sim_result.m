@@ -32,10 +32,10 @@ savefig(gcf,strcat(plot_filename,'.fig'))% save matlab .fig too
 
 function mkplots(plot_option,other_options)
 fname_list={...
-        'hightol_method_2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_10_Nright_4.mat', ...
-        'hightol_method_2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_12_Nright_6.mat', ...
-        'hightol_method_2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_14_Nright_8.mat', ...
-        'hightol_method_2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_16_Nright_10.mat'};
+        'final_method2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_10_Nright_4.mat', ...
+        'final_method2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_12_Nright_6.mat', ...
+        'final_method2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_14_Nright_8.mat', ...
+        'final_method2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_16_Nright_10.mat'};
 for ii=1:4
     nexttile
     X=open(fname_list{ii});
@@ -101,13 +101,13 @@ for ii=1:4
             end
             xlabel('$\textrm{min}(\hat{T}_1,\hat{T}_2)$')
             if ii==1
-                title('($N_L=12$, $N_R=6$)')
+                title('($N_L=10$, $N_R=4$)')
             elseif ii==2
-                title('($N_L=14$, $N_R=8$)')
+                title('($N_L=12$, $N_R=6$)')
             elseif ii==3
-                title('($N_L=16$, $N_R=10$)')
+                title('($N_L=14$, $N_R=8$)')
             elseif ii==4
-                title('($N_L=18$, $N_R=12$)')
+                title('($N_L=16$, $N_R=10$)')
             end
             
         case 'permax'

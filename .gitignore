@@ -47,4 +47,8 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+*.fig
+*.png
 
+*.asv
+*.mat

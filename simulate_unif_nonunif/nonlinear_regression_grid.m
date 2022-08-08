@@ -8,7 +8,7 @@ set(groot,'defaultLegendInterpreter','latex');
 warning('off','MATLAB:nearlySingularMatrix')
 pctRunOnAll warning off
 
-method=2; % method that gave actual difference
+method=2; % method that gave performance_difference
 Nleft=8;
 Nright=2;
 regularize=true;
@@ -66,7 +66,7 @@ for outer_index=1:4
     zts_unif = repmat(mt_unif,1,Nsamples);
     zts_nu   = repmat(mt_nu,1,Nsamples);
     a0=0; a1=0; a2=.5; a3=.25; a4=.25;
-    sig=.1; % noise level
+    sig=0.1; % noise level
     
     avec=[a0 a1 a2 a3 a4 per1 per2]; % for plotting
     
@@ -76,6 +76,19 @@ for outer_index=1:4
     Xdat_unif=get_Xdat(zts_unif); % sample on uniform grid
     Xdat_nu=get_Xdat(zts_nu); % sample on non-uniform grid
     
+
+     
+%     param.beta0=a0;
+%     param.beta1=a1;
+%     param.beta2=a2;
+%     param.beta3=a3;
+%     param.beta4=a4;
+%     param.T1=per1/24;
+%     param.T2=per2/24;
+%     log(det(get_FIM_biharmonic_nonlin(mt_nu',ones(numel(mt_nu),1)/numel(mt_nu),param)))
+     
+
+
     res_nu=cell(nreps,1);
     res_unif=cell(nreps,1);
     gof_nu=cell(nreps,1);
@@ -130,7 +143,7 @@ for outer_index=1:4
             num2str(Ntimes)))
         case {2,3}
             save(strcat( ...
-            'hightol_method_', ...
+            'final_method', ...
             num2str(method),...
             '_regularize_',...
             num2str(regularize),...

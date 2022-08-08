@@ -24,12 +24,12 @@ hold off
 set(gca,'XTickLabel',[]);
 
 nexttile(2)
-plot(h1.XData,h1.YData,'.k')    
+h=plot(h1.XData,h1.YData,'.k','DisplayName','simulated annealing')    
 xlabel('iteration')
 ylabel('best $\Psi(\xi)$')
-ll=yline(2.4090,'--k','Color',[0 0.4470 0.7410],'LineWidth',1.3,'DisplayName','$M(\xi^N_{\mathrm{unif}}$)')
+ll=yline(2.2197,'--k','Color',[0 0.4470 0.7410],'LineWidth',1.3,'DisplayName','best uniform design')
 xlim([0 1000])
-legend(ll,'location','northeast','Interpreter','latex')
+legend('location','northeast','Interpreter','latex')
 
 plot_filename='simulated_annealing_best'
 ht=3; % height
