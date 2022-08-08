@@ -1,6 +1,10 @@
+addpath('../utils/')
 a0=0; a1=0; a2=.5; a3=.25; a4=.25;
 per1=12;
 per2=4;
+% a0=rand; a1=rand; a2=rand; a3=rand; a4=rand;
+% per1=rand*1;
+% per2=rand*10;
 param.beta0=a0;
 param.beta1=a1;
 param.beta2=a2;
@@ -11,9 +15,10 @@ param.T2=per2/24;
 
 Nleft=8;
 Nright=2;
-
-fprintf('\n')
-for outer_index=1:12
+tic
+method='lin'% nonlin or lin
+fprintf(strcat('\n ',method))
+for outer_index=1:102
 
     Nleft=Nleft+2;
     Nright=Nright+2;
@@ -31,11 +36,18 @@ for outer_index=1:12
     
     mt_nu=mt_nu/24;
     mt_unif=mt_unif/24;
-    Cnu=log(det(get_FIM_biharmonic_nonlin(mt_nu',ones(numel(mt_nu),1)/numel(mt_nu),param)));
-    Cunif=log(det(get_FIM_biharmonic_nonlin(mt_unif',ones(numel(mt_unif),1)/numel(mt_unif),param)));
-    fprintf('Iteration: %d  Psival unif: %f Psival nu %f\n',outer_index,Cunif,Cnu)
-end
+    switch method
+        case 'nonlin'
+            Cnu=log(det(get_FIM_biharmonic_nonlin(mt_nu',ones(numel(mt_nu),1)/numel(mt_nu),param)));
+            Cunif=log(det(get_FIM_biharmonic_nonlin(mt_unif',ones(numel(mt_unif),1)/numel(mt_unif),param)));
+        case 'lin'
+            Cnu=log(det(get_info_matrix_k(mt_nu',ones(numel(mt_nu),1)/numel(mt_nu),2)));
+            Cunif=log(det(get_info_matrix_k(mt_unif',ones(numel(mt_unif),1)/numel(mt_unif),2)));
+    end
 
+    fprintf('NL: %d  NR: %d  Psival unif: %f Psival nu %f\n',Nleft,Nright,Cunif,Cnu)
+end
+toc
 %%
 
 %example: uniform is not optimal
