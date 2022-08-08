@@ -31,9 +31,9 @@ mt_unif=mt_unif(1:end-1);
 clf
 tiledlayout(1,1,'TileSpacing','none')
 nexttile
-scatter(mt_unif,0,'.k')
+scatter(mt_unif,1,'.k')
 hold on
-scatter(mt_nu,1,'.k')
+scatter(mt_nu,0,'.k')
 ylim([-0.5 1.5])
 xlim([0 24])
 xticks([0 6 12 18 24])
