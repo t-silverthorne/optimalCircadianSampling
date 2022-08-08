@@ -3,6 +3,10 @@ set(groot,'defaultAxesTickLabelInterpreter','latex');
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
+
+orange=[0.8500 0.3250 0.0980];
+blue=[0 0.4470 0.7410];
+
 % non-uniform grid
 Ntimes=31; % Ideal number of samples
 frq1=2; % samples per hour in first region
@@ -31,16 +35,16 @@ mt_unif=mt_unif(1:end-1);
 clf
 tiledlayout(1,1,'TileSpacing','none')
 nexttile
-scatter(mt_unif,1,'.k')
+scatter(mt_unif,1,'.k','MarkerFaceColor',blue,'MarkerEdgeColor',blue)
 hold on
-scatter(mt_nu,0,'.k')
+scatter(mt_nu,0,'.k','MarkerFaceColor',orange,'MarkerEdgeColor',orange)
 ylim([-0.5 1.5])
 xlim([0 24])
 xticks([0 6 12 18 24])
 xline(12,'--k')
 xlabel('hours')
 yticks([0 1])
-yticklabels({'uniform','non-uniform'})
+yticklabels({'non-uniform','uniform'})
 
 plot_filename='samplegrid_fig'
 ht=1.5; % height

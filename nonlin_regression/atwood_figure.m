@@ -16,9 +16,9 @@ param.T2=per2/24;
 Nleft=8;
 Nright=2;
 tic
-method='lin'% nonlin or lin
-fprintf(strcat('\n ',method))
-for outer_index=1:102
+method='nonlin'% nonlin or lin
+fprintf(strcat('\n ',method,'\n'))
+for outer_index=1:10
 
     Nleft=Nleft+2;
     Nright=Nright+2;
