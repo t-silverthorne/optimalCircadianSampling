@@ -199,9 +199,9 @@ H2=0;
 for ii=1:numel(theta_vec)
     jj=find(theta_vec_star<theta_vec(ii),1,'last');
     ss_star=sigma0*(1+ gamma0*sum(w_vec_star(1:jj).*alpha(theta_vec_star(jj),theta_vec_star(1:jj))));
-    ss=sigma0*(gamma0*sum(w_vec(1:ii-1).*alpha(theta_vec(ii),theta_vec(1:ii-1))));
+    ss_minus_1=sigma0*(gamma0*sum(w_vec(1:ii-1).*alpha(theta_vec(ii),theta_vec(1:ii-1))));
     
-    H2=H2+w_vec(ii)*f(theta_vec(ii))'*f(theta_vec(ii))*ss^3/ss_star^3;
+    H2=H2+w_vec(ii)*f(theta_vec(ii))'*f(theta_vec(ii))*ss_minus_1/ss_star^3;
 end
 end
 
