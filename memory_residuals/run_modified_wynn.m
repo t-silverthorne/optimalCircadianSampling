@@ -1,3 +1,6 @@
+% compare Wynn's method and modified Wynn's method when residuals have
+% memory
+
 % tv1=sort(rand(d*2,1));
 % tv2=sort(rand(d,1));
 % wv1=ones(d*2,1)/numel(tv1);

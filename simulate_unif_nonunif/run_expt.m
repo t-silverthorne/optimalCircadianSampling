@@ -1,3 +1,5 @@
+% old code, used for figures at very beginning of report
+
 clf
 clear
 addpath('../utils/')

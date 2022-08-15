@@ -1,3 +1,6 @@
+% plot results of simulated annealing and format to be consistent with
+% other figures in the report
+
 close all
 f=openfig('SA_good_run_1000.fig')
 

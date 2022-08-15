@@ -1,3 +1,5 @@
+% generates the table at the end of the report
+
 addpath('../utils/')
 a0=0; a1=0; a2=.5; a3=.25; a4=.25;
 per1=12;

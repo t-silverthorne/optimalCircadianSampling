@@ -1,3 +1,5 @@
+% compute the gradient vector needed for the nonlinear Fisher information
+% matrix
 clear all
 syms beta0 beta1 beta2 beta3 beta4
 syms T1 T2

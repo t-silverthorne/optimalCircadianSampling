@@ -1,4 +1,6 @@
 function [best_fitresult,best_gof,ii_best,jj_best]  = nonlinfit_grid_fast(zts, Y, regularize)
+% use linear regression to determine a good initial guess of the
+% parameters, and then run nonlinear regression with this initial guess
 dp=1;
 pergrid=2:dp:24;
 

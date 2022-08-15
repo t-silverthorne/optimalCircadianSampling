@@ -1,3 +1,5 @@
+% old code, use the implementation in the linearRegressionCircadian/clean/ directory
+
 %% First order iteration, no deletion $\alpha_s = (s+1)^{-1}
 clear all
 clf

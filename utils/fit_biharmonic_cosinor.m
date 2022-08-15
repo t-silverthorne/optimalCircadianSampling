@@ -1,10 +1,15 @@
 function betas = fit_biharmonic_cosinor(Y,zts,per1,per2)
+% include two frequencies in cosinor model and calculate best fit
+%
 % inputs:
 % Y = time-series data, each columns correspond to measurement times 
 %       and rows correspond to independent samples
 % zts = measurement times (must be same length as size(Y,1)
 % per1 = first period of harmonic regression model
 % per2 = second period of harmonic regression model
+%
+% outputs:
+% betas = regression coefficients
 
 x1=sin(2*pi*zts/per1);
 x2=cos(2*pi*zts/per1);

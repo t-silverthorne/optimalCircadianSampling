@@ -1,3 +1,5 @@
+% compare results of nonlinear regression with multistart
+
 clear
 clf
 

@@ -1,4 +1,5 @@
 % ignore problem structure, just do naive approach to minimize -det(M)
+% using simulated annealing
 addpath('../utils')
 clear
 N=3; % number of sampling points

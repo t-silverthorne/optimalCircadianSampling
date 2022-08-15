@@ -1,4 +1,5 @@
-% 
+% alternate between simulation and optimization steps for the nonlinear
+% problem
 clear
 clf
 orange=[0.8500 0.3250 0.0980];

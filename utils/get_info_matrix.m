@@ -1,5 +1,5 @@
 function M = get_info_matrix(theta_vec,w_vec)
-% TODO: check normalization
+% Information matrix for one-frequency harmonic regression
 syms theta
 assume(theta,'real')
 x=@(theta) [1 cos(2*pi*theta) sin(2*pi*theta)];

@@ -1,9 +1,12 @@
 function [theta_vec,Psi_w_unif]=run_atwood_nonlinear(param,niter,n0,testing)
+% run Atwood's method for finding D-optimal design with bounded support
 param.T1=param.T1/24;
 param.T2=param.T2/24;
 orange=[0.8500 0.3250 0.0980];
 blue=[0 0.4470 0.7410];
 
+% the first few iterations give singular matrices, they don't matter in the end
+% so it is okay to turn off this error, it is switched back on at the end
 warning('off','MATLAB:nearlySingularMatrix')
 if nargin<2
     niter=100;

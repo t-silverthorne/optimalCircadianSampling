@@ -1,3 +1,5 @@
+% old code, use the implementation in the linearRegressionCircadian/clean/ directory
+
 %% First order iteration, no deletion $\alpha_s = (s+1)^{-1}
 mu=@(theta) [1 cos(2*pi*theta) sin(2*pi*theta)]'*[1 cos(2*pi*theta) sin(2*pi*theta)];
 psi=@(theta,theta_vec,w_vec) trace(mu(theta)*get_info_matrix(theta_vec,w_vec));

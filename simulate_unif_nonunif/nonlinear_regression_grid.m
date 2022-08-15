@@ -1,3 +1,5 @@
+% run nonlinear regression with different initial guesses
+
 clf
 clear
 addpath('../utils/')
@@ -11,7 +13,7 @@ pctRunOnAll warning off
 method=2; % method that gave performance_difference
 Nleft=8;
 Nright=2;
-regularize=true;
+regularize=true; % only consider periods greater than 2hrs (otherwise aliasing occurs)
 for outer_index=1:4
 	disp(outer_index)
     switch method

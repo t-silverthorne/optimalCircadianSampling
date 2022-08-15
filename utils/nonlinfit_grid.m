@@ -1,4 +1,6 @@
 function [best_fitresult,best_gof,ii_best,jj_best] = nonlinfit_grid(zts, Xdat)
+% nonlinear regression with multiple initial guesses of the periods
+% NOTE: this is orders of magnitude slower than nonlinfit_grid_fast.m
 pergrid=1:1:24;
 
 best_fitresult=NaN;
