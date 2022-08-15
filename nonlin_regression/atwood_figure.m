@@ -45,7 +45,7 @@ for outer_index=1:10
             Cunif=log(det(get_info_matrix_k(mt_unif',ones(numel(mt_unif),1)/numel(mt_unif),2)));
     end
 
-    fprintf('NL: %d  NR: %d  Psival unif: %f Psival nu %f\n',Nleft,Nright,Cunif,Cnu)
+    fprintf('NL: %d  NR: %d  Psival unif: %f Psival nu %f %d %d\n',Nleft,Nright,Cunif,Cnu,numel(mt_nu),numel(mt_unif))
 end
 toc
 %%

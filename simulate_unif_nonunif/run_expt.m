@@ -103,7 +103,7 @@ nexttile(7)
 title('$\beta_3$','Interpreter','latex')
 nexttile(9)
 title('$\beta_4$','Interpreter','latex')
-
+%%
 plot_filename='linear_regression_histogram'
 ht=2; % height
 wd=6; % width
