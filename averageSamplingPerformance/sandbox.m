@@ -1,10 +1,7 @@
 addpath('../utils')
 clear
-parpool
 tic
 % generate parameter sets
-Nparamsets=50;
-nreps=50;
 
 Nleft_list=[4 6 9 12];
 Nright_list=[4 6 9 12];
@@ -24,11 +21,11 @@ parfor ii=1:numel(Nleft_list)
     nu_data(ii,:)=nu_data_loc;
     unif_data(ii,:)=unif_data_loc;
 end
-save('batch_sampling_test.mat','unif_data','nu_data')
+save('batch_sampling_test_500_250.mat','unif_data','nu_data')
 toc
 function [error_nu,error_unif]=get_nested_average_error(per1,per2,Nleft,Nright)
-Nparamsets=1;
-nreps=1;
+Nparamsets=500;
+nreps=250;
 circParams=rand(Nparamsets,4);
 circParams(:,1:2)= 10.^(2*circParams(:,1:2)-1); % amplitudes 
 circParams(:,3:4)=2*pi*circParams(:,3:4);   % acrophases 
