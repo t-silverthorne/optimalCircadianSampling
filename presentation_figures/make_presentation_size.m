@@ -2,9 +2,9 @@ close all
 fig_list={'atwood_design.fig','hist_sim_result.fig','linear_regression_histogram.fig', ...
           'modified_wynn.fig','nonlinear_regression_histogram_top.fig','samplegrid_fig.fig', ...
           'simulated_annealing_best.fig','wynn_convergence.fig'}
-fig_list{6}
 
-for ii=1:8
+%%
+for ii=1:numel(fig_list)
     openfig(fig_list{ii})
     f=gcf;
     set(findall(gcf,'-property','FontSize'),'FontSize',45/5)

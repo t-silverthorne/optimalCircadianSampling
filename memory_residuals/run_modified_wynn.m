@@ -7,22 +7,26 @@
 % wv2=ones(d,1)/numel(tv2);
 % 
 % get_H2_matrix(tv2,wv2,tv1,wv1,3,'exp')
+set(groot,'defaultAxesTickLabelInterpreter','latex');  
+set(groot,'defaulttextinterpreter','latex');
+set(groot,'defaultLegendInterpreter','latex');
 
 
+close all
 clear
 clf
 sigval=.1;
 gamval=10;
 niter=500;
 set_memory_params(sigval,gamval)
-
+method='correct'; % options correct vs incorrect
 
 orange=[0.8500 0.3250 0.0980];
 blue=[0 0.4470 0.7410];
 
 
-%rng(1) % nice example of convergence
-k=5;
+
+k=8;
 kernel_opt='exp';
 
 cvals=0;
@@ -42,9 +46,9 @@ end
  
 [~,mind]=max(real(cvals))
 display(max(real(cvals)))
-%%
 
-rng(2) % used in presentation
+
+rng(1)%rng(2) % used in presentation
 n0=1;
 scur=rng;
 clf
@@ -60,14 +64,21 @@ for i=1:niter
     f=@(theta) [1 cos(2*pi*theta*(1:k)) sin(2*pi*theta*(1:k))];
     H1=@(x) get_H1_matrix(theta_vec,w_vec,x,1,k,kernel_opt);
     H2=@(x) get_H2_matrix(theta_vec,w_vec,x,1,k,kernel_opt);
-    xnew=fminbnd(@(x) -trace(Mnow\H1(x) -2*Mnow\H2(x)),0,1);
+    switch method
+        case 'correct'
+            xnew=fminbnd(@(x) -trace(Mnow\(H1(x) -2*H2(x)) ),0,1);
+        case 'incorrect'
+            xnew=fminbnd(@(x) -trace(Mnow\H1(x) -2*Mnow\H2(x) ),0,1);
+    end
+       
     theta_vec=[theta_vec; xnew];
+    theta_vec=sort(theta_vec);
     w_vec=ones(n0+i,1)/numel(theta_vec);
     semilogy(i,log(det(get_memory_info_matrix_k(theta_vec,w_vec,k,kernel_opt))), ...
-    '.k','MarkerEdgeColor',orange')
+    '.k','MarkerEdgeColor',orange)
     if i==niter
         h(1)=semilogy(i,log(det(get_memory_info_matrix_k(theta_vec,w_vec,k,kernel_opt))), ...
-    '.k','MarkerEdgeColor',orange','DisplayName','memory Wynn');
+    '.k','MarkerEdgeColor',orange,'DisplayName','memory Wynn');
     end
     hold on
 end
@@ -82,12 +93,13 @@ for i=1:niter
     f=@(theta) [1 cos(2*pi*theta*(1:k)) sin(2*pi*theta*(1:k))];
     xnew=fminbnd(@(x) -trace(Mnow\get_memory_info_matrix_k(x,1,k,kernel_opt)),0,1);
     theta_vec=[theta_vec; xnew];
+    theta_vec=sort(theta_vec);
     w_vec=ones(n0+i,1)/numel(theta_vec);
     semilogy(i,log(det(get_memory_info_matrix_k(theta_vec,w_vec,k,kernel_opt))), ...
-    'xk','MarkerEdgeColor','black','MarkerSize',1.5)
+    '.k','MarkerEdgeColor','black')
     if i==niter
         h(2)=semilogy(i,log(det(get_memory_info_matrix_k(theta_vec,w_vec,k,kernel_opt))), ...
-    'xk','MarkerEdgeColor','black','DisplayName','original Wynn','MarkerSize',1.5);
+    '.k','MarkerEdgeColor','black','DisplayName','original Wynn');
     end
     hold on
 end
@@ -101,14 +113,13 @@ xlabel('iteration')
 ylabel('$\log(\det(M(\xi_{n}))$','Interpreter','latex')
 xticks([0 100 200 300 400 500])
 
-%%
 
 ylabel('$\Psi(\xi_{n})$','Interpreter','latex')
-ylim([10^0 25])
-yticks([10^0 10^1 2*10^1])
-yticklabels({'1','$10$','$20$'})
+ylim([10^0 35])
+yticks([10^0 10^1 2*10^1 3*10^1])
+yticklabels({'1','$10$','$20$','$30$'})
 
-plot_filename='modified_wynn'
+plot_filename=strcat('modified_wynn_',method);
 ht=2; % height
 wd=6; % width
 set(gcf,'PaperUnits','inches')
@@ -179,7 +190,7 @@ end
 H1=0;
 for ii=1:numel(theta_vec)
     jj=find(theta_vec_star<theta_vec(ii),1,'last');
-    ss=sigma0*(1+ gamma0*sum(w_vec_star(1:jj).*alpha(theta_vec_star(jj),theta_vec_star(1:jj))));
+    ss=sigma0*(1+ gamma0*sum(w_vec_star(1:jj).*alpha(theta_vec(ii),theta_vec_star(1:jj))));
     H1=H1+w_vec(ii)*f(theta_vec(ii))'*f(theta_vec(ii))/ss^2;
 end
 
@@ -199,12 +210,11 @@ switch kernel_opt
 end
 
 H2=0;
-for ii=1:numel(theta_vec)
-    jj=find(theta_vec_star<theta_vec(ii),1,'last');
-    ss_star=sigma0*(1+ gamma0*sum(w_vec_star(1:jj).*alpha(theta_vec_star(jj),theta_vec_star(1:jj))));
-    ss_minus_1=sigma0*(gamma0*sum(w_vec(1:ii-1).*alpha(theta_vec(ii),theta_vec(1:ii-1))));
-    
-    H2=H2+w_vec(ii)*f(theta_vec(ii))'*f(theta_vec(ii))*ss_minus_1/ss_star^3;
+for ii=1:numel(theta_vec_star)
+    jj=find(theta_vec<theta_vec_star(ii),1,'last');
+    ss_star=sigma0*(1+ gamma0*sum(w_vec_star(1:ii-1).*alpha(theta_vec_star(ii),theta_vec_star(1:ii-1))));
+    ss_minus_1=sigma0*(gamma0*sum(w_vec(1:jj).*alpha(theta_vec_star(ii),theta_vec(1:jj))));
+    H2=H2+w_vec_star(ii)*f(theta_vec_star(ii))'*f(theta_vec_star(ii))*ss_minus_1/ss_star^3;
 end
 end
 
