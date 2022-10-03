@@ -21,7 +21,7 @@ lg.Layout.Tile='South'
 %%
 set(findall(gcf,'-property','FontSize'),'FontSize',10)
 
-plot_filename='figures/hist_sim_result'
+plot_filename='figures/hist_sim_result_no_regularization'
 % save
 ht=3.8; % height
 wd=6; % width
@@ -34,10 +34,10 @@ savefig(gcf,strcat(plot_filename,'.fig'))% save matlab .fig too
 
 function mkplots(plot_option,other_options)
 fname_list={...
-        'final_method2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_10_Nright_4.mat', ...
-        'final_method2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_12_Nright_6.mat', ...
-        'final_method2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_14_Nright_8.mat', ...
-        'final_method2_regularize_1_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_16_Nright_10.mat'};
+        'final_method2_regularize_0_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_10_Nright_4.mat', ...
+        'final_method2_regularize_0_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_12_Nright_6.mat', ...
+        'final_method2_regularize_0_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_14_Nright_8.mat', ...
+        'final_method2_regularize_0_Nsamp_1_nreps_1000_per1_12_per2_4_Nleft_16_Nright_10.mat'};
 for ii=1:4
     nexttile
     X=open(fname_list{ii});

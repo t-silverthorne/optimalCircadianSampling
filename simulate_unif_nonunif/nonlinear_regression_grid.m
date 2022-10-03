@@ -13,7 +13,7 @@ pctRunOnAll warning off
 method=2; % method that gave performance_difference
 Nleft=8;
 Nright=2;
-regularize=true; % only consider periods greater than 2hrs (otherwise aliasing occurs)
+regularize=false; % only consider periods greater than 2hrs (otherwise aliasing occurs)
 for outer_index=1:4
 	disp(outer_index)
     switch method
