@@ -13,9 +13,9 @@ ft = fittype( 'a0+a1*sin(2*pi*x/per1)+a2*cos(2*pi*x/per1)+a3*sin(2*pi*x/per2)+a4
 opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
 opts.Algorithm = 'Trust-Region';
 opts.Display = 'Off';
-opts.Lower = [0 0 0 0 0 1 1];
+opts.Lower = [0 -10 -10 -10 -10 .1 .1];
 opts.StartPoint = [0 0 0 0 0  per1guess per2guess];
-opts.Upper = [Inf Inf Inf Inf Inf 24 24];
+opts.Upper = [1 10 10 10 10 1 1];
 opts.TolFun=1e-2;
 opts.TolX=1e-2;
 

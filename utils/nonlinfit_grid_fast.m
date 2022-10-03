@@ -1,11 +1,11 @@
 function [best_fitresult,best_gof,ii_best,jj_best]  = nonlinfit_grid_fast(zts, Y, regularize)
 % use linear regression to determine a good initial guess of the
 % parameters, and then run nonlinear regression with this initial guess
-dp=1;
-pergrid=2:dp:24;
+dp=.1;
+pergrid=.1:dp:1;
 
 for ii=pergrid
-    for jj=ii+dp:24
+    for jj=ii+dp:1
         x1=sin(2*pi*zts/ii);
         x2=cos(2*pi*zts/ii);
         x0=ones(1,numel(zts));
@@ -41,7 +41,7 @@ for ii=pergrid
         end
     end
 end
-[best_fitresult,best_gof]=nonlinfit(zts, Y, ii_best,jj_best);
+[best_fitresult,best_gof]=nonlinfit(repmat(zts,size(Y,1),1), Y, ii_best,jj_best);
 
 end
 
