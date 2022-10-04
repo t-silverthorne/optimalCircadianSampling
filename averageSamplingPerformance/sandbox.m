@@ -59,9 +59,13 @@ Xdat_nu=permute(Xdat_nu,[3 2 1]);
 error_nu  =NaN(1,Nparamsets);
 error_unif=NaN(1,Nparamsets);
 
-for ii=1:Nparamsets
+sdev_nu=Inf;
+sdev_unif=Inf;
+while sdev_nu || sdev_unif > 1e-1
     error_nu(ii)=get_mean_period_error(mt_nu,Xdat_nu(:,:,ii),per1,per2);
     error_unif(ii)=get_mean_period_error(mt_unif,Xdat_unif(:,:,ii),per1,per2);
+		sdev_nu=std(error_nu);
+		sdev_unif=std(error_unif);
 end
 error_nu=mean(error_nu);
 error_unif=mean(error_unif);
