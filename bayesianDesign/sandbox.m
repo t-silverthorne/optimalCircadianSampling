@@ -1,8 +1,11 @@
+%%
+estimateBayesianFIMdet(5,5,1/3)
+
 %% Construct measurements
 clear
 tic
-Nleft=5;
-Nright=5;
+Nleft=5; % 5 
+Nright=5; % 5 
 tau=1/3;
 
 Ntimes=Nleft+Nright;
@@ -28,8 +31,9 @@ M=matlabFunction(GF*GF');
 
 nreps=30000;
 beta=rand(nreps,4);% first four parameters are unif [0,1]
-beta(:,1)=10;
-beta(:,2)=10;
+beta(:,1:4)=1+beta(:,1:4);
+%beta(:,1)=10;
+%beta(:,2)=10;
 accepted=NaN(nreps,2);
 ind=1;
 while ind<nreps
@@ -46,12 +50,17 @@ beta=num2cell(beta);
 mtc_unif=num2cell(mt_unif);
 mtc_nu=num2cell(mt_nu);
 
-nu_vals=mean(arrayfun(@(ind) log(det(M(beta{ind,:},mtc_nu{:}))),1:nreps));
-%nu_vals_alt=arrayfun(@(ind) log(woodburyDet(GFfun(beta{ind,:},mtc_nu{:}))),1:nreps);
-%nu_vals_alt2=arrayfun(@(ind) log(choleskyDet(M(beta{ind,:},mtc_nu{:}))),1:nreps);
-unif_vals=mean(arrayfun(@(ind) log(det(M(beta{ind,:},mtc_unif{:}))),1:nreps));
-fprintf('nu:    %d\n',nu_vals);
-fprintf('unif:  %d\n\n',unif_vals);
+nu_vals=arrayfun(@(ind) log(det(M(beta{ind,:},mtc_nu{:}))),1:nreps);
+[~,~,nuci]=normfit(nu_vals);
+unif_vals=arrayfun(@(ind) log(det(M(beta{ind,:},mtc_unif{:}))),1:nreps);
+[~,~,unifci]=normfit(unif_vals);
+fprintf('nu     CI: [%2.3f,%2.3f]\n',nuci(1),nuci(2)); % todo: add sample sdev
+fprintf('unif   CI: [%2.3f,%2.3f]\n\n',unifci(1),unifci(2));
+%%
+nu_val=mean(nu_vals);
+unif_val=mean(unif_vals);
+fprintf('nu:    %d\n',nu_val);
+fprintf('unif:  %d\n\n',unif_val);
 toc
 %det(GF*GF')
 %double(subs(subs(GF*GF',[beta1 beta2 beta3 beta4 beta5 beta6], [1 2 3 4 5 6]),xv,rand(1,7)));

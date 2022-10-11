@@ -1,0 +1,24 @@
+Narrative 1: Accuracy of parameter estimates
+(1) Derive the expected FIM. Improvement of non-uniform over uniform depending on choice of prior
+(2) Check convergence rate. 
+	- Analyze data, update prior
+	- Optional: Use new prior to optimize non-uniform sampling ( ta, tb )
+	- Generate new data
+If possible: apply to real data. Maybe birhythmicity in p53-mdm2 module
+
+Narrative 2: minimizers of functional
+- something about the annals paper
+
+Narrative 3: Spectral reconstruction
+- read non-unfirom Shannon theory paper 
+
+Narrative 4: Statistical significance
+- permutation vs false alarm rates 
+-
+
+- Want to estimate periods from data, assume biharmonic.
+- Show that sampling rate matters
+- Try to explain using OED
+	- Experimental design is a measure
+	- determinant of the FIM measures quality of design
+	- fails to capture obvious performance difference
