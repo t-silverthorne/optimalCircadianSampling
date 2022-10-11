@@ -1,4 +1,6 @@
 function M = getBayesianFIM(Ntimes)
+% Fisher information matrix for a biharmonic cosinor model
+% calculated symbolically and returned as a MATLAB function
 syms x beta1 beta2 beta3 beta4 beta5 beta6
 xv=sym('x',[1 Ntimes]);
 assume([x beta1 beta2 beta3 beta4 beta5 beta6],'real')

@@ -1,6 +1,10 @@
-function [unif_vals,nu_vals] = estimateBayesianFIMdet(NL,NR,tau)
-cutoff_option='sdev'; % options: nreps, sdev
-nreps=30000;
+function [unif_vals,nu_vals] = estimateBayesianFIMdet(NL,NR,tau,cutoff_option,nreps)
+if nargin < 4
+    cutoff_option='nreps'; % options: nreps, sdev
+end
+if nargin < 5
+    nreps=30000;
+end
 nreps_loc=3000;
 
 % construct sample grids and information matrix
