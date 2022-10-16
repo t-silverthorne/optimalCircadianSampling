@@ -1,11 +1,12 @@
-function [unif_vals,nu_vals] = estimateBayesianFIMdet(NL,NR,tau,cutoff_option,nreps)
+function [unif_vals,sd_unif,nu_vals,sd_nu] = estimateBayesianFIMdet(NL,NR,tau,cutoff_option,nreps)
+sdev_cut=1e-1;
 if nargin < 4
     cutoff_option='nreps'; % options: nreps, sdev
 end
 if nargin < 5
     nreps=30000;
 end
-nreps_loc=3000;
+nreps_loc=500;
 
 % construct sample grids and information matrix
 Ntimes=NL+NR;
@@ -24,20 +25,23 @@ switch cutoff_option
     case 'sdev'
         sdev_now = Inf;
         unif_vals=[];
-        while sdev_now>1e-2
-            fprintf('%d\n',sdev_now)
+        while sdev_now>sdev_cut
+            %fprintf('%d\n',sdev_now)
             [valsloc,~] = getSimulatedData(M,nreps_loc,mt_unif,mt_nu,true,false);
             unif_vals = [unif_vals valsloc];
-            sdev_now = std(unif_vals)/mean(unif_vals);
+            sdev_now = std(unif_vals)/sqrt(numel(unif_vals));
         end
+        sd_unif=sdev_now;
         sdev_now = Inf;
         nu_vals=[];
 
-        while sdev_now>1e-2
+        while sdev_now>sdev_cut
+            %fprintf('%d\n',sdev_now)
             [~,valsloc] = getSimulatedData(M,nreps_loc,mt_unif,mt_nu,false,true);
-            nu_vals=[nu_vals valsloc]
-            sdev_now = std(nu_vals)/mean(nu_vals);
+            nu_vals=[nu_vals valsloc];
+            sdev_now = std(nu_vals)/sqrt(numel(nu_vals));
         end
+        sd_nu=sdev_now;
 end
     %case 'sdev'
 end
