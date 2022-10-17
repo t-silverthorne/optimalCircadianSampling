@@ -1,5 +1,11 @@
-%%
-estimateBayesianFIMdet(5,5,1/3)
+%% Compare two ways of doing estimation
+addpath('circularParams\')
+addpath('linearParams\')
+
+[unif,~,nu,~]=estimateBayesianFIMdetCirc(5,5,1/3);
+mean(unif)
+mean(nu)
+
 
 %% Construct measurements
 clear
