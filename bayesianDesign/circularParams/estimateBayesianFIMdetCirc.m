@@ -1,24 +1,18 @@
-function [unif_vals,sd_unif,nu_vals,sd_nu] = estimateBayesianFIMdetCirc(NL,NR,tau,cutoff_option,nreps)
+function [unif_vals,sd_unif,nu_vals,sd_nu] = estimateBayesianFIMdetCirc(NL,NR,tauA,tauB,cutoff_option,nreps)
 %ESTIMATEBAYESIANFIMDETCIRC Summary of this function goes here
 %   Detailed explanation goes here
 sdev_cut=1e-1;
-if nargin < 4
+if nargin < 5
     cutoff_option='nreps'; % options: nreps, sdev
 end
-if nargin < 5
+if nargin < 6
     nreps=30000;
 end
 nreps_loc=500;
 
 % construct sample grids and information matrix
+[mt_unif,mt_nu]=getSamplingSchedules(NL,NR,tauA,tauB);
 Ntimes=NL+NR;
-mt1=linspace(0,tau,NL+1);
-mt1=mt1(1:end-1);
-mt2=linspace(tau,1,NR+1);
-mt2=mt2(1:end-1);
-mt_nu=[mt1 mt2]; % construct non-uniform grid 
-mt_unif=linspace(0,1,Ntimes+1); % construct uniform grid 
-mt_unif=mt_unif(1:end-1);
 M=getBayesianFIMcirc(Ntimes,2);
 
 switch cutoff_option
