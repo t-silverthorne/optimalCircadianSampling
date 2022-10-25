@@ -1,7 +1,16 @@
-function Sampvec = samplePosteriorMCMC(Nsamp,fnames,t_obs_MAT,Y_obs_MAT,theta,model,method,settings)
-proposal_method='fixed';
+function Sampvec = samplePosteriorMCMC(Nsamp,fnames,t_obs_MAT,Y_obs_MAT,model,method,settings)
+% inputs:
+%   Nsamp:  desired number of samples
+%   fnames: names of fields in parameter struct
+%   t_obs_MAT: matrix with rows correspond to distinct measurements, columns
+%   measurement times
+%   Y_obs_MAT: simulated data corresponding to t_obs_MAT
+%   model,method,settings: specify choice of posterior for model being used
+
+% returns: Sampvec, a matrix of parameters sampled from the posterior 
+proposal_method='iterative';
 T=1000; % length of Markov Chain
-theta_len=length(fieldnames(theta));
+theta_len=length(fnames);
 Sampvec=NaN(Nsamp,theta_len);
 % TODO: decide if log helps
 logp=@(Y) evalLogImproperPosterior(t_obs_MAT, ...
@@ -18,7 +27,7 @@ parfor(N=1:Nsamp,numworkers)
             Xt=samplePrior(1,model,method,settings);
         case 'iterative'
              if size(t_obs_MAT,1)>1
-                    Xt=samplePosteriorMCMC(1,fnames,t_obs_MAT(2:end,:),Y_obs_MAT(2:end,:),theta,model,method,settings);
+                    Xt=samplePosteriorMCMC(1,fnames,t_obs_MAT(2:end,:),Y_obs_MAT(2:end,:),model,method,settings);
                 else
                     Xt=samplePrior(1,model,method,settings);
              end

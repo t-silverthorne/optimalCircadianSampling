@@ -1,5 +1,10 @@
 function [thetaMat,fieldnames] = samplePrior(numParamSets,model,prior,settings)
-% thetaMat: matrix whose rows correspond to parameter sets for model
+% sample from prior distribution, used in MCMC sampling of posterior
+% method:
+%   pseudo-uniform: uniform distribution with requirement that periods are
+%   not too similar
+%   test-spt: exp distribution on period and amplitudes, uniform for phases
+% returns thetaMat: matrix whose rows correspond to parameter sets for model
 thetaMat=NaN(numParamSets,6);
 switch model
     case {'cosinorOneFreq','cosinorTwoFreq'}

@@ -1,5 +1,9 @@
 function p=evalPrior(theta,model,method,settings)
-% Note prior is improper
+% evaluate prior distribution, used in MCMC sampling of posterior
+% method:
+%   pseudo-uniform: uniform distribution with requirement that periods are
+%   not too similar
+%   test-spt: exp distribution on period and amplitudes, uniform for phases
 if nargin<4
     settings.dT=.2;
 end

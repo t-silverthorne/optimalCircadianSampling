@@ -36,7 +36,7 @@ nreps=5;
 t_obs_MAT=repmat(mt_nu,nreps,1);
 Y_obs_MAT=cosinorOneFreq(mt_nu,getTheta(ptrue,fnames))+randn(nreps,numel(mt_unif));
 %evalLogImproperPosterior(t_obs_MAT,Y_obs_MAT,getTheta(ptrue,fnames),model,method,settings)
-thetasamp=samplePosteriorMCMC(1000,fnames,t_obs_MAT,Y_obs_MAT,getTheta(ptrue,fnames),model,method,settings);
+thetasamp=samplePosteriorMCMC(1000,fnames,t_obs_MAT,Y_obs_MAT,model,method,settings);
 
 histogram(thetasamp(:,1),80,Normalization="pdf")
 hold on
@@ -52,8 +52,14 @@ hold off
 %% find optimal new tauA tauB
 
 
+% fminsearch - 
+% penalty methods or reparameterization 
 
+% fmincon
+% check about rough functions/default optimizer
+% BFGS
 
+% global search
 
 
 
