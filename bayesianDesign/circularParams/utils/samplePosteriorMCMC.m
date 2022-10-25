@@ -9,7 +9,13 @@ function Sampvec = samplePosteriorMCMC(Nsamp,fnames,t_obs_MAT,Y_obs_MAT,model,me
 
 % returns: Sampvec, a matrix of parameters sampled from the posterior 
 proposal_method='iterative';
-T=1000; % length of Markov Chain
+switch model
+    case 'cosinorOneFreq'
+        sd_vec=[5 1 1];
+    case 'cosinorTwoFreq'
+        sd_vec=[5 1 1 5 1 1];
+end
+T=100; % length of Markov Chain
 theta_len=length(fnames);
 Sampvec=NaN(Nsamp,theta_len);
 % TODO: decide if log helps
@@ -21,21 +27,23 @@ if Nsamp>1
 else
     numworkers=0;
 end
-parfor(N=1:Nsamp,numworkers)
-    switch proposal_method
-        case 'fixed'
-            Xt=samplePrior(1,model,method,settings);
-        case 'iterative'
-             if size(t_obs_MAT,1)>1
-                    Xt=samplePosteriorMCMC(1,fnames,t_obs_MAT(2:end,:),Y_obs_MAT(2:end,:),model,method,settings);
-                else
-                    Xt=samplePrior(1,model,method,settings);
-             end
-    end
-    %Xt=rand(1,theta_len);
 
+switch proposal_method
+    case 'fixed'
+        Xtvec=samplePrior(Nsamp,model,method,settings);
+    case 'iterative'
+         if size(t_obs_MAT,1)>1
+                Xtvec=samplePosteriorMCMC(Nsamp,fnames,t_obs_MAT(2:end,:),Y_obs_MAT(2:end,:),model,method,settings);
+            else
+                Xtvec=samplePrior(Nsamp,model,method,settings);
+         end
+end
+
+parfor(N=1:Nsamp,numworkers)
+%for N=1:Nsamp
+    Xt=Xtvec(N,:);
     for t=1:T
-        Y=randn(1,theta_len)+Xt;
+        Y=randn(1,theta_len).*sd_vec+Xt;
         diffp=logp(Y)-logp(Xt);
         alpha=min( diffp+log(normpdfvec(Xt,Y))-log(normpdfvec(Y,Xt)),0);
         if log(rand)<alpha
