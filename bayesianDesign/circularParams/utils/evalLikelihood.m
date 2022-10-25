@@ -1,7 +1,10 @@
-function [outputArg1,outputArg2] = evalLikelihood(inputArg1,inputArg2)
-%EVALLIKELIHOOD Summary of this function goes here
-%   Detailed explanation goes here
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
+function p = evalLikelihood(t_obs,Y_obs,theta,model)
+p=NaN;
+switch model
+    case 'cosinorTwoFreq'
+        p=exp(-sum((Y_obs - cosinorTwoFreq(t_obs,theta)).^2/2));
+    case 'cosinorOneFreq'
+        p=exp(-sum((Y_obs - cosinorOneFreq(t_obs,theta)).^2/2));
+end
 end
 
