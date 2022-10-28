@@ -1,16 +1,37 @@
-function Mexp = expectedBayesianFIM(M,fnames,t_obs_MAT,Y_obs_MAT,model,method,settings)
-N=10000;
-thetasamp=samplePosteriorMCMC(N,fnames,t_obs_MAT,Y_obs_MAT,model,method,settings);
-
-Mexpvec=NaN(1,N);
-tmeasc=num2cell(t_obs_MAT(1,:));
-parfor ii=1:N
-    thetac=num2cell(thetasamp(ii,:));    
-    Mexpvec(ii)=log(det(M(thetac{:},tmeasc{:})));
+function Mexp = expectedBayesianFIM(M,fnames,tmeas_prop,t_obs_MAT,Y_obs_MAT,model,method,settings)
+switch settings.FIM_expectation_method
+    case 'fixed'
+        low_enough_variance=true;
+        N=1000;
+    case 'variance'
+        low_enough_variance=false;
+        var_cut=1e-1;
+        N=1000;
 end
-Mexp=mean(Mexpvec);
-    %function Mt=evaluateM(M,theta,tmeas)
-%
- %   end
+Mexpvec=[];
+while ~low_enough_variance
+    if settings.verbose
+        disp('running')
+    end
+    thetasamp=samplePosteriorMCMC(N,fnames,t_obs_MAT,Y_obs_MAT,model,method,settings);
+    
+    Mexpvecloc=NaN(1,N);
+    tmeasc=num2cell(tmeas_prop);
+    switch settings.parallel_mode
+        case 'parfor'
+            Numworkers=inf;
+        case 'vectorize'
+            Numworkers=0;
+    end
+    
+    parfor (ii=1:N,Numworkers)
+        thetac=num2cell(thetasamp(ii,:));    
+        Mexpvecloc(ii)=log(det(M(thetac{:},tmeasc{:})));
+    end
+    Mexp=mean(Mexpvecloc);
+    Mexpvec=horzcat(Mexpvec,Mexpvecloc);
+    low_enough_variance= ( std(Mexpvec)/sqrt(numel(Mexpvec))<var_cut );
+end
+
 end
 

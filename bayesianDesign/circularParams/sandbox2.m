@@ -16,11 +16,14 @@ settings.dT=0.2;
 model='cosinorOneFreq';
 method='test-spt';
 [theta,fnames]=samplePrior(Nparam+1,model,method,settings);
-ptrue=theta(1,:);
+ptrue=theta(1,:)
 theta=theta(2:end,:);
 
 M=getBayesianFIMcirc(NL+NR,'cosinorOneFreq');
 %%
+settings.parallel_mode='parfor';
+settings.proposal_method='iterative';
+
 tic
 expectedBayesianFIM(M,fnames,t_obs_MAT,Y_obs_MAT,model,method,settings)
 toc
@@ -51,12 +54,16 @@ evalLikelihood(mt_nu,Yobs_nu,getTheta(ptrue,fnames),model)
 
 %% sandbox
 % TODO .1 get rid of
+settings.parallel_mode='vectorize'; % vectorize or parfor
+settings.proposal_method='fixed';
+clf
 nreps=3;
 t_obs_MAT=repmat(mt_nu,nreps,1);
 Y_obs_MAT=cosinorOneFreq(mt_nu,getTheta(ptrue,fnames))+randn(nreps,numel(mt_unif));
 %evalLogImproperPosterior(t_obs_MAT,Y_obs_MAT,getTheta(ptrue,fnames),model,method,settings)
-thetasamp=samplePosteriorMCMC(1000,fnames,t_obs_MAT,Y_obs_MAT,model,method,settings);
-
+tic
+thetasamp=samplePosteriorMCMC(500,fnames,t_obs_MAT,Y_obs_MAT,model,method,settings);
+toc
 histogram(thetasamp(:,1),80,Normalization="pdf")
 hold on
 xv=0:.1:30;

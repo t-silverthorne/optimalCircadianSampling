@@ -5,9 +5,9 @@ function [thetaMat,fieldnames] = samplePrior(numParamSets,model,prior,settings)
 %   not too similar
 %   test-spt: exp distribution on period and amplitudes, uniform for phases
 % returns thetaMat: matrix whose rows correspond to parameter sets for model
-thetaMat=NaN(numParamSets,6);
 switch model
     case {'cosinorOneFreq','cosinorTwoFreq'}
+        thetaMat=NaN(numParamSets,6);
         fieldnames={'A1','phi1','T1','A2','phi2','T2'};
         switch prior
             case 'pseudo-uniform'
@@ -42,8 +42,14 @@ switch model
                 thetaMat(:,4)=exprnd(A2mean,numParamSets,1);
                 thetaMat(:,[2 5])= 2*pi*rand(numParamSets,2);
                 thetaMat(:,[3 6])=[exprnd(T1mean,numParamSets,1) exprnd(T2mean,numParamSets,1)];
+            case 'ms-prior'
+                parmean=[settings.amp_est settings.acro_est settings.per_est];
+                parmean=repmat(parmean,1,2);
+                thetaMat=randn([numParamSets,6])/sqrt(settings.Ntot)+parmean;
+                %thetaMat=randn([numParamSets,6])/2+parmean;
         
         end
+
         if strcmp(model,'cosinorOneFreq')
             thetaMat=thetaMat(:,1:3);
             fieldnames={'A1','phi1','T1'};
