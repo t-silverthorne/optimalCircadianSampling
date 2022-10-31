@@ -1,6 +1,6 @@
 % GPU
 tic
-N=10000; % desired number of samples
+N=1000000; % desired number of samples
 T=100; % length of Markov chain
 k=3;
 sig=2;
@@ -8,7 +8,7 @@ p=@(x) prod(1./(1+((x)/sig).^2),2);
 X=randn([N,k,T])+3;
 Y=randn([N,k,T]);
 
-run_gpu=false;
+run_gpu=true;
 
 if run_gpu
     X=gpuArray(X);
@@ -21,15 +21,15 @@ for t=2:T
     logdiff=log(prod(normpdf(X(:,:,t-1),Z),2))- ...
         log(prod(normpdf(Z,X(:,:,t-1)),2));
     alphamat=min(diffp+logdiff,0);
-    rmat=log(rand(N));
+    rmat=log(rand(N,1));
     X(:,:,t)= (rmat<alphamat).*Y(:,:,t) + X(:,:,t-1);
 end
 if run_gpu
-    X=gather(X)
+    X=gather(X);
 end
 toc
 clf
-
+%%
 histogram(X(:,1,end),80,'Normalization','pdf')
 xv=-8:.01:8;
 hold on

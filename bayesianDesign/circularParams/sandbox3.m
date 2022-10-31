@@ -22,7 +22,8 @@ model='cosinorOneFreq';
 method='pseudo-uniform';
 settings.parallel_mode='vectorize';
 settings.proposal_method='fixed'; % options: fixed, iterative
-settings.FIM_expectation_method='variance'; % options: fixed, variance
+settings.FIM_expectation_method='fixed'; % options: fixed, variance
+settings.run_gpu=true;
 [theta,fnames]=samplePrior(Nparam+1,model,method,settings);
 ptrue=theta(1,:);
 ptrue(2)=mod(ptrue(2),2*pi); % for more convenient comparison later
@@ -54,6 +55,14 @@ if settings.verbose
     fprintf('%f\n',ptrue)
 end
 
+%%
+method='test-spt';
+settings.speed='slow';% options: slow, fast
+settings.run_gpu=false;
+tic
+samplePosteriorMCMC(1e4,fnames,tobs_mat_nu, ...
+                Yobs_mat_nu,model,method,settings);
+toc 
 %% optimization step
 costfunFIM = @(tau,delta) wrapExpectedBayesianFIM(NL,NR,tau,tau+delta,M,fnames,tobs_mat_nu, ...
                                 Yobs_mat_nu,model,method,settings);
@@ -91,24 +100,6 @@ switch model
         thetanew(2)=pi*(1+tanh(theta(2)));
         thetanew(3)=0.5*(1+tanh(theta(3)));
 end
-end
-
-function [amp_est,acro_est,per_est]=convertToCircularParams(c,model)
-    switch model
-        case 'cosinorOneFreq'
-            per_est = c(3);
-            acro_est=sincos2acro(c(1),c(2));
-            amp_est =sincos2amp(c(1),c(2));
-    end
-    
-    function acro=sincos2acro(sin,cos)
-    
-    acro=mod(atan2(sin,cos),2*pi);
-    end
-    
-    function amp=sincos2amp(sin,cos)
-    amp=sqrt(sin^2+cos^2);
-    end
 end
 
 
