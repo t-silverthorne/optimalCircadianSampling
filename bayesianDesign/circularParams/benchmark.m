@@ -42,8 +42,8 @@ settings.amp_est=amp_est;
 settings.acro_est=acro_est;
 settings.per_est=per_est;
 
-%%
-Nbench=1e4;
+%% Simple example
+Nbench=1e3;
 settings.parallel_mode='vectorize';
 method='test-spt'; % TODO: make this Ms prior
 settings.proposal_method='fixed'; % options: fixed, iterative
@@ -57,15 +57,6 @@ timenow=toc;
 fprintf('\nRecursive      : %f\n',timenow)
 
 
-settings.speed='slow';% options: slow, fast
-settings.run_gpu=true;
-tic
-samplePosteriorMCMC(Nbench,fnames,tobs_mat_nu, ...
-                Yobs_mat_nu,model,method,settings);
-timenow=toc;
-fprintf('Recursive w GPU: %f\n',timenow)
-
-
 settings.speed='fast';% options: slow, fast
 settings.run_gpu=false;
 tic
@@ -74,7 +65,8 @@ samplePosteriorMCMC(Nbench,fnames,tobs_mat_nu, ...
 timenow=toc;
 fprintf('Vectorize      : %f\n',timenow)
 
-
+%%
+Nbench=1e5;
 settings.speed='fast';% options: slow, fast
 settings.run_gpu=true;
 tic
@@ -83,4 +75,66 @@ samplePosteriorMCMC(Nbench,fnames,tobs_mat_nu, ...
 timenow=toc;
 fprintf('Vectorize w GPU: %f\n',timenow)
 
+
+%%
+settings.FIM_expectation_method='variance';
+settings.verbose='false';
+settings.batch_size=1e5;
+settings.var_cut=1e-1;
+M=getBayesianFIMcirc(NL+NR,model); % just a function nothing evaluated yet
+tic
+expectedBayesianFIM(M,fnames,tobs_mat_nu,tobs_mat_nu,Yobs_mat_nu,model,method,settings)
+toc
+
+%% plot
+close all
+Nbenchlist=floor(logspace(1,6,6));
+time_recur=[];
+time_vect=[];
+time_vectg=[];
+
+for ii=1:numel(Nbenchlist)
+    disp(ii)
+    
+%     Nbench=Nbenchlist(ii);
+%     if Nbench<10^6
+%         settings.speed='slow';% options: slow, fast
+%         settings.run_gpu=false;
+%         tic
+%         samplePosteriorMCMC(Nbench,fnames,tobs_mat_nu, ...
+%                         Yobs_mat_nu,model,method,settings);
+%         time_recur(ii)=toc;
+%     end   
+    
+    
+    settings.speed='fast';% options: slow, fast
+    settings.run_gpu=false;
+    tic
+    samplePosteriorMCMC(Nbench,fnames,tobs_mat_nu, ...
+                    Yobs_mat_nu,model,method,settings);
+    time_vect(ii)=toc;
+    
+    
+    
+    settings.speed='fast';% options: slow, fast
+    settings.run_gpu=true;
+    tic
+    samplePosteriorMCMC(Nbench,fnames,tobs_mat_nu, ...
+                    Yobs_mat_nu,model,method,settings);
+    time_vectg(ii)=toc;    
+end
+%%
+%loglog(Nbenchlist(1:end-1),time_recur,'DisplayName','recursive')
+loglog(Nbenchlist,time_vect,'DisplayName','vectorized')
+hold on
+loglog(Nbenchlist,time_vectg,'DisplayName','vectorized GPU')
+hold off
+legend(Location="best")
+% settings.speed='slow';% options: slow, fast
+% settings.run_gpu=true;
+% tic
+% samplePosteriorMCMC(Nbench,fnames,tobs_mat_nu, ...
+%                 Yobs_mat_nu,model,method,settings);
+% timenow=toc;
+% fprintf('Recursive w GPU: %f\n',timenow)
 
