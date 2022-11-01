@@ -1,7 +1,7 @@
 % GPU
 tic
-N=1000000; % desired number of samples
-T=100; % length of Markov chain
+N=1e4; % desired number of samples
+T=50; % length of Markov chain
 k=3;
 sig=2;
 p=@(x) prod(1./(1+((x)/sig).^2),2);
@@ -29,7 +29,7 @@ if run_gpu
 end
 toc
 clf
-%%
+
 histogram(X(:,1,end),80,'Normalization','pdf')
 xv=-8:.01:8;
 hold on

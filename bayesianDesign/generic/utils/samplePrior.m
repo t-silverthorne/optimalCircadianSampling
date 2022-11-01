@@ -43,7 +43,7 @@ switch model
                 thetaMat(:,[2 5])= 2*pi*rand(numParamSets,2);
                 thetaMat(:,[3 6])=[exprnd(T1mean,numParamSets,1) exprnd(T2mean,numParamSets,1)];
             case 'ms-prior'
-                parmean=[settings.amp_est settings.acro_est settings.per_est];
+                parmean=[settings.amp_est settings.acro_est settings.freq_est];
                 parmean=repmat(parmean,1,2);
                 thetaMat=randn([numParamSets,6])*settings.sig+parmean;
        

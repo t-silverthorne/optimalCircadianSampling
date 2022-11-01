@@ -33,12 +33,15 @@ switch model % simulate measurement
         %Yobs_nu=cosinorOneFreq(mt_nu,getTheta(ptrue,fnames))+randn(1,numel(mt_nu));
 end       
 
+method='ms-prior';
+
 % use results of multistart regression to construct prior
 bestfit=multiStartRegression(mt_unif,Yobs_unif,model);
 [amp_est,acro_est,per_est]=convertToCircularParams(coeffvalues(bestfit),model);
 settings.amp_est=amp_est;
 settings.acro_est=acro_est;
 settings.per_est=per_est;
+settings.sig=1/sqrt(NL+NR);
 
 settings.speed='fast';% options: slow, fast
 settings.run_gpu=false;
@@ -49,6 +52,17 @@ settings.FIM_expectation_method='variance';
 settings.batch_size=1e4;
 settings.var_cut=1e-1;
 
+%% test prior with histogram
+prior=samplePrior(1e4,model,method,settings);
+post=samplePosteriorMCMC(1e4,fnames,mt_unif,Yobs_unif,model,method,settings);
+close all
+histogram(prior(:,1),'Normalization','pdf')
+hold on
+histogram(post(:,1),'Normalization','pdf')
+xline(ptrue(1))
+hold off
+legend
+
 %% particle swarm
 opts = optimoptions(@particleswarm,'HybridFcn',@fminsearch,...
                                    'Display','iter', ...
@@ -56,7 +70,6 @@ opts = optimoptions(@particleswarm,'HybridFcn',@fminsearch,...
                                    'UseParallel',true, ...
                                    'PlotFcn','pswplotbestf'); %TODO: set true
 %%
-
 sampstrat=particleswarm(@(x) -wrapExpectedBayesianFIM(NL,NR,x(1),x(1)+x(2),M,fnames,tobs_mat_nu, ...
                                 Yobs_mat_nu,model,method,settings), ...
                                 2,[],[],opts);
