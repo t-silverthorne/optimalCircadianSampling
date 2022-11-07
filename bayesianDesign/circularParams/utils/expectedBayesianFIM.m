@@ -5,7 +5,7 @@ switch settings.FIM_expectation_method
         N=1000;
     case 'variance'
         low_enough_variance=false;
-        var_cut=1e-1;
+        var_cut=1e-1; % todo put back
         N=1000;
 end
 Mexpvec=[];
