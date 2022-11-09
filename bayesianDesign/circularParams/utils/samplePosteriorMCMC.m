@@ -1,4 +1,5 @@
 function Sampvec = samplePosteriorMCMC(Nsamp,fnames,t_obs_MAT,Y_obs_MAT,model,method,settings)
+speed=settings.speed; 
 % inputs:
 %   Nsamp:  desired number of samples
 %   fnames: names of fields in parameter struct
@@ -9,7 +10,7 @@ function Sampvec = samplePosteriorMCMC(Nsamp,fnames,t_obs_MAT,Y_obs_MAT,model,me
 
 % returns: Sampvec, a matrix of parameters sampled from the posterior 
 
-T=100; % length of Markov Chain
+T=1000; % length of Markov Chain
 if ~isfield(settings,'parallel_mode')
     disp('parallel not specified, using default')
     settings.parallel_mode='vectorize';
@@ -19,15 +20,15 @@ if ~isfield(settings,'proposal_method')
     settings.proposal_method='iterative';
 end
 proposal_method=settings.proposal_method;
-
+switch model
+    case 'cosinorOneFreq'
+        sd_vec=[.1 .1 .1]/5;
+    case 'cosinorTwoFreq'
+        sd_vec=[5 1 1 5 1 1];
+end
 switch settings.parallel_mode
     case 'parfor'
-        switch model
-            case 'cosinorOneFreq'
-                sd_vec=[5 1 1];
-            case 'cosinorTwoFreq'
-                sd_vec=[5 1 1 5 1 1];
-        end
+    
         theta_len=length(fnames);
         Sampvec=NaN(Nsamp,theta_len);
         % TODO: decide if log helps
@@ -70,22 +71,46 @@ switch settings.parallel_mode
 
 
     case 'vectorize'
-        switch model
-            case 'cosinorOneFreq'
-                sd_vec=[5 1 1];
-                sdmat=repmat(sd_vec,Nsamp,1);
-            case 'cosinorTwoFreq'
-                sd_vec=[5 1 1 5 1 1];
-                sdmat=repmat(sd_vec,Nsamp,1);
-        end
         theta_len=length(fnames);
-        Sampvec=NaN(Nsamp,theta_len,T);
+        Sampvec=NaN(Nsamp,theta_len);
         Y=randn([Nsamp,theta_len,T]);
+                
+        if settings.run_gpu
+            Sampvec=gpuArray(Sampvec);
+            Y=gpuArray(Y);
+        end
+
 
         % TODO: decide if log helps
-        logp=@(Y) transpose(arrayfun(@(ind) evalLogImproperPosterior(t_obs_MAT, ...
-                         Y_obs_MAT,...
-                         getTheta(Y(ind,:),fnames),model,method,settings),1:size(Y,1)));
+        switch speed
+            case 'slow'
+                logp=@(Y) transpose(arrayfun(@(ind) evalLogImproperPosterior(t_obs_MAT, ...
+                                 Y_obs_MAT,...
+                                 getTheta(Y(ind,:),fnames),model,method,settings),1:size(Y,1)));
+            case 'fast'
+                tvec=reshape(t_obs_MAT,1,numel(t_obs_MAT));
+                yvec=reshape(Y_obs_MAT,1,numel(Y_obs_MAT));
+                
+                mutheta1=settings.acro_est;
+                sigtheta1=settings.sig;
+                muamp1=settings.amp_est;
+                sigamp1=settings.sig;
+                muT1=settings.per_est;
+                sigT1=settings.sig;
+
+                if settings.run_gpu
+                    tvec=gpuArray(tvec);
+                    yvec=gpuArray(yvec);
+                end
+                logp=@(pmat) -sum((yvec-pmat(:,1).*cos(2*pi*tvec./pmat(:,3)-pmat(:,2))).^2/2,2) - ...
+                             (muamp1-pmat(:,1)).^2/2/sigamp1^2 - ...
+                                (mutheta1-pmat(:,2)).^2/2/sigtheta1^2 - ...
+                                  (muT1-pmat(:,3)).^2/2/sigT1^2 ;
+        end
+
+        % pmat(ii,:) row of parameter matrix
+        % yvec, flattened obserations, tvec flattened obs times
+        
         if Nsamp>1
             numworkers=inf;
         else
@@ -93,30 +118,38 @@ switch settings.parallel_mode
         end
         
         switch proposal_method
-             case 'fixed'
+            case 'fixed'
                 Sampvecloc=samplePrior(Nsamp,model,method,settings);
-                %Sampvecloc=randn(Nsamp,theta_len);
             case 'iterative'
                  if size(t_obs_MAT,1)>1
                         Sampvecloc=samplePosteriorMCMC(Nsamp,fnames,t_obs_MAT(2:end,:),Y_obs_MAT(2:end,:),model,method,settings);
                     else
                         Sampvecloc=samplePrior(Nsamp,model,method,settings);
-                        %Sampvecloc=randn(Nsamp,theta_len);
                  end
         end
-        
-        Sampvec(:,:,1)=Sampvecloc;
-        for t=2:T
-            Z=Y(:,:,t).*sdmat+Sampvec(:,:,t-1);
-            diffp=logp(Z)-logp(Sampvec(:,:,t-1));
-            logdiff=log(prod(normpdf(Sampvec(:,:,t-1),Z,sdmat),2))- ...
-                        log(prod(normpdf(Z,Sampvec(:,:,t-1),sdmat),2));
-            alphamat=min( diffp+logdiff,0);
-            rmat=log(rand(Nsamp,1));
-            Sampvec(:,:,t)=(rmat<alphamat).*Y(:,:,t).*sdmat + Sampvec(:,:,t-1);
-        end
-        Sampvec=Sampvec(:,:,T);    
 
+        Sampvec=Sampvecloc;
+        if settings.run_gpu
+            Sampvec=gpuArray(Sampvec); 
+            sd_vec=gpuArray(sd_vec); % todo: check if this is necessary
+        end
+        for t=2:T
+            Z=Y(:,:,t).*sd_vec+Sampvec;
+            diffp=logp(Z)-logp(Sampvec);
+            logdiff=log(prod(normpdf(Sampvec,Z,sd_vec),2)) - ...
+                        log(prod(normpdf(Z,Sampvec,sd_vec),2));
+            if settings.run_gpu
+                alphamat=min( diffp+logdiff,gpuArray(0)); % might be overkill
+                rmat=gpuArray(log(rand(Nsamp,1)));
+            else
+                alphamat=min( diffp+logdiff,0); % might be overkill
+                rmat=log(rand(Nsamp,1));
+            end
+            Sampvec=(rmat<alphamat).*Y(:,:,t).*sd_vec + Sampvec;
+        end
+
+        Sampvec=gather(Sampvec);    
+        
 
 end
 

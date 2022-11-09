@@ -5,8 +5,13 @@ switch settings.FIM_expectation_method
         N=1000;
     case 'variance'
         low_enough_variance=false;
+<<<<<<< HEAD
         var_cut=1e-1; % todo put back
         N=1000;
+=======
+        var_cut=settings.var_cut;
+        N=settings.batch_size;
+>>>>>>> 8bf398575ce343a1f7308b1b3de471dcd097206f
 end
 Mexpvec=[];
 while ~low_enough_variance
