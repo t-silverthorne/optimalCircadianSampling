@@ -62,7 +62,7 @@ tiledlayout(3,1,'TileSpacing','tight')
 nexttile
 red=[.81 .1 .26];
 blue=[.36 .54 .66];
-nexp=5;
+nexp=15;
 colours=[linspace(red(1),blue(1),nexp+1)' linspace(red(2),blue(2),nexp+1)' linspace(red(3),blue(3),nexp+1)'];
 for j=1:3
     nexttile(j)
@@ -80,6 +80,9 @@ for i=2:nexp
     end   
     Yobs_unif_MAT=[Yobs_unif; Yobs_unif_MAT];
     tobs_unif_MAT=[mt_unif; tobs_unif_MAT];
+    tvec=reshape(tobs_unif_MAT,1,numel(tobs_unif_MAT));
+    yvec=reshape(Yobs_unif_MAT,1,numel(Yobs_unif_MAT));
+    size(yvec)
     post=samplePosteriorMCMC(Nsamp,yvec,tvec,settings);
     for j=1:3
         nexttile(j)
