@@ -1,50 +1,9 @@
-clear
-rng(12)
-Nmeas=16
-t_num=sort(rand(1,Nmeas));
-y_num=rand(1,Nmeas);
-
-settings.muA=10;
-settings.sigA=0.1;
-settings.muB=10;
-settings.sigB=0.1;
-settings.muf=3;
-settings.sigf=1;
-settings.Lcut=15;
-tic
-[qA,qB,qf]=updateVariationalBayes(t_num,y_num,settings);
-toc
-
-tiledlayout(3,1)
-fvals=0:.01:settings.Lcut;
-Avals=-10:.01:10;
-Bvals=-10:.01:10;
-nexttile(1)
-plot(Avals,qA(Avals))
-nexttile(2)
-plot(Bvals,qB(Bvals))
-nexttile(3)
-plot(fvals,qf(fvals))
-%%
-% normalization factor for qf
-clear all
-syms muf sigf f
-
-
-function [x,w] = gauss(N)
-% Golub-Welsh to construct Gaussian quadrature nodes
-beta = .5./sqrt(1-(2*(1:N-1)).^(-2)); T = diag(beta,1) + diag(beta,-1);
-[V,D] = eig(T);
-x = diag(D); [x,i] = sort(x);
-w = 2*V(1,i).^2;
-end
-
-function [qA,qB,qf]=updateVariationalBayes(t_num,y_num,settings)
+function [qA,qB,qf,pars,qfdom,Zf0,Zf]=updateVariationalBayes(t_num,y_num,settings)
 Nmeas=length(t_num);
 Nquad=1000;
 Lcut=settings.Lcut;
-
-syms t f A B y
+f_upper_bound=false;
+t=sym('t'); f=sym('f'); A=sym('A'); B=sym('B'); y=sym('y');
 assume([t f A B y],'real')
 tv=sym('t',[1 Nmeas]);
 yv=sym('y',[1 Nmeas]);
@@ -59,12 +18,16 @@ sigB=settings.sigB;
 muf=settings.muf;
 sigf=settings.sigf;
 
-Zf=(2^(1/2)*pi^(1/2)*(erf((2^(1/2)*muf*(1/sigf^2)^(1/2))/2) + 1)*(sigf^2)^(1/2))/2;
+Zf0=(2^(1/2)*pi^(1/2)*(erf((2^(1/2)*muf*(1/sigf^2)^(1/2))/2) + 1)*(sigf^2)^(1/2))/2;
+if f_upper_bound % explicit assumption that f<10 changes normalization
+	Zf0=(2^(1/2)*pi^(1/2)*(erf((2^(1/2)*(muf - 10)*(1/sigf^2)^(1/2))/2) + 1)*(sigf^2)^(1/2))/2;
+end
 % assume([muf sigf f],'real')
 % int(exp(-(f-muf)^2/2/sigf^2),f,0,Inf)
 
+%TODO: put explicit cut off on the f
 % initial distributions
-qf=@(f) (f>0).*exp(-(f-muf).^2/2/sigf^2)/Zf; % truncated Gaussian
+qf=@(f) (10>f).*(f>0).*exp(-(f-muf).^2/2/sigf^2)/Zf0; % truncated Gaussian
 qA=@(A) exp(-(A-muA).^2/2/sigA^2)/sqrt(2*pi)/sigA; % N(muA,sigA^2)
 qB=@(B) exp(-(B-muB).^2/2/sigB^2)/sqrt(2*pi)/sigB; % N(muB,sigB^2)
 
@@ -98,7 +61,7 @@ SS=subs(S3B_int,t,tv);
 S3B_int=matlabFunction(sum(arrayfun( @(ind) subs(SS(ind),y,yv(ind)),1:Nmeas)));
 S3B_int_fun=@(f) S3B_int(f,t_numc{:},y_numc{:});
 
-for i=1:10
+for i=1:50
 
     % get qA terms
     S1A_num=wf*(S1A_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2);
@@ -120,7 +83,11 @@ for i=1:10
     S5f=matlabFunction(2*muB*y_num*subs(sin(2*pi*f*t),t,t_num)');
     
     % update parameters of qA, qB, qf density functions
-    qf=@(f) (f>0).*exp(-(f-muf).^2/2/sigf^2).*exp(- (S1f(f) + S2f(f) + S3f(f) - S4f(f) - S5f(f))/2);
+		if f_upper_bound
+			qf=@(f) (10>f).*(f>0).*exp(-(f-muf).^2/2/sigf^2).*exp(- (S1f(f) + S2f(f) + S3f(f) - S4f(f) - S5f(f))/2);
+		else
+			qf=@(f) (f>0).*exp(-(f-muf).^2/2/sigf^2).*exp(- (S1f(f) + S2f(f) + S3f(f) - S4f(f) - S5f(f))/2);
+		end
     Zf=wf*qf(xf*Lcut/2+Lcut/2)*Lcut/2; % might be safer way of doing normalization
     qf=@(f) qf(f)/Zf;
     
@@ -140,5 +107,23 @@ for i=1:10
     %fprintf('%f\n',norm(pvec-[muA sigA muB sigB],2))
     pvec=[muA sigA muB sigB];
 
+end
+
+pars.muA=muA;
+pars.sigA=sigA;
+pars.muB=muB;
+pars.sigB=sigB;
+
+fvals=0:.01:Lcut;
+C=min((S1f(fvals) + S2f(fvals) + S3f(fvals) - S4f(fvals) - S5f(fvals))/2);
+qfdom=exp(-C);
+
+
+function [x,w] = gauss(N)
+	% Golub-Welsh to construct Gaussian quadrature nodes
+	beta = .5./sqrt(1-(2*(1:N-1)).^(-2)); T = diag(beta,1) + diag(beta,-1);
+	[V,D] = eig(T);
+	x = diag(D); [x,i] = sort(x);
+	w = 2*V(1,i).^2;
 end
 end
