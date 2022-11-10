@@ -27,8 +27,8 @@ settings.dT=0.2;
 settings.Ntot=NL+NR;
 settings.verbose=false;
 settings.run_gpu=false;
-settings.Tprior=20;
-settings.T=50;
+settings.Tprior=5e3;
+settings.T=5e3;
 settings.sig1=1;
 settings.sig2=settings.sig1;
 settings.sig3=2*settings.sig1;
@@ -101,7 +101,7 @@ if run_default
     ptrue=[1.3 pi 2.5]; % true parameters
 end
 
-%%
+
 fnames={'A1','phi1','f1'};
 switch settings.model % simulate measurement
     case 'cosinorOneFreq'
@@ -144,7 +144,7 @@ if plot_error
     hold on
     drawnow
 end
-%%
+
 if plot_posterior
     prior=sampleTruncatedPrior(Nsamp,settings);
     for ind=2:3 % one for unif and one for non-unif
@@ -169,6 +169,8 @@ if plot_posterior
         end
     end
 end
+
+
 %%
 
 for ind=2:nexp

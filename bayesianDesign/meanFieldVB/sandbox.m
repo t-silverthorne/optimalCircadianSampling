@@ -22,13 +22,14 @@ rng(12)
 NL=3;
 NR=5;
 tauA=0;
-tauB=1/2;
+tauB=1/3;
 settings.dT=0.2;
+settings.fmax=10;
 settings.Ntot=NL+NR;
 settings.verbose=false;
 settings.run_gpu=false;
-settings.Tprior=20;
-settings.T=50;
+settings.Tprior=500;
+settings.T=500;
 [mt_unif,mt_nu]=getSamplingSchedules(NL,NR,tauA,tauB);
 
 % for terminating Monte Carlo integration of FIM
@@ -50,8 +51,8 @@ opts = optimoptions(@particleswarm, ... %'HybridFcn',@fminsearch,...
 
 % simulate measurement both start with uniform data
 
-ptrue=[2.7 pi 4.5]; % true parameters
-ptruelin=[ptrue(1)*cos(ptrue(2)),ptrue(1)*sin(ptrue(2)),ptrue(3)]; % linear form of true
+ptrue=[1/10 1 4.5]; % true parameters
+ptruelin=[ptrue(1)*cos(ptrue(2)),ptrue(1)*sin(ptrue(2)),ptrue(3)]; % linear form of ptrue
 
 fnames={'A1','phi1','f1'};
 switch settings.model % simulate measurement
@@ -75,13 +76,13 @@ bestfit=multiStartRegression(mt_unif,Yobs_unif,settings.model);
 
 % use bestfit to get 
 settings.muA=bestfit.a2;
-settings.sigA=5;
+settings.sigA=1;
 settings.muB=bestfit.a1; % coeff on sin term
-settings.sigB=5;
+settings.sigB=1;
 settings.muf=1/bestfit.per1;
 settings.sigf=5;
 
-settings.Lcut=25;
+settings.Lcut=20;
 
 %% variational Bayes
 tic
@@ -127,7 +128,28 @@ nexttile(3)
 plot(fvals,qf_nu(fvals))
 hold on
 xline(ptruelin(3))
+xlim([0 10])
+%% MCMC comparison
+settings.mu1=bestfit.a2;
+settings.sig1=1;
+settings.mu2=bestfit.a1; % coeff on sin term
+settings.sig2=1;
+settings.mu3=1/bestfit.per1;
+settings.sig3=1;
 
+
+post=sampleLinPosteriorMCMC(10^4,yvec_nu,tvec_nu,settings);
+
+
+nexttile(1)
+histogram(post(:,1),10*floor(sqrt(10^4)),'Normalization','pdf','EdgeColor','none')
+
+nexttile(2)
+histogram(post(:,2),10*floor(sqrt(10^4)),'Normalization','pdf','EdgeColor','none')
+
+%%
+nexttile(3)
+histogram(post(:,3),10*floor(sqrt(10^4)),'Normalization','pdf','EdgeColor','none')
 
 %% sample posterior distributions
 
