@@ -1,29 +1,29 @@
 %% simulated data
-close all
+clf
 rng(12)
 A0=10;
-B0=8;
-f0=3;
+B0=7;
+f0=1;
 T=1000;
 Nsamp=1e4;
-Nmeas=20;
-muA=A0*(1+.5*rand);
-sigA=1;
-muB=B0*(1+.5*rand);
-sigB=1;
+Nmeas=50;
+muA=A0;
+sigA=.5;
+muB=B0;
+sigB=.5;
 sig1=.5;sig2=.5;
 
 t_obs=linspace(0,1,Nmeas+1);
 t_obs=t_obs(1:end-1);
 y_obs=A0*cos(2*pi*f0*t_obs)+B0*sin(2*pi*f0*t_obs) + randn(1,numel(t_obs));
 
-% MCMC
+%% MCMC
 tic
 X=randn(Nsamp,2);
 X(:,1)=X(:,1)*sigA+muA; X(:,2)=X(:,2)*sigB+muB;
 
 pfun=@(par) -sum((y_obs - par(:,1).*cos(2*pi*f0*t_obs) ...
-    - par(:,2).*cos(2*pi*f0*t_obs)   ).^2/2,2) - ...
+    - par(:,2).*sin(2*pi*f0*t_obs)   ).^2/2,2) - ...
     (muA-par(:,1)).^2/2/sigA^2 -  ...
     (muB-par(:,2)).^2/2/sigB^2;
 
@@ -39,8 +39,8 @@ for t=2:T
     X=(rmat<alphamat).*Y(:,:,t) + X;
 end
 toc
-close all
-tiledlayout(1,2)
+
+%tiledlayout(1,2)
 nexttile(1)
 histogram(X(:,1),floor(sqrt(Nsamp)),'normalization','pdf','EdgeColor','none')
 hold on
@@ -53,62 +53,73 @@ xline(B0)
 
 %xlim([0 12])
 
-%% HMC
-param.muA=muA;
-param.muB=muB;
-param.sigA=sigA;
-param.sigB=sigB;
-param.f0=f0;
 
-hmc=hmcSampler(@(x)logpdf(x(1),x(2),y_obs,t_obs,param),[0,0]);
-tic
-samp=drawSamples(hmc,'NumSamples',Nsamp);
-toc
-
-
-nexttile(1)
-histogram(samp(:,1),floor(sqrt(Nsamp)),'Normalization','pdf','EdgeColor','none')
-nexttile(2)
-histogram(samp(:,2),floor(sqrt(Nsamp)),'Normalization','pdf','EdgeColor','none')
-%% Tuned HMC
-hmc=tuneSampler(hmc)
-tic
-samp=drawSamples(hmc,'NumSamples',Nsamp);
-toc
-
-
-nexttile(1)
-histogram(samp(:,1),80,'Normalization','pdf','EdgeColor','none')
-nexttile(2)
-histogram(samp(:,2),80,'Normalization','pdf','EdgeColor','none')
+% %% HMC
+% param.muA=muA;
+% param.muB=muB;
+% param.sigA=sigA;
+% param.sigB=sigB;
+% param.f0=f0;
+% 
+% % Get maximum of logpdf used for HMC
+% maxima=fsolve( @(x) wrapLogPDF(x(1),x(2),y_obs,t_obs,param),[1 1])
+% for ind=1:2
+%     nexttile(ind)
+%     xline(maxima(ind))
+% end
+% 
+% %%
+% 
+% hmc=hmcSampler(@(x)logpdf(x(1),x(2),y_obs,t_obs,param),[0,0]);
+% tic
+% samp=drawSamples(hmc,'NumSamples',Nsamp);
+% toc
+% 
+% 
+% nexttile(1)
+% histogram(samp(:,1),floor(sqrt(Nsamp)),'Normalization','pdf','EdgeColor','none')
+% nexttile(2)
+% histogram(samp(:,2),floor(sqrt(Nsamp)),'Normalization','pdf','EdgeColor','none')
+% %% Tuned HMC
+% hmc=tuneSampler(hmc)
+% tic
+% samp=drawSamples(hmc,'NumSamples',Nsamp);
+% toc
+% 
+% 
+% nexttile(1)
+% histogram(samp(:,1),80,'Normalization','pdf','EdgeColor','none')
+% nexttile(2)
+% histogram(samp(:,2),80,'Normalization','pdf','EdgeColor','none')
 %% variatioanl bayes
 muAINIT=muA;
 muBINIT=muB;
 sigAINIT=sigA;
 sigBINIT=sigB;
-
+tic
 muA=1;
 muB=1;
 sigA=1;
 sigB=1;
 for i=1:10
-    S1B=sin(2*pi*f0*t_obs)*sin(2*pi*f0*t_obs)';
-    S2B=sin(2*pi*f0*t_obs)*cos(2*pi*f0*t_obs)';
-    S3B=sin(2*pi*f0*t_obs)*y_obs';
-    
     S1A=cos(2*pi*f0*t_obs)*cos(2*pi*f0*t_obs)';
     S2A=S2B;
     S3A=cos(2*pi*f0*t_obs)*y_obs';
+
+    S1B=sin(2*pi*f0*t_obs)*sin(2*pi*f0*t_obs)';
+    S2B=sin(2*pi*f0*t_obs)*cos(2*pi*f0*t_obs)';
+    S3B=sin(2*pi*f0*t_obs)*y_obs';
     
     muA=(S3A/2 - (S2A*muB)/2 + muAINIT/(2*sigAINIT^2))/(S1A/2 + 1/(2*sigAINIT^2));
     muB=(S3B/2 - (S2B*muA)/2 + muBINIT/(2*sigAINIT^2))/(S1B/2 + 1/(2*sigBINIT^2));
     sigA=1/(S1A + 1/sigAINIT^2)^(1/2);
     sigB=1/(S1B + 1/sigBINIT^2)^(1/2);
 end
+toc
 %%
 for ind=1:2
     nexttile(ind)
-    xv=0:.1:20;
+    xv=0:.1:15;
     if ind==1
         mu=muA;sig=sigA;
     else
@@ -126,16 +137,20 @@ end
 % sigNew=1/sqrt(2*c(1))
 %%
 % m
+
 function [p,dp]=logpdf(Avec,Bvec,y_obs,t_obs,param)
 muA=param.muA;
 muB=param.muB;
 sigA=param.sigA;
 sigB=param.sigB;
 f0=param.f0;
-p=-(sum((y_obs - Avec.*cos(2*pi*f0*t_obs) - Bvec.*cos(2*pi*f0*t_obs)   ).^2/2,2) + ...
+p=-(sum((y_obs - Avec.*cos(2*pi*f0*t_obs) - Bvec.*sin(2*pi*f0*t_obs)   ).^2/2,2) + ...
     (muA-Avec).^2/2/sigA^2 +  ...
     (muB-Bvec).^2/2/sigB^2);
 dp(1,:)=-( sum(cos(2.*f0.*t_obs.*pi).*(Avec.*cos(2.*f0.*t_obs.*pi) - y_obs + Bvec.*cos(2.*f0.*t_obs.*pi)),2) + (2.*Avec - 2.*muA)./(2.*sigA.^2) );
 dp(2,:)=-( sum(cos(2.*f0.*t_obs.*pi).*(Avec.*cos(2.*f0.*t_obs.*pi) - y_obs + Bvec.*cos(2.*f0.*t_obs.*pi)),2) + (2.*Bvec - 2.*muB)./(2.*sigB.^2));
 end
 
+function dp = wrapLogPDF(Avec,Bvec,y_obs,t_obs,param)
+[~,dp]=logpdf(Avec,Bvec,y_obs,t_obs,param);
+end
