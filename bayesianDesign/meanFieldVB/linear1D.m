@@ -103,7 +103,7 @@ sigA=1;
 sigB=1;
 for i=1:10
     S1A=cos(2*pi*f0*t_obs)*cos(2*pi*f0*t_obs)';
-    S2A=S2B;
+    S2A=sin(2*pi*f0*t_obs)*cos(2*pi*f0*t_obs)';
     S3A=cos(2*pi*f0*t_obs)*y_obs';
 
     S1B=sin(2*pi*f0*t_obs)*sin(2*pi*f0*t_obs)';

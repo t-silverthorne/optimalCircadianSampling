@@ -137,7 +137,8 @@ for i=1:50
     pvec=[muA sigA muB sigB];
 
 end
-
+%%
+figure(1)
 for ind=1:3
     t=nexttile(ind);
     xv=t.XLim(1):.01:t.XLim(2);
@@ -158,3 +159,4 @@ function [x,w] = gauss(N)
 	x = diag(D); [x,i] = sort(x);
 	w = 2*V(1,i).^2;
 end
+    
