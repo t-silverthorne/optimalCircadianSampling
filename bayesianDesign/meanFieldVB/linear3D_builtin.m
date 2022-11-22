@@ -3,7 +3,7 @@ clf
 clear all
 rng(1)
 A0=2.5;
-B0=2.5;
+B0=1.5;
 f0=2.1;
 fmax=20;
 Lcut=fmax;
@@ -96,15 +96,15 @@ sigBINIT=sigB;
 qf=@(f) (f>0).*(fmax>f)/fmax;
 for i=1:50
     % get qA terms
-    S1A_num=wf*(S1A_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2);
-    S2A_num=wf*(S2A_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2);
-    S3A_num=wf*(S3A_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2);
+    S1A_num=integral(@(xf) S1A_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2,-1,1);
+    S2A_num=integral(@(xf) S2A_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2,-1,1);
+    S3A_num=integral(@(xf) S3A_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2,-1,1);
     S1A=S1A_num; S2A=S2A_num*muB; S3A=S3A_num; % update with exact part
    
     % get qB terms
-    S1B_num=wf*(S1B_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2);
+    S1B_num=integral(@(xf) S1B_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2,-1,1);
     S2B_num=S2A_num;
-    S3B_num=wf*(S3B_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2);
+    S3B_num=integral(@(xf) S3B_int_fun(xf*Lcut/2+Lcut/2).*qf(xf*Lcut/2+Lcut/2)*Lcut/2,-1,1);
     S1B=S1B_num; S2B=S2B_num*muA; S3B=S3B_num;
     
     % get qf terms
@@ -128,7 +128,7 @@ for i=1:50
     qB=@(B) exp(-(B-muB).^2/2/sigB^2)/sqrt(2*pi)/sigB;
     
 	qf=@(F) (fmax>F).*(F>0).*exp(- (S1f(F) + S2f(F) + S3f(F))/2).*exp( (S4f(F) + S5f(F))/2)/fmax;
-    Zf=wf*qf(xf*Lcut/2+Lcut/2)*Lcut/2; % there might be safer way of doing normalization
+    Zf=integral(@(xf) qf(xf*Lcut/2+Lcut/2)*Lcut/2,-1,1); % there might be safer way of doing normalization
     fvals=0:.01:fmax;    
     qf=@(f) qf(f)/Zf;
 
