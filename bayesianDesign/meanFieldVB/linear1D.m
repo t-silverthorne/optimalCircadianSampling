@@ -54,43 +54,43 @@ xline(B0)
 %xlim([0 12])
 
 
-% %% HMC
-% param.muA=muA;
-% param.muB=muB;
-% param.sigA=sigA;
-% param.sigB=sigB;
-% param.f0=f0;
-% 
-% % Get maximum of logpdf used for HMC
-% maxima=fsolve( @(x) wrapLogPDF(x(1),x(2),y_obs,t_obs,param),[1 1])
-% for ind=1:2
-%     nexttile(ind)
-%     xline(maxima(ind))
-% end
-% 
-% %%
-% 
-% hmc=hmcSampler(@(x)logpdf(x(1),x(2),y_obs,t_obs,param),[0,0]);
-% tic
-% samp=drawSamples(hmc,'NumSamples',Nsamp);
-% toc
-% 
-% 
-% nexttile(1)
-% histogram(samp(:,1),floor(sqrt(Nsamp)),'Normalization','pdf','EdgeColor','none')
-% nexttile(2)
-% histogram(samp(:,2),floor(sqrt(Nsamp)),'Normalization','pdf','EdgeColor','none')
-% %% Tuned HMC
-% hmc=tuneSampler(hmc)
-% tic
-% samp=drawSamples(hmc,'NumSamples',Nsamp);
-% toc
-% 
-% 
-% nexttile(1)
-% histogram(samp(:,1),80,'Normalization','pdf','EdgeColor','none')
-% nexttile(2)
-% histogram(samp(:,2),80,'Normalization','pdf','EdgeColor','none')
+%% HMC
+param.muA=muA;
+param.muB=muB;
+param.sigA=sigA;
+param.sigB=sigB;
+param.f0=f0;
+
+% Get maximum of logpdf used for HMC
+maxima=fsolve( @(x) wrapLogPDF(x(1),x(2),y_obs,t_obs,param),[1 1])
+for ind=1:2
+    nexttile(ind)
+    xline(maxima(ind))
+end
+
+%%
+
+hmc=hmcSampler(@(x)logpdf(x(1),x(2),y_obs,t_obs,param),[0,0]);
+tic
+samp=drawSamples(hmc,'NumSamples',Nsamp);
+toc
+
+
+nexttile(1)
+histogram(samp(:,1),floor(sqrt(Nsamp)),'Normalization','pdf','EdgeColor','none')
+nexttile(2)
+histogram(samp(:,2),floor(sqrt(Nsamp)),'Normalization','pdf','EdgeColor','none')
+%% Tuned HMC
+hmc=tuneSampler(hmc)
+tic
+samp=drawSamples(hmc,'NumSamples',Nsamp);
+toc
+
+
+nexttile(1)
+histogram(samp(:,1),80,'Normalization','pdf','EdgeColor','none')
+nexttile(2)
+histogram(samp(:,2),80,'Normalization','pdf','EdgeColor','none')
 %% variatioanl bayes
 muAINIT=muA;
 muBINIT=muB;
