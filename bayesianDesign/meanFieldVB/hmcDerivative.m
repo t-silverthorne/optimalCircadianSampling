@@ -38,12 +38,12 @@ histogram(samp(:,2),80,'Normalization','pdf','EdgeColor','none')
 
 syms f0 t_obs y_obs Avec Bvec muA muB sigA sigB
 
-(y_obs - Avec.*cos(2*pi*f0*t_obs) - Bvec.*cos(2*pi*f0*t_obs) + (muA-Avec).^2/2/sigA^2 + (muB-Bvec).^2/2/sigB^2
+%(y_obs - Avec.*cos(2*pi*f0*t_obs) - Bvec.*sin(2*pi*f0*t_obs) + (muA-Avec).^2/2/sigA^2 + (muB-Bvec).^2/2/sigB^2
 
-dpdA1=vectorize(diff( (y_obs - Avec.*cos(2*pi*f0*t_obs) - Bvec.*cos(2*pi*f0*t_obs)   ).^2/2  ,Avec))
+dpdA1=vectorize(diff( (y_obs - Avec.*cos(2*pi*f0*t_obs) - Bvec.*sin(2*pi*f0*t_obs)   ).^2/2  ,Avec))
 dpdA2=vectorize(diff( (muA-Avec).^2/2/sigA^2 + (muB-Bvec).^2/2/sigB^2 ,Avec))
 
-dpdB1=vectorize(diff( (y_obs - Avec.*cos(2*pi*f0*t_obs) - Bvec.*cos(2*pi*f0*t_obs)   ).^2/2  ,Bvec))
+dpdB1=vectorize(diff( (y_obs - Avec.*cos(2*pi*f0*t_obs) - Bvec.*sin(2*pi*f0*t_obs)   ).^2/2  ,Bvec))
 dpdB2=vectorize(diff( (muA-Avec).^2/2/sigA^2 + (muB-Bvec).^2/2/sigB^2 ,Bvec))
 
 
