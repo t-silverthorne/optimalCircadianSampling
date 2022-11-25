@@ -1,4 +1,7 @@
-clear
+figure(1)
+clf
+figure(2)
+clf
 rng(12)
 %% simulated data
 
@@ -7,7 +10,7 @@ sqrw2=@(w) w.^2/sum(w.^2)^2;
 A0=2.5;
 B0=2.5;
 f0=2.1;
-fmax=8;
+fmax=16;
 T=1000;
 Nsamp=1e4;
 Nmeas=8;
@@ -48,16 +51,14 @@ logqgrad=@(S,muvecA,sdvecA,wvecA, ...
               muvecgrad(S(:,3),muvecT,sdvecT,wvecT) sdvecgrad(S(:,3),muvecT,sdvecT,wvecT) wvecgrad(S(:,3),muvecT,sdvecT,wvecT)];
 
 
-
-sc=10;
-muvecA    =  [2];%linspace(-5,5,NgaussA);
+muvecA    =  linspace(-5,5,NgaussA);
 sdvecA    =  1*ones(1,NgaussA);
 wvecA     =  sqrw(ones(1,NgaussA));
-muvecB    =  [-2.5 2.5];%linspace(-5,5,NgaussA);
+muvecB    =  linspace(-5,5,NgaussB);
 sdvecB    =  1*ones(1,NgaussB);
 wvecB     =  sqrw(ones(1,NgaussB));
 muvecT    =  atanh(2*[2 2 6]/fmax-1);%atanh(linspace(1/2,fmax,NgaussT)/fmax-1);
-sdvecT    =  1*ones(1,NgaussT);
+sdvecT    =  .1*ones(1,NgaussT);
 wvecT     =  sqrw(ones(1,NgaussT));
 
 lambda=[muvecA sdvecA wvecA ...
@@ -100,12 +101,40 @@ gbar=g0;
 vbar=v0;
 
 % learning params
-beta1=.5; beta2=0.5; eps0=1e-1;tau=4000;tW=20;maxPat=500;
+beta1=.1; beta2=0.1; eps0=1e-3;tau=2000;tW=30;maxPat=1000;
 t=0;patience=0;stop=false;
 LBvec=[];
 LBwindowvec=[];
 gtvec=[];
-while stop==false && t<4000
+close all
+tiledlayout(3,1)
+while stop==false && t<500
+
+    if visualize
+        % visualization
+        multinormpdf   = @(x,muvec,sdvec,wvec) ...
+               normpdf(repmat(x,1,length(muvec)), ...
+                       repmat(muvec,length(x),1), ...
+                       repmat(abs(sdvec),length(x),1))*sqrw(wvec)';
+        for ind=1:3
+            nexttile(ind)
+            xv=-10:.1:10;
+            xv=xv';
+            switch ind
+                case 1
+                    plot(xv,multinormpdf(xv,muvecA,sdvecA,wvecA))
+                case 2
+                    plot(xv,multinormpdf(xv,muvecB,sdvecB,wvecB))
+                case 3
+                    xv=0:.01:fmax;
+                    xv=xv';
+                    plot(xv,2/fmax*multinormpdf(atanh(2*xv/fmax-1),muvecT,sdvecT,wvecT)./abs((( 2*xv/fmax).^2 -1)))
+                    xlim([0,fmax])
+            end
+        end
+        drawnow
+    end
+
     fprintf('%d\n',t)
     S=sample_from_q(Nsamp,muvecA,sdvecA,sqrw(wvecA),muvecB, ...
                         sdvecB,sqrw(wvecB),muvecT,sdvecT,sqrw(wvecT));
@@ -118,16 +147,20 @@ while stop==false && t<4000
     
     Sc=sample_from_q(Nsamp,muvecA,sdvecA,sqrw(wvecA),muvecB, ...
                         sdvecB,sqrw(wvecB),muvecT,sdvecT,sqrw(wvecT));
-    hlambdavalc=hlambda(S,muvecA,sdvecA,wvecA, ...
+    hlambdavalc=hlambda(Sc,muvecA,sdvecA,wvecA, ...
              muvecB,sdvecB,wvecB, ...
              muvecT,sdvecT,wvecT);
-    logqgradvalc = logqgrad(S,muvecA,sdvecA,wvecA, ...
+    logqgradvalc = logqgrad(Sc,muvecA,sdvecA,wvecA, ...
              muvecB,sdvecB,wvecB, ...
              muvecT,sdvecT,wvecT);
     gr1=logqgradvalc.*hlambdavalc;
     gr2=logqgradvalc;
     c=arrayfun(@(ind) [1 0]*cov(gr1(:,ind),gr2(:,ind))*[0;1]/var(gr2(:,ind)),1:gradDim); %control variate
+    c(abs(c)>1e5)=0; % ad hoc way of dealing with low covariance terms
     gt=sum(logqgradval.*(hlambdaval-c),1)/Nsamp;
+    if norm(gt)>1e8
+        disp('huge gradient, possibly unstable')
+    end
     gt(isnan(gt))=0; % ad hoc
     %disp(gt)
     %c(isnan(c))=0; % ad hoc fix for guys with zero variance
@@ -177,9 +210,12 @@ while stop==false && t<4000
         stop=true;
     end
     t=t+1;
+
+
 end
 
 %%
+disp('continued')
 close all
 figure(2)
 tiledlayout(3,1)
@@ -188,7 +224,7 @@ plot(1:length(LBvec),LBvec)
 nexttile
 plot(LBwindowvec)
 nexttile
-plot(gtvec)
+semilogy(gtvec)
 figure(1)
 %% MCMC
 tic
