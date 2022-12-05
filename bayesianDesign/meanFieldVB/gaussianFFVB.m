@@ -5,39 +5,150 @@
 % f()
 clear 
 % GPU random variable generation
-NS=1e7;% number of samples
+NS=1e1;% number of samples
 d=3;
-Ngauss=3;
+Ngauss=2;
 
 Lvec = rand(d*(d+1)/2,Ngauss);
 muvec = rand(d,Ngauss);
 wvec = rand(Ngauss,1); wvec = wvec/sum(wvec);
 fprintf('running\n')
-gputimeit(@() generateSamples(muvec,Lvec,wvec,NS,d,Ngauss,true))
-timeit(@() generateSamples(muvec,Lvec,wvec,NS,d,Ngauss,false))
-function S=generateSamples(muvec,Lvec,wvec,NS,d,Ngauss,useGPU)
+%%
+S=generateSamples(muvec,Lvec,wvec,NS,d,Ngauss,true);
+S=reshape(S,[d,1,NS]);
+%%
+fmax=10;
+sigA1=1;
+sigB1=1;
+sigT1=1;
+Sigmat_prior=diag([sigA1,sigB1,sigT1]);
+muvec_prior=[0;0;0];
 
+%% prior and likelihood (vectorized to act on samples)
+% prior is product of Gaussians
+prior=@(A1,B1,T1) exp(-0.5*([A1;B1;T1] - muvec_prior)'*(Sigmat_prior\([A1;B1;T1] - muvec_prior)))*(2*pi)^(-d/2)/sqrt(det(Sigmat_prior));
+lhood=@(tobs,yobs,A1,B1,T1) exp(-0.5*sum(( A1*cos(pi*fmax*(1+tanh(T1)*tobs))+B1*sin(pi*fmax*(1+tanh(T1))*tobs) -yobs).^2))/sqrt(2*pi);
+% vectorized version of prior (capable of using higher dimensional arrays)
+priorvec=@(S) exp(pagemtimes(-0.5*pagetranspose(S - muvec_prior), ...
+                             (pagemldivide(Sigmat_prior,(S - muvec_prior)))))*...
+                  (2*pi)^(-d/2)/sqrt(det(Sigmat_prior));
+
+eta=@(S,tobs) S(1,:,:).*cos(pi*fmax*(1+tanh(S(3,:,:)).*tobs))+...
+    S(2,:,:).*sin(pi*fmax*(1+tanh(S(3,:,:))).*tobs);
+lhoodvec=@(S,tobs,yobs) exp(-0.5*sum( (eta(S,tobs)-yobs).^2,1))/sqrt(2*pi);
+%lhood([1;2;3],[4;5;6],1,1,2)
+%lhoodvec(S,[1;2;3],[4;5;6])
+%% derivatives of prior and likelihood function
+tobs=[1;2;3];
+yobs=[4;5;6];
+jac1=@(S,tobs) cos(pi*fmax*(pagemtimes(tobs,tanh(S(3,:,:))) + 1));
+jac2=@(S,tobs) sin(pi*fmax*pagemtimes(tobs,(tanh(S(3,:,:))) + 1));
+jac3=@(S,tobs) S(1,:,:).*fmax.*tobs.*pi.*sin(pi*fmax*(tobs.*tanh(S(3,:,:)) + 1)).*(tanh(S(3,:,:)).^2 - 1)- ...
+               S(2,:,:).*fmax.*tobs.*pi.*cos(pi*fmax*tobs.*(tanh(S(3,:,:)) + 1)).*(tanh(S(3,:,:)).^2 - 1);
+jaceta=@(S,tobs)[jac1(S,tobs) jac2(S,tobs) jac3(S,tobs)];
+
+difflogprior=@(S) -pagemldivide(Sigmat_prior,S-muvec_prior);
+diffloglhood=@(S,tobs,yobs) pagemtimes(jaceta(S,tobs),yobs-eta(S,tobs));
+
+%diffprior(S)
+%difflhood(S,tobs,yobs)
+%% derivative of hlambda and g
+
+Sigm1=ivh(Lvec(:,1))*ivh(Lvec(:,1))';
+Sigm2=ivh(Lvec(:,2))*ivh(Lvec(:,2))';
+%Lmat2=ivh(Lvec(:,3));
+
+qlambda=    @(S) wvec(1)*(sqrt(det(Sigm1))^(-1)*(2*pi)^(-d/2)*...
+                                   exp(-0.5*pagemtimes(pagetranspose(S-muvec(:,1)),pagemldivide(Sigm1,S-muvec(:,1))) )) + ...
+                 wvec(2)*(sqrt(det(Sigm2))^(-1)*(2*pi)^(-d/2)*...
+                                   exp(-0.5*pagemtimes(pagetranspose(S-muvec(:,2)),pagemldivide(Sigm2,S-muvec(:,2))) ));
+
+
+diffqlambda=@(S) wvec(1)*(sqrt(det(Sigm1))^(-1)*(2*pi)^(-d/2)*...
+                                   pagemldivide(Sigm1,(muvec(:,1)-S)).*...
+                                   exp(-0.5*pagemtimes(pagetranspose(S-muvec(:,1)),pagemldivide(Sigm1,S-muvec(:,1))) )) + ...
+                 wvec(2)*(sqrt(det(Sigm2))^(-1)*(2*pi)^(-d/2)*...
+                                   pagemldivide(Sigm2,(muvec(:,2)-S)).*...
+                                   exp(-0.5*pagemtimes(pagetranspose(S-muvec(:,2)),pagemldivide(Sigm2,S-muvec(:,2))) ));
+
+
+difflogqlambda=@(S) diffqlambda(S)./qlambda(S);
+
+difflogqlambda(S)
+diffhlambda=@(S) difflogprior(S)+diffloglhood(S,tobs,yobs)-difflogqlambda(S);
+diffhlambda(S)
+
+%%
+NS=1e6;
+useGPU=true;
 switch useGPU
     case true
-        eps  = randn(d,1,NS,'gpuArray');
-        u    = rand(1,1,NS,'gpuArray');
-    case false
-        eps  = randn(d,1,NS);
-        u    = rand(1,1,NS);
-end
 
+        u    = rand(1,NS,'gpuArray');
+    case false
+
+        u    = rand(1,NS);
+end
 avec = cumsum(wvec);
 avecm1= [0; avec(1:end-1)];
 xi=avecm1<u & u<avec;
-counts=sum(xi,2);
-S=NaN(d,NS,'gpuArray');
+counts=gather(sum(xi,2));
 cc=cumsum(counts);
-Lmatnow=ivh(Lvec(:,1));
-S(:,1:cc(1))=muvec(:,1) + Lmatnow*eps(:,1:cc(1));
+
+% generate samples
+eps=randn(d,1,cc(1),'gpuArray');
+Sloc=muvec(:,1)+pagemtimes(ivh(Lvec(:,1)),eps);
+
+ivh(Lvec(:,1))
+%%
+S(:,1:cc(1))=Sloc;
+%%
 for ii=2:Ngauss
     i0=cc(ii-1)+1;
     Lmatnow=ivh(Lvec(:,ii));
-    S(:,i0:cc(ii))=muvec(:,ii) + Lmatnow*eps(:,i0:cc(ii));
+    S(:,i0:cc(ii))=muvec(:,ii)+Lmatnow*randn(d,cc(ii)+1-i0,'gpuArray');
+end
+
+%Sloc=
+
+
+pagemtimes(diffhlambda(S),pagetranspose(eps))
+
+
+%%
+pagefun(@ivh,[],w)
+
+%%
+% syms S1 S2 S3 fmax tobs
+% size(jacobian(S1.*cos(pi*fmax*(1+tanh(S3).*tobs))+...
+%     S2.*sin(pi*fmax*(1+tanh(S3)).*tobs),[S1; S2; S3]))
+% clear tobs
+% tobs=[1;2;3]
+% [cos(pi*fmax*(pagemtimes(tobs,tanh(S(3,:,:))) + 1)), ...
+%     sin(pi*fmax*pagemtimes(tobs,(tanh(S(3,:,:))) + 1)), ...
+%     S(1,:,:)*fmax*tobs*pi*sin(pi*fmax*(tobs*tanh(S(3,:,:)) + 1))*(tanh(S(3,:,:))^2 - 1) - S(2,:,:)*fmax*tobs*pi*cos(pi*fmax*tobs*(tanh(S(3,:,:)) + 1))*(tanh(S(3,:,:))^2 - 1)]
+%  
+
+function S=generateSamples(muvec,Lvec,wvec,NS,d,Ngauss,useGPU)
+switch useGPU
+    case true
+        eps  = randn(d,NS,'gpuArray');
+        u    = rand(1,NS,'gpuArray');
+    case false
+        eps  = randn(d,NS);
+        u    = rand(1,NS);
+end
+avec = cumsum(wvec);
+avecm1= [0; avec(1:end-1)];
+xi=avecm1<u & u<avec;
+counts=gather(sum(xi,2));
+cc=cumsum(counts);
+
+S(:,1:cc(1))=muvec(:,1)+ivh(Lvec(:,1))*randn(d,cc(1),'gpuArray');
+for ii=2:Ngauss
+    i0=cc(ii-1)+1;
+    Lmatnow=ivh(Lvec(:,ii));
+    S(:,i0:cc(ii))=muvec(:,ii)+Lmatnow*randn(d,cc(ii)+1-i0,'gpuArray');
 end
 end
    
@@ -59,27 +170,5 @@ i0=1;
 for i=1:d
     Lmat(i:d,i)=Lvec(i0:i0+d-i);
     i0=i0+d+1-i;
-end
-end
-
-function S=sample_from_q(Nsamp,muCell,cholMatCell,wvec)
-% input:
-% muCell    - list of means
-% sigmaCell - list of covariance matrices
-% wvec      - weights for each gaussian 
-% output: samples from the summed distribution
-% generate random samples from qlambda(theta)
-mu_inds = cumsum(mnrnd(Nsamp,wvec));
-S=randn([Nsamp,3]);
-
-for ii=1:length(mu_inds)
-    R=cholMatCell{ii};
-    if ii>1
-        Sstart=mu_inds(ii-1)+1;
-    else
-        Sstart=1;
-    end
-    Sstop=mu_inds(ii);
-    S(Sstart:Sstop)=muCell{ii} + S(Sstart:Sstop)*R;
 end
 end
