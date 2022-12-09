@@ -8,13 +8,13 @@ clear
 NS=1e1;% number of samples
 d=3;
 Ngauss=2;
-useGPU=true;
+useGPU=false;
 Lvec = rand(d*(d+1)/2,Ngauss);
 muvec = rand(d,Ngauss);
 wvec = rand(Ngauss,1); wvec = wvec/sum(wvec);
 fprintf('running\n')
 %%
-S=generateSamples(muvec,Lvec,wvec,NS,d,Ngauss,true);
+S=generateSamples(muvec,Lvec,wvec,NS,d,Ngauss,useGPU);
 S=reshape(S,[d,1,NS]);
 %%
 fmax=10;
@@ -81,7 +81,6 @@ difflogqlambda(S)
 diffhlambda=@(S) difflogprior(S)+diffloglhood(S,tobs,yobs)-difflogqlambda(S);
 diffhlambda(S)
 
-
 switch useGPU
     case true
 
@@ -97,14 +96,25 @@ counts=gather(sum(xi,2));
 cc=cumsum(counts);
 
 % generate samples
-eps=randn(d,1,NS,'gpuArray');
+switch useGPU
+    case true
+        eps=randn(d,1,NS,'gpuArray');
+    case false
+        eps=randn(d,1,NS);
+end
+
 dMU_mean_mat= NaN(d,Ngauss);
 dL_mean_mat = NaN(d*(d+1)/2,Ngauss);
 dA_mean_mat= zeros(Ngauss-1,1);
 for ii=1:Ngauss
     numU=cc(ii);
     
-    epsloc    = randn(d,1,numU,'gpuArray');
+    switch useGPU
+        case true
+            epsloc    = randn(d,1,numU,'gpuArray');
+        case false
+            epsloc    = randn(d,1,numU);
+    end
     Sloc      = muvec(:,ii)+pagemtimes(ivh(Lvec(:,ii)),eps);
     dMU       = diffhlambda(epsloc); % derivative wrt mu
     dMU_mean  = sum(reshape(dMU,[d,numU]),2)/numU;
@@ -158,7 +168,12 @@ avec=avec+dAbar./sqrt(vAbar);
 for ii=2:Ngauss
     i0=cc(ii-1)+1;
     Lmatnow=ivh(Lvec(:,ii));
-    S(:,i0:cc(ii))=muvec(:,ii)+Lmatnow*randn(d,cc(ii)+1-i0,'gpuArray');
+    switch useGPU
+        case true
+            S(:,i0:cc(ii))=muvec(:,ii)+Lmatnow*randn(d,cc(ii)+1-i0,'gpuArray');
+        case false
+            S(:,i0:cc(ii))=muvec(:,ii)+Lmatnow*randn(d,cc(ii)+1-i0);
+    end
 end
 
 %Sloc=
@@ -180,10 +195,8 @@ end
 function S=generateSamples(muvec,Lvec,wvec,NS,d,Ngauss,useGPU)
 switch useGPU
     case true
-        eps  = randn(d,NS,'gpuArray');
         u    = rand(1,NS,'gpuArray');
     case false
-        eps  = randn(d,NS);
         u    = rand(1,NS);
 end
 avec = cumsum(wvec);
@@ -192,11 +205,22 @@ xi=avecm1<u & u<avec;
 counts=gather(sum(xi,2));
 cc=cumsum(counts);
 
-S(:,1:cc(1))=muvec(:,1)+ivh(Lvec(:,1))*randn(d,cc(1),'gpuArray');
+switch useGPU
+    case true
+        S(:,1:cc(1))=muvec(:,1)+ivh(Lvec(:,1))*randn(d,cc(1),'gpuArray');
+    case false
+        S(:,1:cc(1))=muvec(:,1)+ivh(Lvec(:,1))*randn(d,cc(1));
+end
+
 for ii=2:Ngauss
     i0=cc(ii-1)+1;
     Lmatnow=ivh(Lvec(:,ii));
-    S(:,i0:cc(ii))=muvec(:,ii)+Lmatnow*randn(d,cc(ii)+1-i0,'gpuArray');
+    switch useGPU
+        case true
+            S(:,i0:cc(ii))=muvec(:,ii)+Lmatnow*randn(d,cc(ii)+1-i0,'gpuArray');
+        case false
+            S(:,i0:cc(ii))=muvec(:,ii)+Lmatnow*randn(d,cc(ii)+1-i0);
+    end
 end
 end
    
