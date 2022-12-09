@@ -8,7 +8,7 @@ clear
 NS=1e1;% number of samples
 d=3;
 Ngauss=2;
-
+useGPU=true;
 Lvec = rand(d*(d+1)/2,Ngauss);
 muvec = rand(d,Ngauss);
 wvec = rand(Ngauss,1); wvec = wvec/sum(wvec);
@@ -53,6 +53,9 @@ diffloglhood=@(S,tobs,yobs) pagemtimes(jaceta(S,tobs),yobs-eta(S,tobs));
 %diffprior(S)
 %difflhood(S,tobs,yobs)
 %% derivative of hlambda and g
+beta1=.1; beta2=0.1; eps0=1e-3;tau=2000;tW=30;maxPat=1000;
+
+niter=1;
 
 Sigm1=ivh(Lvec(:,1))*ivh(Lvec(:,1))';
 Sigm2=ivh(Lvec(:,2))*ivh(Lvec(:,2))';
@@ -78,9 +81,7 @@ difflogqlambda(S)
 diffhlambda=@(S) difflogprior(S)+diffloglhood(S,tobs,yobs)-difflogqlambda(S);
 diffhlambda(S)
 
-%%
-NS=1e6;
-useGPU=true;
+
 switch useGPU
     case true
 
@@ -96,12 +97,63 @@ counts=gather(sum(xi,2));
 cc=cumsum(counts);
 
 % generate samples
-eps=randn(d,1,cc(1),'gpuArray');
-Sloc=muvec(:,1)+pagemtimes(ivh(Lvec(:,1)),eps);
+eps=randn(d,1,NS,'gpuArray');
+dMU_mean_mat= NaN(d,Ngauss);
+dL_mean_mat = NaN(d*(d+1)/2,Ngauss);
+dA_mean_mat= zeros(Ngauss-1,1);
+for ii=1:Ngauss
+    numU=cc(ii);
+    
+    epsloc    = randn(d,1,numU,'gpuArray');
+    Sloc      = muvec(:,ii)+pagemtimes(ivh(Lvec(:,ii)),eps);
+    dMU       = diffhlambda(epsloc); % derivative wrt mu
+    dMU_mean  = sum(reshape(dMU,[d,numU]),2)/numU;
+    
+    Lder1     = pagemtimes(dMU,pagetranspose(epsloc));
+    Lder2     = pagefun(@tril,Lder1);
+    dL_d2     = reshape(Lder2,[d^2,numU]);
+    dL_d2     = sum(dL_d2,2)/numU;
+    dL_mean   = vech(reshape(dL_d2,[d d]));
+        
+    fgauss1=    (sqrt(det(Sigm1))^(-1)*(2*pi)^(-d/2)*...
+                            exp(-0.5*pagemtimes(pagetranspose(S-muvec(:,1)),pagemldivide(Sigm1,S-muvec(:,1))) ));
+    fgauss2=    (sqrt(det(Sigm2))^(-1)*(2*pi)^(-d/2)*...
+                            exp(-0.5*pagemtimes(pagetranspose(S-muvec(:,2)),pagemldivide(Sigm2,S-muvec(:,2))) ));
+    dA_mean   =  sum(fgauss2-fgauss1)/NS;
+    dMU_mean_mat(:,ii)= dMU_mean;
+    dL_mean_mat(:,ii) = dL_mean;
+    dA_mean_mat      = dA_mean_mat+dA_mean;
+end
+dMU_mean_mat
 
-ivh(Lvec(:,1))
+vMU= dMU_mean_mat.^2;
+vL = dL_mean_mat.^2;
+vA = dA_mean_mat.^2;
+
+if niter==1
+    dMUbar=dMU_mean_mat;
+    dLbar =dL_mean_mat;
+    dAbar =dA_mean_mat;
+    vMUbar=vMU;vLbar=vL;vAbar=vA;
+else
+    dMUbar= beta1*dMUbar+(1-beta1)*dMU_mean_mat;
+    dLbar = beta1*dLbar+(1-beta1)*dL_mean_mat;
+    dAbar = beta1*dAbar+(1-beta1)*dA_mean_mat;
+    vMUbar= beta1*vMUbar+(1-beta1)*vMU;
+    vLbar = beta1*vLbar+(1-beta1)*vL;
+    vAbar = beta1*vAbar+(1-beta1)*vA;
+end
+
+muvec=muvec+dMUbar./sqrt(vMUbar);
+Lvec=Lvec+dLbar./sqrt(vLbar);
+avec=avec+dAbar./sqrt(vAbar);
 %%
-S(:,1:cc(1))=Sloc;
+
+%%
+
+
+
+
 %%
 for ii=2:Ngauss
     i0=cc(ii-1)+1;
@@ -112,11 +164,7 @@ end
 %Sloc=
 
 
-pagemtimes(diffhlambda(S),pagetranspose(eps))
-
-
-%%
-pagefun(@ivh,[],w)
+%pagemtimes(diffhlambda(S),pagetranspose(eps))
 
 %%
 % syms S1 S2 S3 fmax tobs
@@ -160,10 +208,12 @@ for ii=1:size(A,2)
         Avech(end+1)=A(jj,ii);
     end
 end
+Avech=reshape(Avech,[d*(d+1)/2,1]);
 end
 
 
 function Lmat = ivh(Lvec)
+% inverse of vech map
 d= (8*length(Lvec) + 1)^(1/2)/2 - 1/2;
 Lmat = zeros(d,d);
 i0=1;
@@ -171,4 +221,15 @@ for i=1:d
     Lmat(i:d,i)=Lvec(i0:i0+d-i);
     i0=i0+d+1-i;
 end
+end
+
+function Ltall = ivhmat(Lmat)
+% apply inverse of vech map to each column then take transpose of each lower
+% triangular matrix and stack the results vertically
+d= (8*size(Lmat,1) + 1)^(1/2)/2 - 1/2;
+Ltall=NaN(d*size(Lmat,2),d);
+for ii=1:size(Lmat,2)
+    Ltall( (1+d*(ii-1)):d*ii ,:)=ivh(Lmat(:,ii));
+end
+
 end
