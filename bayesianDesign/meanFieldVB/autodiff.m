@@ -20,7 +20,7 @@ Nmeas=12;
 
 
 x=dlarray(S)
-logqlambda(x)
+dlfeval(@logqlambda,x)
 
 function [y,dydx] = logqlambda(x)
 d=3;
