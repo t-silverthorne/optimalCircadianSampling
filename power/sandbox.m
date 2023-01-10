@@ -10,6 +10,7 @@ Nbatches=5e2;
 %nodeType='non-uniform';
 simulatePWR(NL,NR,Nphi,Nperm,Amp,Nbatches,'uniform');
 simulatePWR(NL,NR,Nphi,Nperm,Amp,Nbatches,'non-uniform');
+
 function pwr=simulatePWR(NL,NR,Nphi,Nperm,Amp,Nbatches,nodeType)
 Nmeas=NL+NR;
 switch nodeType
@@ -43,7 +44,6 @@ A2=Amp*cos(phi);
 Y=A1.*sin(2*pi*t)+A2.*cos(2*pi*t)+eps;
 SSres_obs=getSSres(Y,t);
 
-zts=t;
 x1=gpuArray(sin(2*pi*t));
 x2=gpuArray(cos(2*pi*t));
 x0=gpuArray(ones(1,size(Y,2)));
@@ -72,7 +72,7 @@ end
 
 
 function SSres=getSSres(Y,t)
-zts=t;
+
 x1=gpuArray(sin(2*pi*t));
 x2=gpuArray(cos(2*pi*t));
 x0=gpuArray(ones(1,size(Y,2)));
