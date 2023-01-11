@@ -5,13 +5,31 @@ clf
 clear
 param.NL=5;
 param.NR=3;
-param.Nperm=1e3;
-param.Nbatches=5e2; % SMALL RIGHT NOW
-param.per=1; % period used in regression model
+simtype='verylong';
+switch simtype
+    case 'rough'
+        param.Nperm=1e2;
+        param.Nbatches=30; % SMALL RIGHT NOW
+        param.NfourierSamps=50; % num. fourier samples
+    case 'fast'
+        param.Nperm=1e2;
+        param.Nbatches=1e2; % SMALL RIGHT NOW
+        param.NfourierSamps=1e2; % num. fourier samples
+    case 'long'
+        param.Nperm=1e3;
+        param.Nbatches=3e2; % SMALL RIGHT NOW
+        param.NfourierSamps=3e2; % num. fourier samples
+    case 'verylong'
+        param.Nperm=1e3;
+        param.Nbatches=1e3; % SMALL RIGHT NOW
+        param.NfourierSamps=1e3; % num. fourier samples
+end
 
-param.NfourierSamps=100; % num. fourier samples
-param.fourierMeans=[5 3.1]*4;
-param.fourierSigma=[1 1];
+param.per=2.1; % period used in regression model
+
+
+param.fourierMeans=[0.9 2]*10;
+param.fourierSigma=[.05 .05];
 param.NfourierComps=length(param.fourierMeans);
 
 simulatePWR(param,'uniform');
@@ -38,8 +56,7 @@ switch nodeType
         t=cos((2*mc-1)*pi/2/Nmeas);
         t=(t+1)/2;
     case 'non-uniform'
-        r=0;%rand*0.7;
-        [~,t]=getSamplingSchedules(NL,NR,r,r+1/3);
+        [~,t]=getSamplingSchedules(NL,NR,0,0.5);
         t=gpuArray(t);
 end
 
