@@ -5,7 +5,7 @@ clf
 clear
 param.NL=5;
 param.NR=3;
-simtype='verylong';
+simtype='long';
 switch simtype
     case 'rough'
         param.Nperm=1e2;
@@ -25,11 +25,13 @@ switch simtype
         param.NfourierSamps=1e3; % num. fourier samples
 end
 
-param.per=2.1; % period used in regression model
+param.per=2; % period used in regression model
 
-
-param.fourierMeans=[0.9 2]*10;
+% 
+param.fourierMeans=[0.9 2]*6;
 param.fourierSigma=[.05 .05];
+% param.fourierMeans=[1];
+% param.fourierSigma=[.05];
 param.NfourierComps=length(param.fourierMeans);
 
 simulatePWR(param,'uniform');
@@ -56,7 +58,7 @@ switch nodeType
         t=cos((2*mc-1)*pi/2/Nmeas);
         t=(t+1)/2;
     case 'non-uniform'
-        [~,t]=getSamplingSchedules(NL,NR,0,0.5);
+        [~,t]=getSamplingSchedules(NL,NR,0,0.25);
         t=gpuArray(t);
 end
 
