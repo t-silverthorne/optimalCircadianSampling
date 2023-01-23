@@ -1,4 +1,5 @@
 function pwr=simulatePWR(param,nodes)
+method='QR';
 
 NL=param.NL;
 NR=param.NR;
@@ -40,7 +41,13 @@ Y=Amp*cos(2*pi*t*pertrue-acro)+eps;
 
 X=constructX(t,param); % construct linear model
 
-betas_obs=(X'*X)\(X'*Y'); % observed error
+switch method
+    case 'QR'
+        betas_obs=X\Y'; % observed error
+    case 'normal'
+        betas_obs=(X'*X)\(X'*Y'); % observed error
+end
+
 fits_obs=(X*betas_obs)';
 SSres_obs=sqrt(sum((fits_obs-Y).^2,2));
 
@@ -49,7 +56,12 @@ offMat=repmat((0:m-1)',1,n)*n;
 Yp=Y';
 YI=pagetranspose(Yp(pagetranspose(I+offMat)));
 
-betas=pagemldivide(X'*X,pagemtimes(X',pagetranspose(YI)));
+switch method
+    case 'QR'
+        betas=pagemldivide(X,pagetranspose(YI));
+    case 'normal'
+        betas=pagemldivide(X'*X,pagemtimes(X',pagetranspose(YI)));
+end
 fits =pagetranspose(pagemtimes(X,betas));
 SSres=sqrt(sum((fits-YI).^2,2));
 pwr(end+1)=sum(sum(SSres>SSres_obs,3)/Nperm>.95)/Nresidual;
