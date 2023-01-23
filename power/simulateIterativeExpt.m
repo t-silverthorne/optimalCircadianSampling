@@ -5,30 +5,30 @@ clear
 param.NL=5;
 param.NR=3;
 param.useGPU=false;
-param.per=2; % period used in regression model
-param.Amp=3;
+param.freq=1; % period used in regression model
+param.Amp=1;
 
 simtype='rough';
 switch simtype
     case 'rough'
         param.Nperm=1e2;
-        param.Nresidual=30; % SMALL RIGHT NOW
-        param.Nacro=32; % num. fourier samples
+        param.Nresidual=30; 
+        param.Nacro=32;
     case 'fast'
         param.Nperm=1e2;
-        param.Nresidual=1e3; % SMALL RIGHT NOW
-        param.Nacro=32; % num. fourier samples
+        param.Nresidual=1e2;
+        param.Nacro=32; 
     case 'long'
         param.Nperm=1e3;
-        param.Nresidual=1e3; % SMALL RIGHT NOW
-        param.Nacro=32; % num. fourier samples
+        param.Nresidual=1e3; 
+        param.Nacro=32; 
     case 'verylong'
         param.Nperm=1e3;
-        param.Nresidual=5e3; % SMALL RIGHT NOW
-        param.Nacro=32; % num. fourier samples
+        param.Nresidual=5e3; 
+        param.Nacro=32; 
 end
 
-pwrUnif=simulatePWR(param,'uniform')
+max(abs(simulatePWR(param,'uniform')))
 
 
 % Numdelta=1;
@@ -57,5 +57,5 @@ pwrUnif=simulatePWR(param,'uniform')
 % Uniform oscillates, others do not
 % param.NL=8; param.NR=4;
 % param.per=18; % period used in regression model
-% param.pertrue=param.per;
+% param.freqtrue=param.freq;
 % param.Amp=1.5;

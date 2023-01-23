@@ -1,15 +1,19 @@
 function pwr=simulatePWR(param,nodes)
-method='QR';
+method='QR'; % options are QR (uses matlab backslash) or normal (uses pseudo-inverse)
 
 NL=param.NL;
 NR=param.NR;
 Nperm=param.Nperm;
 Nresidual=param.Nresidual;
 
+if ~isfield(param,'noise2')
+    param.noise2=1;
+end
+
 Nacro=param.Nacro;
 Amp=param.Amp;
 Nmeas=NL+NR;
-pertrue=param.per;
+freq_true=param.freq_true; % do not confuse with freq_est
 
 if isnumeric(nodes)
     t=nodes;
@@ -37,7 +41,7 @@ else
     eps=randn(Nresidual,Nmeas);
 end
 [~,I]=sort(permMat,2);
-Y=Amp*cos(2*pi*t*pertrue-acro)+eps;
+Y=Amp*cos(2*pi*t*freq_true-acro)+param.noise2*eps;
 
 X=constructX(t,param); % construct linear model
 
