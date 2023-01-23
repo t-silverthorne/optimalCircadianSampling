@@ -6,7 +6,7 @@ param.NL=5;
 param.NR=3;
 param.useGPU=true;
 param.per=2; % period used in regression model
-param.Amp=2;
+param.Amp=3;
 
 simtype='fast';
 switch simtype
