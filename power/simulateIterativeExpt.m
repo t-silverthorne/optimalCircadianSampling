@@ -4,7 +4,7 @@ close all
 clear
 param.NL=5;
 param.NR=3;
-param.useGPU=false;
+param.useGPU=true;
 param.per=2; % period used in regression model
 param.Amp=2;
 

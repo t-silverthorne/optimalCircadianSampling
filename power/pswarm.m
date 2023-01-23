@@ -1,8 +1,8 @@
 close all
 clear
+param.useGPU=true;
 param.NL=5;
 param.NR=3;
-param.useGPU=false;
 param.per=2; % period used in regression model
 param.Amp=2;
 
@@ -28,8 +28,9 @@ end
 
 costfun=@(t) -min(simulatePWR(param,cumsum(abs(t))/sum(abs(t))));
 
-%costfun(0:.1:1)
-swarm_opts=optimoptions(@particleswarm,'PlotFcn','pswplotbestf');
+min(simulatePWR(param,'uniform'))
+%%
+swarm_opts=optimoptions(@particleswarm,'Display','Iter');
 topt=particleswarm(costfun,8,[],[],swarm_opts);
 clf
 xline(cumsum(abs(topt))/sum(abs(topt)))
