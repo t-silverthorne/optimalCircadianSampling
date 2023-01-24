@@ -1,5 +1,5 @@
 function pwr=simulatePWR(param,nodes)
-method='QR'; % options are QR (uses matlab backslash) or normal (uses pseudo-inverse)
+method='backslash'; % options are QR (uses matlab backslash) or normal (uses pseudo-inverse)
 
 NL=param.NL;
 NR=param.NR;
@@ -46,7 +46,7 @@ Y=Amp*cos(2*pi*t*freq_true-acro)+param.noise2*eps;
 X=constructX(t,param); % construct linear model
 
 switch method
-    case 'QR'
+    case 'backslash'
         betas_obs=X\Y'; % observed error
     case 'normal'
         betas_obs=(X'*X)\(X'*Y'); % observed error
@@ -61,7 +61,7 @@ Yp=Y';
 YI=pagetranspose(Yp(pagetranspose(I+offMat)));
 
 switch method
-    case 'QR'
+    case 'backslash'
         betas=pagemldivide(X,pagetranspose(YI));
     case 'normal'
         betas=pagemldivide(X'*X,pagemtimes(X',pagetranspose(YI)));
