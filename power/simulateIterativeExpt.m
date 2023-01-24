@@ -2,6 +2,7 @@
 % generated using randomly obtained Fourier coefficients
 close all
 clear
+checkUseGPU
 param.NL=5;
 param.NR=3;
 param.useGPU=false;

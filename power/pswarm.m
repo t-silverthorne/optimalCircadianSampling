@@ -1,6 +1,6 @@
 close all
 clear
-param.useGPU=true;
+checkUseGPU
 param.NL=5;
 param.NR=3;
 param.freq=2; % period used in regression model
