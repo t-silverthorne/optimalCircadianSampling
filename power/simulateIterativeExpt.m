@@ -2,53 +2,29 @@
 % generated using randomly obtained Fourier coefficients
 close all
 clear
+simtype='medium';
 checkUseGPU
 param.NL=5;
 param.NR=3;
-param.useGPU=false;
-param.freq=1; % period used in regression model
+param.freq_true=2; % period used in regression model
 param.Amp=1;
+param.noise2=1/1.5;
 
-simtype='rough';
-switch simtype
-    case 'rough'
-        param.Nperm=1e2;
-        param.Nresidual=30; 
-        param.Nacro=32;
-    case 'fast'
-        param.Nperm=1e2;
-        param.Nresidual=1e2;
-        param.Nacro=32; 
-    case 'long'
-        param.Nperm=1e3;
-        param.Nresidual=1e3; 
-        param.Nacro=32; 
-    case 'verylong'
-        param.Nperm=1e3;
-        param.Nresidual=5e3; 
-        param.Nacro=32; 
+Numdelta=1;
+deltavals=0;
+for j=1:Numdelta
+    nexttile(j)
+    pwrUnif=simulatePWR(param,'uniform');
+    plot(linspace(0,2*pi,param.Nacro),pwrUnif)
+    hold on
+    
+    pwrNU=simulatePWR(param,'non-uniform');
+    plot(linspace(0,2*pi,param.Nacro),pwrNU)
+    
+    legend({'unif','nu'})
+    ylim([0,1])
+    drawnow
 end
-
-max(abs(simulatePWR(param,'uniform')))
-
-
-% Numdelta=1;
-% deltavals=0;
-% for j=1:Numdelta
-%     nexttile(j)
-%     param.per=(1+deltavals(j)/100)*param.per;
-% 
-%     pwrUnif=simulatePWR(param,'uniform');
-%     plot(linspace(0,2*pi,param.Nacro),pwrUnif)
-%     hold on
-%     
-%     pwrNU=simulatePWR(param,'non-uniform');
-%     plot(linspace(0,2*pi,param.Nacro),pwrNU)
-%     
-%     legend({'unif','nu'})
-%     ylim([0,1])
-%     drawnow
-% end
 
 
 

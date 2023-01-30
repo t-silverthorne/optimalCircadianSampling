@@ -29,7 +29,8 @@ else
 end
 
 pwr=[];
-acrovec=linspace(0,2*pi,Nacro);
+acrovec=linspace(0,2*pi,Nacro+1);
+acrovec=acrovec(1:end-1);
 for i=1:Nacro
 acro=acrovec(i);
 
@@ -69,5 +70,4 @@ end
 fits =pagetranspose(pagemtimes(X,betas));
 SSres=sqrt(sum((fits-YI).^2,2));
 pwr(end+1)=sum(sum(SSres>SSres_obs,3)/Nperm>.95)/Nresidual;
-end
 end
