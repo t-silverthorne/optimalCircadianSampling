@@ -2,7 +2,7 @@ function X=constructX(t,param)
 if isfield(param,'freq_est')
     freq=param.freq_est;
 else
-    freq=param.freq_true
+    freq=param.freq_true;
 end
 if param.useGPU
     x0=gpuArray(ones(1,length(t)));

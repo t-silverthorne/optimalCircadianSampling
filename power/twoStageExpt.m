@@ -1,6 +1,8 @@
 % periodogram inferred from uniform data, then optimal sampling strategy
 % determined based on max of initial periodogram
 clear
+global simtype
+simtype='rough';
 checkUseGPU
 tic
 param.NL=4;
@@ -21,25 +23,8 @@ histogram(mu,floor(sqrt(length(mu))))
 xlim([0,1])
 
 function [param,min_unif]=get_min_unif(param)
-simtype='rough';
-switch simtype
-    case 'rough'
-        param.Nperm=1e2;
-        param.Nresidual=30; % SMALL RIGHT NOW
-        param.Nacro=32; % num. fourier samples
-    case 'fast'
-        param.Nperm=1e2;
-        param.Nresidual=1e2; % SMALL RIGHT NOW
-        param.Nacro=32; % num. fourier samples
-    case 'long'
-        param.Nperm=1e3;
-        param.Nresidual=1e3; % SMALL RIGHT NOW
-        param.Nacro=32; % num. fourier samples
-    case 'verylong'
-        param.Nperm=1e3;
-        param.Nresidual=5e3; % SMALL RIGHT NOW
-        param.Nacro=32; % num. fourier samples
-end
+global simtype
+checkUseGPU
 
 if isnumeric(param.acro_true)
     acro=param.acro_true;
