@@ -9,6 +9,7 @@ tic
 param.NL=4;
 param.NR=4;
 Nacro=32;
+param.Nacro=Nacro;
 param.freq_true=3.9; % freq used in regression model
 param.Amp=1;
 param.noise2=1/1.5;
