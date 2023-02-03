@@ -1,7 +1,7 @@
 clear
 clf
 tic
-simtype='rough';
+simtype='medium';
 solver='sa_no_repar'; % options simulanneal or pswarm
 checkUseGPU
 tic
@@ -17,28 +17,68 @@ nodes='uniform';
 hold on
 ylim([0,1])
 
-noisevals=logspace(log10(1),log10(0.4),3);
-%noisevals=1/1.5;
-%repar=@(t) 0.5*(1+tanh(sort(t)));
+Numnoise=3;
+Numfreq=8;
+noisevals=linspace(0.5,2,Numnoise);
+freqvals=linspace(1,10,Numfreq);
+
 repar=@(t) cumsum(abs(t))/sum(abs(t));
 switch solver
     case 'pswarm'
         swarm_opts_psw=optimoptions(@particleswarm,'Display','Iter','MaxIterations',2,'UseParallel',true);
     case {'simulanneal', 'sa_no_repar'}
-        swarm_opts_sab=optimoptions(@simulannealbnd,'Display','Iter','MaxIterations',100);
+        swarm_opts_sab=optimoptions(@simulannealbnd,'Display','None ','MaxIterations',param.maxIter);
 end
+[t_unif,~]=getSamplingSchedules(param.NL,param.NR,0,0.5);
+
+tmat=cell(Numfreq,Numnoise);
+fmat=NaN(Numfreq,Numnoise);
+parfor ii=1:length(freqvals)
+    paramloc=param;
+    paramloc.freq=freqvals(ii);
+    tloc=cell(1,Numnoise);
+    floc=NaN(1,Numnoise);
+    for jj=1:length(noisevals)
+        fprintf('%d %d\n',ii,jj)
+        paramloc.noise2=noisevals(jj);
+        if strcmp(solver,'sa_no_repar')
+            costfun=@(t) -min(simulatePWR(paramloc,sort(t)));
+        else
+            costfun=@(t) -min(simulatePWR(paramloc,repar(t)));
+        end
+        
+        % optimize and plot result
+        switch solver
+            case 'pswarm'
+                [topt,fval]=particleswarm(costfun,paramloc.NL+paramloc.NR,[],[],swarm_opts_psw);
+            case 'simulanneal'
+                %[topt,fval]=simulannealbnd(costfun,atanh(2*t_unif-1),[],[],swarm_opts_sab);
+                [topt,fval]=simulannealbnd(costfun,t_unif,[],[],swarm_opts_sab);
+            case 'sa_no_repar'
+                [topt,fval]=simulannealbnd(costfun,t_unif,zeros(1,paramloc.NL+paramloc.NR),ones(1,paramloc.NL+paramloc.NR),swarm_opts_sab);
+        end
+        tloc{jj}=sort(topt);
+        floc(jj)=fval;
+    end
+    fmat(ii,:)=floc; % not optimal, but convenient for saving
+    tmat(ii,:)=tloc;
+end
+save oneStageExpt_fmat fmat
+save oneStageExpt_tmat tmat
+%%
 
 acrovec=linspace(0,2*pi,Nacro+1);
 acrovec=acrovec(1:end-1);
-Nfreq=1;
 tiledlayout(1,Nfreq,'TileSpacing','tight','Padding','tight')
-[t_unif,~]=getSamplingSchedules(param.NL,param.NR,0,0.5);
 
 cvals=linspace(0.8,0,length(noisevals))'.*[1 1 1];
 fprintf('running\n')
+
+
 for ii=1:length(noisevals)
     fprintf('%d\n',ii)
     param.noise2=noisevals(ii);
+    
     if strcmp(solver,'sa_no_repar')
         costfun=@(t) -min(simulatePWR(param,sort(t)));
     else
