@@ -1,14 +1,12 @@
-function pwr=simulatePWR(param,nodes)
-method='backslash'; % options are QR (uses matlab backslash) or normal (uses pseudo-inverse)
+function [acrovec,pwr]=simulatePWR(param,nodes)
+method='normal'; % options are QR (uses matlab backslash) or normal (uses pseudo-inverse)
 
 NL=param.NL;
 NR=param.NR;
 Nperm=param.Nperm;
 Nresidual=param.Nresidual;
-
-if ~isfield(param,'noise2')
-    param.noise2=1;
-end
+% uses param.noise for noise level (easier for switching between two/one
+% stage experiments)
 
 Nacro=param.Nacro;
 Amp=param.Amp;
@@ -29,8 +27,7 @@ else
 end
 
 pwr=[];
-acrovec=linspace(0,2*pi,Nacro+1);
-acrovec=acrovec(1:end-1);
+acrovec=linspace(0,2*pi,Nacro);
 for i=1:Nacro
 acro=acrovec(i);
 
@@ -42,7 +39,7 @@ else
     eps=randn(Nresidual,Nmeas);
 end
 [~,I]=sort(permMat,2);
-Y=Amp*cos(2*pi*t*freq_true-acro)+param.noise2*eps;
+Y=Amp*cos(2*pi*t*freq_true-acro)+param.noise*eps;
 
 X=constructX(t,param); % construct linear model
 

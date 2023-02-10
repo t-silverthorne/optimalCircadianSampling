@@ -1,47 +1,53 @@
+close all
 clear
-clf
-simtype='fast';
+simtype='fast';          % how many Monte Carlo samples to include
 solver='pattern_search'; % options simulanneal or pswarm
-checkUseGPU
-
-param.NL=4;
-param.NR=4;
+addpath('utils/')
+checkUseGPU              % uses simType to construct param
+param.NL=4;              % samples in left interval
+param.NR=4;              % samples in right interval
 Nmeastot=param.NL+param.NR;
-param.freq_true=8.5; % freq used in regression model
-param.Amp=1;
-param.noise1=0.7;
-param.noise2=.5; % the noise actually used in the simulation
-Nacro=32;
-param.Nacro=Nacro;
+param.freq_true=8.2;     % freq used in regression model
+param.Amp=3;             % signal amplitude
+param.noise=1;         % the noise actually used in the simulation
 
-swarm_opts=optimoptions("patternsearch",'Algorithm',"nups-mads",'Display','Iter', ...
-            'MeshTolerance',5e-3,'MaxIterations',100,'UseParallel',true);
+
+Nacro=32;                % set up acrophase grid
+param.Nacro=Nacro;
 acrovec=linspace(0,2*pi,Nacro+1);
 acrovec=acrovec(1:end-1);
-[t_unif,~]=getSamplingSchedules(param.NL,param.NR,0,0.5);
 
-costfun=@(t) -min(simulatePWR(param,t));
-   
-Aineq=eye(Nmeastot-1,Nmeastot);
+% options for patternsearch
+swarm_opts=optimoptions("patternsearch",'Algorithm',"nups",... 
+            'Display','Iter', ...
+            'MeshTolerance',1e-3,'MaxIterations',1000,'UseParallel',true, ...
+            'PlotFcn',@show_current_schedule);
+
+%'MeshContractionFactor',0.9,'MeshExpansionFactor',4.0, ...
+
+Aineq=eye(Nmeastot-1,Nmeastot); % inequality constraints
 for ii=1:Nmeastot-1
     Aineq(ii,ii+1)=-1;
 end
-bineq=zeros(Nmeastot-1,1);
+bineq=ones(Nmeastot-1,1);
 
+[t_unif,~]=getSamplingSchedules(param.NL,param.NR,0,0.5); % initial guess for sampling
 
+% function to be optimized
+costfun=@(t) -min(wrapsimulatePWR(param,t));
+   
 [topt,fval]=patternsearch(costfun,t_unif,Aineq,bineq,[],[],zeros(Nmeastot,1),ones(Nmeastot,1),[],swarm_opts);
-%%
-clf
+% make a nice plot
+close all
 
 set(groot,'defaultAxesTickLabelInterpreter','latex');  
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
-
-simtype='long';
+simtype='medium';
 checkUseGPU
-p_unif=simulatePWR(param,t_unif);
-p_nu=simulatePWR(param,topt);
+[acrovec,p_unif]=simulatePWR(param,t_unif);
+[~,p_nu]=simulatePWR(param,topt);
 nexttile(1)
 hold on
 ylim([0,1])
@@ -55,7 +61,6 @@ yline(min(p_nu),'--b')
 ylim([0,1])
 hold on
 drawnow
-%%
 
 ylabel('$\beta(\phi;\xi)$','interpreter','latex')
 xlabel('$\phi$','interpreter','latex')
@@ -77,3 +82,14 @@ set(gcf,'PaperUnits','inches')
 set(gcf,'PaperPositionMode','manual','PaperSize',[wd,ht],'PaperPosition',[0 0 wd ht])
 print(gcf,plot_filename,'-dpng','-r600') % -r sets the resolution
 savefig(gcf,strcat(plot_filename,'.fig'))% save matlab .fig too
+
+
+function stop = show_current_schedule(x, optimValues, state)
+stop = false;
+clf
+xlim([0,1])
+xline(x.x)
+hold on
+
+drawnow
+end
