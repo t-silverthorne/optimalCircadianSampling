@@ -31,7 +31,7 @@ end
 T1_MC=mean(Tvals);
 
 % term 1 analytical
-T1_exact=sigma^2*trace(L-I )
+T1_exact=sigma^2*trace(L-I );
 
 
 %% Term 2
@@ -42,7 +42,7 @@ for ii=1:Nreps
     pind=randperm(d);
     Tvals(ii)=Tp(Y,I(:,pind));
 end
-T2=mean(Tvals)
+T2=mean(Tvals);
 
 Lhat=NaN(d,d);
 for ii=1:d

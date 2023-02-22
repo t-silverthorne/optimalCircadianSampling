@@ -4,7 +4,7 @@ addpath('../utils/')
 param.useGPU=false;
 param.NL=4;
 param.NR=4;
-param.freq_true=12.3;
+param.freq_true=1;
 param.Amp=1;
 param.acro=0;
 [t,~]=getSamplingSchedules(param.NL,param.NR,0,0.5);
@@ -15,9 +15,10 @@ d=param.NL+param.NR;
 
 acro=0:.1:2*pi;
 [mu,st]=get_mean_and_std(acro,t,param);
-tiledlayout(2,1)
+hold on
 plot(acro,st.amp./mu.amp)
-ylim([-1,1])
+plot(acro,st.phi)
+ylim([-1,4])
 
 function [mu,st]=get_mean_and_std(acro,t,param)
 d=param.NL+param.NR;
@@ -31,5 +32,9 @@ st.beta=std(beta_hat,[],3);
 amp=sqrt(abs(sum(beta_hat.^2,1) - beta_hat(1,:,:).^2));
 mu.amp=mean(amp,3);
 st.amp=std(amp,[],3);% abs val to avoid numerical imag
+
+phi=atan2(beta_hat(2,:,:),beta_hat(3,:,:));
+mu.phi=mean(phi,3);
+st.phi=std(phi,[],3);% abs val to avoid numerical imag
 
 end
