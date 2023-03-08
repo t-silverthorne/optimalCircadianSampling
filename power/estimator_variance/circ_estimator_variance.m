@@ -31,10 +31,10 @@ st.beta=std(beta_hat,[],3);
 
 amp=sqrt(abs(sum(beta_hat.^2,1) - beta_hat(1,:,:).^2));
 mu.amp=mean(amp,3);
-st.amp=std(amp,[],3);% abs val to avoid numerical imag
+st.amp=std(amp,[],3);
 
 phi=atan2(beta_hat(2,:,:),beta_hat(3,:,:));
 mu.phi=mean(phi,3);
-st.phi=std(phi,[],3);% abs val to avoid numerical imag
+st.phi=std(phi,[],3);
 
 end

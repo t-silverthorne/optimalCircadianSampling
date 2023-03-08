@@ -57,7 +57,7 @@ m=size(Y,1);n=size(Y,2);
 offMat=repmat((0:m-1)',1,n)*n;
 Yp=Y';
 YI=pagetranspose(Yp(pagetranspose(I+offMat)));
-
+%max(max(max(abs(sort(YI,2)-sort(Y,2)))))
 switch method
     case 'backslash'
         betas=pagemldivide(X,pagetranspose(YI));
