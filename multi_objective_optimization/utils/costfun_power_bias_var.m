@@ -10,11 +10,11 @@ function Jvec = costfun_power_bias_var(param,nodes)
 %       min(pwr);
 % J2 = max(est.amp_st) - min(est.phi_cvar) - min(pwr);
  
-Jvec(1)=max(abs(param.Amp-est.amp_mu));
-Jvec(2)=max(abs(exp(1j*acrovec)-exp(1j*est.phi_mu)));
-Jvec(3)=max(est.amp_st);
-Jvec(4)=-min(est.phi_cvar);
-Jvec(5)=-min(pwr);
+Jvec(1)=max(abs(param.Amp-est.amp_mu));                 % amplitude error
+Jvec(2)=max(abs(exp(1j*acrovec)-exp(1j*est.phi_mu)));   % phase error (angle of order parameter)
+Jvec(3)=max(est.amp_st);                                % amp stdev
+Jvec(4)=-min(est.phi_cvar);                             % phase variance (magnitude of order parameter)
+Jvec(5)=-min(pwr);                                      % power
 
 end
 

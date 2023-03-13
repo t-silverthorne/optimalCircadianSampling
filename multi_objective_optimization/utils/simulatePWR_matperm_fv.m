@@ -24,6 +24,10 @@ else
 
 end
 
+if size(t,1)>size(t,2)
+    t=t';
+end
+
 acrovec=linspace(0,2*pi,Nacro);
 acromat=reshape(acrovec,1,1,1,Nacro);
 

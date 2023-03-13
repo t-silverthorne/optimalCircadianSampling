@@ -1,8 +1,8 @@
 function [acrovec,pwr_master,est] = wrap_simulatePWR_matperm_fv(param,nodes)
-if param.useParallel
-    GPUsize=1e8/param.poolobj.NumWorkers;
+if size(gcp('nocreate'),1)>0
+    GPUsize=3e8/(1+gcp('nocreate').NumWorkers);
 else
-    GPUsize=1e8;
+    GPUsize=3e8;
 end
 
 % useful to construt perms before forming batches
