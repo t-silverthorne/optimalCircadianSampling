@@ -1,4 +1,4 @@
-param.useGPU=false;
+param.useGPU=true;
 switch simtype
     case 'rough'
         param.Nperm=1e2;

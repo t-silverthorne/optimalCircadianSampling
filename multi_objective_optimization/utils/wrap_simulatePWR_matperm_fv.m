@@ -1,5 +1,9 @@
 function [acrovec,pwr_master,est] = wrap_simulatePWR_matperm_fv(param,nodes)
-GPUsize=1e8;
+if param.useParallel
+    GPUsize=1e8/param.poolobj.NumWorkers;
+else
+    GPUsize=1e8;
+end
 
 % useful to construt perms before forming batches
 if ~isfield(param,'Pmat')
@@ -8,7 +12,7 @@ end
 
 % partition into batches and run
 if param.Nmeas*param.Nperm*param.Nresidual*param.Nacro > GPUsize
-    fprintf('Cutting into batches\n')
+    %fprintf('Cutting into batches\n')
     Nres_init       = param.Nresidual;
     param.Nperm     = min(factorial(param.Nmeas),param.Nperm);
     param.Nresidual = floor(GPUsize/param.Nmeas/param.Nacro/param.Nperm);
@@ -19,7 +23,7 @@ if param.Nmeas*param.Nperm*param.Nresidual*param.Nacro > GPUsize
     phi_harm_sum       = zeros(1,param.Nacro);
     nbatch             = 0;
     while nbatch*param.Nresidual < Nres_init
-        fprintf(' batch %d\n',nbatch)
+        %fprintf(' batch %d\n',nbatch)
         [acrovec,pwr,est] = simulatePWR_matperm_fv(param,nodes);
         pwr_master        = pwr_master+pwr;
         amp_sum_master    = amp_sum_master + reshape(est.amp_sum,1,param.Nacro);

@@ -1,15 +1,38 @@
 %
+close all
 addpath('utils/')
-simtype='medium';
+simtype='long';
 checkUseGPU
 param.useGPU=false;
 param.NL=4;
 param.NR=4;
-param.freq_true=7.6;
+param.Nmeas=param.NL+param.NR;
+param.freq_true=2.4;
 param.Amp=1;
-param.noise=.5;
-param.Nacro=16;
+param.noise=.6;
+param.Nacro=32;
 nodes='uniform';
+
+[acrovec,pwr,est]=wrap_simulatePWR_matperm_fv(param,nodes)
+
+tiledlayout(4,1)
+nexttile
+plot(acrovec,pwr)
+ylim([0,1])
+nexttile
+plot(acrovec,est.amp_mu+est.amp_st,'-r')
+hold on
+plot(acrovec,est.amp_mu-est.amp_st,'-r')
+ylim([0,4])
+yline(param.Amp)
+nexttile
+plot(acrovec,cos(est.phi_mu))
+hold on
+plot(acrovec,cos(acrovec))
+nexttile
+plot(acrovec,est.phi_cvar)
+ylim([0,1])
+%plot(acrovec,est.amp_mu)
 %%
 %%% function
 
