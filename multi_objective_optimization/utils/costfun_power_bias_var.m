@@ -10,7 +10,7 @@ switch param.method
 end
  
 Jvec(1)=max(abs(param.Amp-est.amp_mu));                 % amplitude error
-Jvec(2)=max(min(mod([acrovec-est.phi_mu; est.phi_mu-acrovec],2*pi),[],1));   % phase error (angle of order parameter)
+Jvec(2)=max(min(abs([acrovec-est.phi_mu; est.phi_mu-acrovec]),[],1));   % phase error (angle of order parameter)
 Jvec(3)=max(est.amp_st);                                % amp stdev
 Jvec(4)=-min(est.phi_cvar);                             % phase variance (magnitude of order parameter)
 Jvec(5)=-min(pwr);                                      % power

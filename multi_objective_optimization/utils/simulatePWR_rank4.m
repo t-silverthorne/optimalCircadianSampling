@@ -91,7 +91,9 @@ while nbatch*param.Nresidual < Nres_init
     SSres_obs=sqrt(sum((fits_obs-Y).^2,2));
     clear betas_obs fits_obs
     
-    YI=get_permuted_Y_rank4(Y); 
+    %YI=NaN(size(Y,1),size(Y,2),Nperm,size(Y,4));
+    %YI(:,:,1,:)=Y
+    YI=get_permuted_Y_rank4(repmat(Y,1,1,Nperm,1),param); 
     
     betas=pagemldivide(X'*X,pagemtimes(X',pagetranspose(YI)));
     

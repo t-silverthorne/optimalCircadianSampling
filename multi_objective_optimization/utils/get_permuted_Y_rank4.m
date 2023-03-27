@@ -1,6 +1,12 @@
-function YI=get_permuted_Y_rank4(Y)
+function YI=get_permuted_Y_rank4(Y,param)
 N1=size(Y,1);N2=size(Y,2);N3=size(Y,3);N4=size(Y,4);
-r=get_perm_4tensor(N1,N2,N3,N4);
+
+switch param.perm_method
+    case 'randperm'
+        r=get_perm_4tensor(N1,N2,N3,N4);
+    case 'fy'
+        r=fisher_yates_rank4(N1,N2,N3,N4);
+end
 I3=NaN(N1,N2,N3);
 I4=NaN(N1,N2,N3,N4);
 for ii=1:N3

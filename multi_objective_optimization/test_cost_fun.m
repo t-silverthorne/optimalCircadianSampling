@@ -3,123 +3,136 @@ set(groot,'defaultAxesTickLabelInterpreter','latex');
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
+% things to tweak on CC
+plot_filename = 'test_cost_fun';
+popu_size     = 10;
+max_gen       = 20;
+
 addpath('utils/')
 simtype='medium';
 checkUseGPU
 param.useGPU=false;
 param.useParallel=false;
+
+% waveform
 param.NL=4;
 param.NR=4;
 param.Nmeas=param.NL+param.NR;
-param.freq_true=4.8;
+param.freq_true=7.4;
 param.Amp=2.5;
 param.noise=1;
 
+% sample size
 param.Nperm=1e2;
-param.Nresidual=1e3;
+param.Nresidual=1e2;
 param.Nacro=16; % num. fourier samples
-
-
-
 param.method='4tensor';
+param.perm_method='fy'; % options fy or randperm
+
+% initial guess
 nodes='uniform';
 Nmeastot=param.NL+param.NR;
 [t_unif,~]=getSamplingSchedules(param.NL,param.NR,0,0.5); % initial guess for sampling
 
-param.Pmat=construct_all_perms(param.Nmeas);
+% tic
+% [~,p,~]=simulatePWR_rank4(param,'uniform')
+% toc
 
+
+% inequality constraints
 eps_cstr=5e-3;
-Aineq=eye(Nmeastot-1,Nmeastot); % inequality constraints
+Aineq=eye(Nmeastot-1,Nmeastot); 
 for ii=1:Nmeastot-1
     Aineq(ii,ii+1)=-1;
 end
 bineq=-eps_cstr*ones(Nmeastot-1,1);
 
+% optimization settings
 param.useParallel=true;
 param.useGPU=false;
 Nmeastot=param.NL+param.NR;
+
+popu_size=10;
+max_gen  =20;
 costfun = @(t) costfun_power_bias_var(param,t); 
 
+opts_GA=optimoptions('gamultiobj','Display','iter','UseParallel',param.useParallel,...
+                      'PopulationSize',popu_size,'MaxGenerations',max_gen);
+% run optimization
 tic
-opts=optimoptions('gamultiobj','Display','iter','UseParallel',param.useParallel,...
-                      'PopulationSize',100,'MaxGenerations',20);
-[xopt,~] = gamultiobj(costfun,Nmeastot,Aineq,bineq,[],[],zeros(Nmeastot,1),ones(Nmeastot,1),[],opts);
+[xopt_GA,fopt_GA] = gamultiobj(costfun,Nmeastot,Aineq,bineq,[],[],zeros(Nmeastot,1),ones(Nmeastot,1),[],opts_GA);
 toc
 
-
-test_result(param,xopt)
-
-nexttile(1)
-ylabel('Power')
-
-nexttile(2)
-ylabel('amp bias')
-
-nexttile(3)
-ylabel('amp std')
-
-nexttile(4)
-ylabel('phase bias')
-
-nexttile(5)
-ylabel('|order|')
-
-
-
-% clf
-% tic
-% [acrovec,pwr,~]=simulatePWR_recursive(param,'uniform');
-% toc
-% plot(acrovec,pwr,'-k')
-% hold on
-% ylim([0,1])
-% drawnow
-% 
-% 
-% param.useGPU=false;
-% tic
-% [acrovec,pwr,~]=simulatePWR_rank4(param,'uniform');
-% toc
-% plot(acrovec,pwr,'-b')
-
-
-%% Run constrained optimization
-param.useParallel=true;
-param.useGPU=~param.useParallel;
-Nmeastot=param.NL+param.NR;
-costfun = @(t) costfun_power_bias_var(param,t); 
-
-% paretosearch (pattern search for multiobjective
 tic
-opts=optimoptions('paretosearch','Display','iter',...
-                  'UseParallel',param.useParallel, ...
-                  'MeshTolerance',1e-2,'MaxIterations',5);
-[xopt,~] = paretosearch(costfun,Nmeastot,Aineq,bineq,[],[],zeros(1,Nmeastot),ones(1,Nmeastot),[],opts);
+opts_pareto=optimoptions('paretosearch','Display','iter',...
+                  'UseParallel',param.useParallel, 'InitialPoints',repmat(t_unif,popu_size,1),...
+                  'MeshTolerance',1e-2,'MaxIterations',max_gen);
+[xopt_pareto,fopt_pareto] = paretosearch(costfun,Nmeastot,Aineq,bineq,[],[],zeros(1,Nmeastot),ones(1,Nmeastot),[],opts_pareto);
 toc
-test_result(param,xopt)
+
+%% histogram plot
+[acrovec,pwr,est]=simulatePWR_rank4(param,'uniform');
+
+J_unif=costfun_power_bias_var(param,t_unif)
+
+close all
+nbin=max(10,sqrt(popu_size));
+tiledlayout(1,5)
+for ii=1:5
+    nexttile
+    histogram(fopt_GA(:,ii),nbin,Normalization="count")
+    hold on
+    histogram(fopt_pareto(:,ii),nbin,Normalization='count')
+    xline(J_unif(ii))
+end
+
+savefig(gcf,strcat(plot_filename,'.fig'))% save matlab .fig too
 
 
-%% Penalty methods
+%%
+% test_result(param,xopt_GA,xopt_pareto)
+% 
+% 
+% % clean graph
+% nexttile(1)
+% ylabel('Power')
+% nexttile(2)
+% ylabel('amp bias')
+% nexttile(3)
+% ylabel('amp std')
+% nexttile(4)
+% ylabel('phase bias')
+% nexttile(5)
+% ylabel('|order|')
 
-function test_result(param,xopt)
+function test_result(param,xopt1,xopt2)
 % Compare uniform solution, random solution and all pareto front solutions
 Nmeastot=param.NL+param.NR;
 clf
 
-tiledlayout(5,3,'TileIndexing','columnmajor')
-[acrovec,pwr,est]=wrap_simulatePWR_matperm_fv(param,'uniform');
+tiledlayout(5,4,'TileIndexing','columnmajor')
+[acrovec,pwr,est]=simulatePWR_rank4(param,'uniform');
 plot_multi_obj(param,acrovec,pwr,est,'-k',1)
 drawnow
 
-for ii=1:size(xopt,1)
-    [acrovec,pwr,est]=wrap_simulatePWR_matperm_fv(param,sort(rand(1,Nmeastot)));
+
+for ii=1:size(xopt1,1)
+    [acrovec,pwr,est]=simulatePWR_rank4(param,sort(rand(1,Nmeastot)));
     plot_multi_obj(param,acrovec,pwr,est,'-b',2)
 end
 drawnow
 
-for ii=1:size(xopt,1)
-    [acrovec,pwr,est]=wrap_simulatePWR_matperm_fv(param,xopt(ii,:));
+
+for ii=1:size(xopt1,1)
+    [acrovec,pwr,est]=simulatePWR_rank4(param,xopt1(ii,:));
     plot_multi_obj(param,acrovec,pwr,est,'-r',3)
+end
+drawnow
+
+
+for ii=1:size(xopt2,1)
+    [acrovec,pwr,est]=simulatePWR_rank4(param,xopt2(ii,:));
+    plot_multi_obj(param,acrovec,pwr,est,'-r',4)
 end
 hold off
 
@@ -140,7 +153,7 @@ for ii=1:5
     if y1min==0
         y1min=1e-3;
     end
-    for jj=1:3
+    for jj=1:4
         h=nexttile(5*(jj-1)+ii);
         h.YScale='log';
         h.YLim=[y1min y2max];
