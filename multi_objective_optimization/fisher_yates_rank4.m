@@ -10,13 +10,23 @@ n=S1*S3*S4;
 P=repmat(1:d,n,1);
 
 % permutation
-
+% 
+% for ii=1:d-1
+%     avec=ii-1+randi(d+1-ii,[1 n]);
+%     Ytemp=P(sub2ind([n d],1:n,repmat(ii,1,n)));
+%     P(sub2ind([n d],1:n,repmat(ii,1,n)))=P(sub2ind([n d],1:n,avec));
+%     P(sub2ind([n d],1:n,avec))=Ytemp;
+% end
+P=P';
 for ii=1:d-1
-    avec=ii-1+randi(d+1-ii,[1 n]);
-    Ytemp=P(sub2ind(size(P),1:n,repmat(ii,1,n)));
-    P(sub2ind(size(P),1:n,repmat(ii,1,n)))=P(sub2ind(size(P),1:n,avec));
-    P(sub2ind(size(P),1:n,avec))=Ytemp;
+    avec=ii-1+randi(d+1-ii,[n 1]);
+    for jj=1:n
+        Ytemp=P(ii,jj);
+        P(ii,jj)=P(avec(jj),jj);
+        P(avec(jj),jj)=Ytemp;
+    end
 end
+P=P';
 
 P=pagetranspose(reshape(P',d,S1,S3,S4));
 end
