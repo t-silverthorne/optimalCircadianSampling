@@ -1,18 +1,17 @@
-clear
+%clear
 set(groot,'defaultAxesTickLabelInterpreter','latex');  
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
 % things to tweak on CC
 plot_filename = 'test_cost_fun';
-popu_size     = 100;
-max_gen       = 20;
+
 
 addpath('utils/')
 simtype='medium';
 checkUseGPU
 param.useGPU=false;
-param.useParallel=false;
+param.useParallel=true;
 
 % waveform
 param.NL=4;
@@ -48,12 +47,8 @@ end
 bineq=-eps_cstr*ones(Nmeastot-1,1);
 
 % optimization settings
-param.useParallel=true;
-param.useGPU=false;
 Nmeastot=param.NL+param.NR;
 
-popu_size=10;
-max_gen  =20;
 costfun = @(t) costfun_power_bias_var(param,t); 
 
 opts_GA=optimoptions('gamultiobj','Display','iter','UseParallel',param.useParallel,...
@@ -77,14 +72,20 @@ J_unif=costfun_power_bias_var(param,t_unif)
 
 close all
 nbin=max(10,sqrt(popu_size));
-tiledlayout(1,5)
+tiledlayout(3,5)
 for ii=1:5
-    nexttile
+    nexttile(ii)
     histogram(fopt_GA(:,ii),nbin,Normalization="count")
     hold on
     histogram(fopt_pareto(:,ii),nbin,Normalization='count')
     xline(J_unif(ii))
 end
+
+
+%% plot uniform for comparison
+
+
+%% plot jittered for comparison
 
 savefig(gcf,strcat(plot_filename,'.fig'))% save matlab .fig too
 
@@ -202,3 +203,4 @@ xticks([0 pi/2 pi 3*pi/2 2*pi])
 xticklabels({'$$0$$','$$\frac{\pi}{2}$$','$$\pi$$','$$\frac{3\pi}{2}$$','$$2\pi$$'})
 
 end
+
