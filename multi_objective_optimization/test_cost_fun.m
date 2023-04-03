@@ -1,18 +1,17 @@
-clear
+%clear
 set(groot,'defaultAxesTickLabelInterpreter','latex');  
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
 % things to tweak on CC
 plot_filename = 'test_cost_fun';
-popu_size     = 10;
-max_gen       = 2;
+
 
 addpath('utils/')
 simtype='medium';
 checkUseGPU
 param.useGPU=false;
-param.useParallel=false;
+param.useParallel=true;
 
 % waveform
 param.NL=4;
@@ -48,8 +47,6 @@ end
 bineq=-eps_cstr*ones(Nmeastot-1,1);
 
 % optimization settings
-param.useParallel=true;
-param.useGPU=false;
 Nmeastot=param.NL+param.NR;
 
 costfun = @(t) costfun_power_bias_var(param,t); 
