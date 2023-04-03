@@ -5,7 +5,7 @@ set(groot,'defaultLegendInterpreter','latex');
 
 % things to tweak on CC
 plot_filename = 'test_cost_fun';
-popu_size     = 10;
+popu_size     = 100;
 max_gen       = 20;
 
 addpath('utils/')
