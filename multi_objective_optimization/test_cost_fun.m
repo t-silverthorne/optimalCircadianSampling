@@ -1,4 +1,6 @@
 %clear
+parpool(parpool_size); % uses input from command line
+
 set(groot,'defaultAxesTickLabelInterpreter','latex');  
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
@@ -18,12 +20,12 @@ param.NL=4;
 param.NR=4;
 param.Nmeas=param.NL+param.NR;
 param.freq_true=7.4;
-param.Amp=2.5;
+param.Amp=2;
 param.noise=1;
 
 % sample size
-param.Nperm=1e2;
-param.Nresidual=1e2;
+param.Nperm=2e2;
+param.Nresidual=1e3;
 param.Nacro=16; % num. fourier samples
 param.method='4tensor';
 param.perm_method='fy'; % options fy or randperm
