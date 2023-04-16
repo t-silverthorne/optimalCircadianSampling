@@ -7,12 +7,20 @@ set(groot,'defaultLegendInterpreter','latex');
 clf
 param.NL=4;
 param.NR=4;
-param.freq_true=3;
+param.Nmeas=param.NL+param.NR;
+
+param.freq_true=7.8;
 param.Amp=2.5;
-param.noise=1;
+param.noise=.8;
 param.acrophase=pi/2;
 
-tiledlayout(2,1,'TileSpacing','tight')
+param.Nperm=2e2;
+param.Nresidual=2e2;
+param.Nacro=32;
+param.useGPU=false;
+param.perm_method='fy'
+
+tiledlayout(2,2,'TileSpacing','tight')
 N=20;
 map=[.36 .54 .66].*(1-((1:N)'-1)/(N-1)) + [.81 .1 .26].*((1:N)'-1)/(N-1);
 jitter_scale=0.05;
@@ -26,10 +34,18 @@ for ii=1:N
         else
             t=tnu;
         end
+        [acrovec,pwr,~]=simulatePWR_rank4(param,t);
+        nexttile(2+jj)
+        plot(acrovec,pwr,'-k')
+        hold on
+        ylim([0,1])
+        
+
         Y=param.Amp*cos(2*pi*t*param.freq_true-param.acrophase)+param.noise*randn(1,numel(t));
         [pxx,f]=periodogram(Y,[],[],param.NL+param.NR);
         nexttile(jj)
-        semilogx(f,pxx,'-k','color',map(ii,:),'HandleVisibility','off')
+        %semilogx(f,pxx,'-k','color',map(ii,:),'HandleVisibility','off')
+        semilogx(f,pxx,'-k','HandleVisibility','off')
         hold on
         if ii==N
             xline(param.freq_true,'--k','DisplayName','true frequency')
@@ -66,7 +82,7 @@ ylabel('psd')
 nexttile(1)
 title('($N_R=4,\tau=0.5$)')
 
-plot_filename='biased_spectrum_example';
+plot_filename='jitter_spectrum_example';
 ht=4; % height
 wd=6; % width
 set(gcf,'PaperUnits','inches')

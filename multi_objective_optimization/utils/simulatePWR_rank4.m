@@ -9,9 +9,9 @@ function [acrovec,pwr_master,est] = simulatePWR_rank4(param,nodes)
 % est        =  struct which stores various statistics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % adjust compute size based on if parallel sessions are running
-GPUsize=1e7;
+mem_size=1e7;
 if size(gcp('nocreate'),1)>0
-    GPUsize=GPUsize/(1+gcp('nocreate').NumWorkers);
+    mem_size=mem_size/(1+gcp('nocreate').NumWorkers);
 end
 
 % partition into batches
@@ -20,7 +20,7 @@ total_samples=param.Nmeas*param.Nperm*param.Nresidual*param.Nacro;
 %fprintf('Cutting into batches\n')
 Nres_init       = param.Nresidual;
 param.Nperm     = min(factorial(param.Nmeas),param.Nperm);
-param.Nresidual = min(Nres_init,floor(GPUsize/param.Nmeas/param.Nacro/param.Nperm));
+param.Nresidual = min(Nres_init,floor(mem_size/param.Nmeas/param.Nacro/param.Nperm));
 pwr_master      = zeros(1,param.Nacro);
 
 amp_sum_master     = zeros(1,param.Nacro);
@@ -30,7 +30,6 @@ nbatch             = 0;
 
 % run each batch
 while nbatch*param.Nresidual < Nres_init
-    %display(nbatch)
     NL=param.NL;
     NR=param.NR;
     Nresidual=param.Nresidual;
@@ -40,7 +39,6 @@ while nbatch*param.Nresidual < Nres_init
     
     Nperm=param.Nperm;
     freq_true=param.freq_true;
-
     
     if isnumeric(nodes) % construct time grid
         t=nodes;
