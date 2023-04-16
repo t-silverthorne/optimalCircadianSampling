@@ -1,6 +1,4 @@
 function Jvec = getCostFun(p,pwr_mat,amp_mat,acro_mat)
-%GETCOSTFUN Summary of this function goes here
-%   Detailed explanation goes here
 acrovec=linspace(0,2*pi,p.Nacro+1);
 acrovec=acrovec(1:end-1);
 [acro_bias,acro_var] = getAcroStats(acro_mat,acrovec);
