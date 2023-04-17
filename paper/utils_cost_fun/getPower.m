@@ -11,8 +11,6 @@ function [pwr_est,amp_est,phi_est] = getPower(t,p,I3,I4)
 %   amp_est    amplitude estimates for each acrophase
 %   phi_est    acrophase estimates for each acrophase
 %%%%%%%%%%%%%%
-addpath('../utils_core')
-
 Y=getSimulatedData(t,p);
 X=constructX(t,p);
 
