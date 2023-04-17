@@ -5,8 +5,8 @@ acrovec=acrovec(1:end-1);
 [amp_bias,amp_var]   = getAmpStats(amp_mat,p.Amp);
 pwr                  = mean(pwr_mat,1);
 
-Jvec(1)=max(amp_bias); 
-Jvec(2)=max(acro_bias);
+Jvec(1)=max(abs(amp_bias)); 
+Jvec(2)=max(abs(acro_bias));
 Jvec(3)=max(amp_var);  
 Jvec(4)=-min(acro_var);
 Jvec(5)=-min(pwr);                                      

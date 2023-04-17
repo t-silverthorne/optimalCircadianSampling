@@ -10,6 +10,7 @@ p.noise=.5;
 [t,~]=getSamplingSchedules(p.Nmeas,0,0,0);
 R=getPermutations(p.Nresidual,p.Nmeas,p.Nperm,p.Nacro);
 Y=getSimulatedData(t,p);
-[X,I3,I4]=constructUtilMats(t,p);
+X=constructX(t,p)
+[I3,I4]=constructUtilMats(p);
 getPermutedData(Y,R,I3,I4);
 toc

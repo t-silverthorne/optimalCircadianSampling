@@ -1,4 +1,4 @@
-function [X,I3,I4] = constructUtilMats(t,p)
+function [I3,I4] = constructUtilMats(p)
 %%%%%%%%%%%%%%
 %CONSTRUCTUTILMATS Construct matrices used throughout the program, X is
 % used in linear regression, and I3,I4 are used in getPermutedData().
@@ -15,11 +15,7 @@ function [X,I3,I4] = constructUtilMats(t,p)
 %   I4              index matrix used in sub2ind() permutation operations
 %%%%%%%%%%%%%%
 
-% build design matrix X
-x0=ones(1,length(t));
-x1=sin(2*pi*p.freq*t);
-x2=cos(2*pi*p.freq*t);
-X= [x0' x1' x2'];
+
 
 % build I3 and I4, bookeeping matrices for permutations
 N1=p.Nresidual; N2=p.Nmeas; N3=p.Nperm; N4=p.Nacro;

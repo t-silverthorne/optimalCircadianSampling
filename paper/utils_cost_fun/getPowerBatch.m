@@ -1,4 +1,4 @@
-function [pwr_mat,amp_mat,acro_mat]=getPowerBatch(t,p,X,I3,I4)
+function [pwr_mat,amp_mat,acro_mat]=getPowerBatch(t,p,I3,I4)
 %%%%%%%%%%%%%%
 %GETPOWERBATCH wrapper for getPower function
 % assumes that struct p has field 'Nbatch'
@@ -7,7 +7,7 @@ function [pwr_mat,amp_mat,acro_mat]=getPowerBatch(t,p,X,I3,I4)
 %%%%%%%%%%%%%%
 pwr_mat=[];amp_mat=[];acro_mat=[];
 for ii=1:p.Nbatch
-    [pwr_est,amp_est,acro_est]=getPower(t,p,X,I3,I4);
+    [pwr_est,amp_est,acro_est]=getPower(t,p,I3,I4);
     pwr_est  = reshape(pwr_est,1,p.Nacro);
     amp_est  = reshape(amp_est,[p.Nresidual,p.Nacro]);
     acro_est = reshape(acro_est,[p.Nresidual,p.Nacro]);

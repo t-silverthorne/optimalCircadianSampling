@@ -1,4 +1,4 @@
-function [pwr_est,amp_est,phi_est] = getPower(t,p,X,I3,I4)
+function [pwr_est,amp_est,phi_est] = getPower(t,p,I3,I4)
 %%%%%%%%%%%%%%
 %GETPOWER compute power as a function of acrophase
 % INPUT:   
@@ -14,6 +14,7 @@ function [pwr_est,amp_est,phi_est] = getPower(t,p,X,I3,I4)
 addpath('../utils_core')
 
 Y=getSimulatedData(t,p);
+X=constructX(t,p);
 
 betas_obs = pagemldivide(X'*X,pagemtimes(X',pagetranspose(Y))); % observed error
 phi_est   = atan2(betas_obs(2,:,:,:),betas_obs(3,:,:,:));
