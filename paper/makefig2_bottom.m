@@ -1,105 +1,9 @@
 clear all; close all;
-testing=false;
+testing=true;
 
-ny1=4*3;ny2=2*3;ny3=1*3;ny4=1*3;
-nx1=2*3;nx2=2*3;
-tileind=@(row,col) sub2ind([nx1+nx2,ny1+ny2+ny3+ny4],col,row);
+tiledlayout(2,1,'TileSpacing','tight','Padding','tight')
 
-tiledlayout(ny1+ny2+ny3+ny4,nx1+nx2,'TileSpacing','tight','Padding','tight')
-
-if testing
-    numFgrid=2;
-    numAgrid=2;
-else
-    numFgrid=10;
-    numAgrid=32;
-end
-
-Nmeasvals=[8,16,32];
-
-for ii=1:3
-    nexttile(tileind(1,1+(ii-1)*(nx1+nx2)/3),[ny1,(nx1+nx2)/3])
-    p.Nmeas     = Nmeasvals(ii);
-    if testing
-        p.Nacro     = 4;
-        p.Nresidual = 1e1;
-        p.Nperm     = 1e1;
-        p.noise     = 1;
-        p.Nbatch    = 1;
-    else
-        p.Nacro     = 32;
-        p.Nresidual = 1e3;
-        p.Nperm     = 1e2;
-        p.noise     = 1;
-        p.Nbatch    = 1;
-    end
-    p.permMethod='fast';
-    freqvals=linspace(1,32,numFgrid);
-    Ampvals =logspace(-1,1,numAgrid);
-    
-    [t_unif,~]=getSamplingSchedules(p.Nmeas,0,0,0);
-    [I3,I4]=constructUtilMats(p);
-    tic
-    [Agr,Fgr]=meshgrid(Ampvals,freqvals);
-    Pmin=arrayfun(@(Agr,Fgr) arrayfun_wrap_getPowerBatch(Agr,Fgr,t_unif,p,I3,I4), ...
-                            Agr, Fgr);
-    toc
-    
-    [M,c]=contourf(Agr,Fgr,Pmin,50,'LineColor','none');%,'FaceAlpha',0.5)
-    set(gca,'XScale','log')
-    drawnow
-end
-
-
-% aesthetics
-set(groot,'defaultAxesTickLabelInterpreter','latex');  
-set(groot,'defaulttextinterpreter','latex');
-set(groot,'defaultLegendInterpreter','latex');
-
-nexttile(1)
-ylabel('frequency')
-yticks(0:8:32)
-xticks([10^(-1), 10^0, 10^1])
-xlabel('amplitude')
-title('($N=8$)','Interpreter','latex')
-clim manual
-clim([0,1])
-
-nexttile(1+(nx1+nx2)/3)
-yticks(0:8:32)
-yticklabels('')
-xticks([10^(-1), 10^0, 10^1])
-xlabel('amplitude')
-title('($N=16$)','Interpreter','latex')
-clim manual
-clim([0,1])
-
-nexttile(1+2*(nx1+nx2)/3)
-yticks(0:8:32)
-yticklabels('')
-xticks([10^(-1), 10^0, 10^1])
-xlabel('amplitude')
-title('($N=32$)','Interpreter','latex')
-clim manual
-clim([0,1])
-
-cb = colorbar;
-cb.Layout.Tile = 'south';
-cb.Label.Interpreter='latex'
-cb.Label.String='$\textrm{min}_\phi \gamma(\phi)$';
-set(cb,'TickLabelInterpreter','latex')
-cb.Label.Interpreter='latex'
-
-% plot_filename='figs/fig2'
-% ht=3; % height
-% wd=6; % width
-% set(gcf,'PaperUnits','inches')
-% set(gcf,'PaperPositionMode','manual','PaperSize',[wd,ht],'PaperPosition',[0 0 wd ht])
-% print(gcf,plot_filename,'-dpng','-r600') % -r sets the resolution
-% savefig(gcf,strcat(plot_filename,'.fig'))% save matlab .fig too
-
-%%
-
+p.permMethod='fast'
 if testing
     p.Nmeas     = 8;
     p.Nacro     = 4;
@@ -134,14 +38,7 @@ addpath('utils_cost_fun/')
 % 
 % [t_opt,~]=particleswarm( @(t) -costfun_wrap_getPowerBatch(t,p,I3,I4),8,zeros(1,8),ones(1,8),opts)
 % %% fmincon
-eps_cstr=5e-3;
-Aineq=eye(p.Nmeas-1,p.Nmeas); 
 
-for ii=1:p.Nmeas-1
-    Aineq(ii,ii+1)=-1;
-end
-bineq=-eps_cstr*ones(p.Nmeas-1,1);
-[t_unif,~]=getSamplingSchedules(p.Nmeas,0,0,0);
 % [pwr,~,~]=getPowerBatch(t_unif,p,I3,I4)
 % min(mean(pwr,1))
 % 
@@ -153,14 +50,23 @@ bineq=-eps_cstr*ones(p.Nmeas-1,1);
 % x=fminsearch(@(t) -fminsearch_wrap_getPowerBatch(t,p,I3,I4),log10(t_unif),opts);
 
 % patternsearch
+eps_cstr=5e-3;
+Aineq=eye(p.Nmeas-1,p.Nmeas); 
+
+for ii=1:p.Nmeas-1
+    Aineq(ii,ii+1)=-1;
+end
+bineq=-eps_cstr*ones(p.Nmeas-1,1);
+[t_unif,~]=getSamplingSchedules(p.Nmeas,0,0,0);
+
 if testing
     opts=optimoptions(@patternsearch,'Display','iter','maxiter',2);
 else
-    opts=optimoptions(@patternsearch,'Display','iter','maxiter',50);
+    opts=optimoptions(@patternsearch,'Display','iter','useparallel',true,'maxiter',50);
 end
 x = patternsearch(@(t) -costfun_wrap_getPowerBatch(t,p,I3,I4),t_unif,Aineq,bineq,[],[],zeros(1,8),ones(1,8),[],opts) ;
 
-nexttile(tileind(ny1+1,1),[ny2,nx1+nx2])
+nexttile(1)
 [pwr,~,~]=getPowerBatch(t_unif,p,I3,I4);
 pwr_unif=mean(pwr,1);
 acrovec=linspace(0,2*pi,p.Nacro+1);
@@ -183,14 +89,14 @@ else
     popu_size=24;
     opts_pareto=optimoptions('paretosearch','Display','iter',...
                       'UseParallel',true, 'InitialPoints',repmat(t_unif,popu_size,1),...
-                      'MeshTolerance',1e-2,'MaxIterations',3);
+                      'MeshTolerance',1e-2,'MaxIterations',10);
 end
-nexttile(tileind(ny1+ny2+1,1),[ny3+ny4,nx1+nx2])
+nexttile(2)
 Npar=5;
 for ii=1:Npar
     [xopt_pareto,fopt_pareto] = paretosearch(@(t) wrap_getCostFun(t,p,I3,I4,[4,5]),p.Nmeas,Aineq,bineq,[],[],zeros(1,p.Nmeas),ones(1,p.Nmeas),[],opts_pareto);
     for ii=1:size(fopt_pareto,1)
-        plot(fopt_pareto(ii,:),'.k')
+        plot(fopt_pareto(ii,1),fopt_pareto(ii,2),'.k')
         pause(0.2)
     end
     hold on
