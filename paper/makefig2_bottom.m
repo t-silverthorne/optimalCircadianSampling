@@ -1,6 +1,9 @@
-clear all; close all;
-testing=true;
+parpool(parpool_size); 
+% popu_size also needs to be set at script call
 
+testing=false;
+addpath('utils_core/')
+addpath('utils_cost_fun/')
 tiledlayout(2,1,'TileSpacing','tight','Padding','tight')
 
 p.permMethod='fast'
@@ -15,16 +18,14 @@ if testing
     p.freq      =3.8;
 else
     p.Nmeas     = 8;
-    p.Nacro     = 16;
+    p.Nacro     = 32;
     p.Nresidual = 1e3;
     p.Nperm     = 1e2;
     p.noise     = 1;
-    p.Nbatch    = 10;
+    p.Nbatch    = 20;
     p.Amp       = 2;
     p.freq      =3.8;
 end
-addpath('utils_core/')
-addpath('utils_cost_fun/')
 [I3,I4]=constructUtilMats(p);
 
 % p.permMethod='fast';
@@ -81,15 +82,13 @@ legend({'uniform','optimal'},'Interpreter','latex','location','southoutside','Nu
 %% pareto plot
 % just worry about power and acro variance
 if testing
-    popu_size=1;
     opts_pareto=optimoptions('paretosearch','Display','iter',...
                       'UseParallel',false, 'InitialPoints',repmat(t_unif,popu_size,1),...
                       'MeshTolerance',1e-2,'MaxIterations',3);
 else
-    popu_size=24;
     opts_pareto=optimoptions('paretosearch','Display','iter',...
                       'UseParallel',true, 'InitialPoints',repmat(t_unif,popu_size,1),...
-                      'MeshTolerance',1e-2,'MaxIterations',10);
+                      'MeshTolerance',1e-2,'MaxIterations',20);
 end
 nexttile(2)
 Npar=5;
@@ -97,11 +96,10 @@ for ii=1:Npar
     [xopt_pareto,fopt_pareto] = paretosearch(@(t) wrap_getCostFun(t,p,I3,I4,[4,5]),p.Nmeas,Aineq,bineq,[],[],zeros(1,p.Nmeas),ones(1,p.Nmeas),[],opts_pareto);
     for ii=1:size(fopt_pareto,1)
         plot(fopt_pareto(ii,1),fopt_pareto(ii,2),'.k')
-        pause(0.2)
     end
     hold on
 end
-savefig('figs/fig2.fig')
+savefig('figs/fig2_bottom.fig')
 
 % nexttile(tileind(ny1+ny2+1,1),[ny3,nx1])
 % plot(1,1)

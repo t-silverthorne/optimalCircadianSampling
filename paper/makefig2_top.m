@@ -1,10 +1,6 @@
-clear all; close all;
-testing=true;
-
-ny1=4*3;ny2=2*3;ny3=1*3;ny4=1*3;
-nx1=2*3;nx2=2*3;
-tileind=@(row,col) sub2ind([nx1+nx2,ny1+ny2+ny3+ny4],col,row);
-
+testing=false;
+addpath('utils_core/')
+addpath('utils_cost_fun/')
 tiledlayout(1,3,'TileSpacing','tight','Padding','tight')
 
 if testing
