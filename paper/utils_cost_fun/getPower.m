@@ -21,8 +21,13 @@ fits_obs  = pagetranspose(pagemtimes(X,betas_obs));
 SSres_obs = sqrt(sum((fits_obs-Y).^2,2));
 clear betas_obs fits_obs
 
-R  = getPermutations(p.Nresidual,p.Nmeas,p.Nperm,p.Nacro);
-YI = getPermutedData(Y,R,I3,I4);
+switch p.permMethod
+    case 'slow'
+        R  = getPermutations(p.Nresidual,p.Nmeas,p.Nperm,p.Nacro);
+        YI = getPermutedData(Y,R,I3,I4);
+    case 'fast'
+        YI = getFastPerms(p,Y);
+end
 
 betas   = pagemldivide(X'*X,pagemtimes(X',pagetranspose(YI)));
 fits    = pagetranspose(pagemtimes(X,betas));

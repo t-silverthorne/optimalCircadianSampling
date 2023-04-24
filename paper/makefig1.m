@@ -5,7 +5,7 @@ set(groot,'defaultLegendInterpreter','latex');
 
 % show grids
 clf
-ny1=4;ny2=4;
+ny1=4;ny2=3;
 nx1=3;nx2=2;nx3=1;
 tileind=@(row,col) sub2ind([nx1+nx2+nx3,ny1+ny2],col,row);
 
@@ -15,6 +15,7 @@ addpath('utils_core')
 rng(2345)
 p.Nmeas=8;
 N=p.Nmeas;
+p.permMethod='fast';
 tauL=0.4;
 tauR=0.6;
 [t_unif,t_nu]=getSamplingSchedules(4,4,tauL,tauR);
@@ -57,12 +58,12 @@ yticklabels({'jittered','uniformly random','2-uniform','uniform'})
 % p.noise     = 0.5;
 % p.Nbatch    = 1;
 
-p.Nacro     = 16;
+p.Nacro     = 32;
 p.Nresidual = 1;
 p.freq      = 3.8;
 p.Amp       = 1.5;
 p.noise     = .5;
-p.Nbatch    = 1;
+p.Nbatch    = 20;
 
 t_hires=linspace(0,1,100);
 [t_unif,~]=getSamplingSchedules(p.Nmeas,0,0,0);
@@ -92,8 +93,9 @@ for ii=1:4
     plot(t_hires,Xhr*beta(:,:,:,acind),'-k','color',cloc)
     ylim([-3 3])
 end
-p.Nresidual = 5e3;
+p.Nresidual = 1e3;
 p.Nperm     = 1e2;
+p.Nbatch    = 20;
 [I3,I4]=constructUtilMats(p);
 for ii=1:4
     nexttile(tileind(ii,nx1+nx2+1),[1,nx3])
@@ -111,17 +113,17 @@ for ii=1:4
             tloc=t_jit;
             cloc=c4;
     end
-    [pwr_est,amp_est,phi_est] = getPower(tloc,p,I3,I4);
-    histogram(amp_est(:,:,:,acind),'EdgeColor','none','FaceColor',cloc,'Normalization','probability')
+    [pwr_est,amp_est,phi_est] = getPowerBatch(tloc,p,I3,I4);
+    histogram(amp_est(:,acind),'EdgeColor','none','FaceColor',cloc,'Normalization','probability')
     hold on
     xline(p.Amp,'--k')
     xlim([0,5])
     
 
-    nexttile(tileind(ny1+1,1),[ny1,nx1])
+    nexttile(tileind(ny1+1,1),[ny2,nx1])
     acrovec=linspace(0,2*pi,p.Nacro+1);
     acrovec=acrovec(1:end-1); % get acrophases
-    plot(acrovec,reshape(pwr_est,1,p.Nacro),'-k','Color',cloc)
+    plot(acrovec,reshape(mean(pwr_est,1),1,p.Nacro),'-k','Color',cloc)
     ylim([0,1])
     hold on
     drawnow
@@ -130,36 +132,35 @@ end
 nexttile(tileind(ny1+1,nx1+1),[ny2,nx2+nx3])
 p.Nresidual = 1;
 p.Nperm     = 1;
+p.Nbatch    = 1;
 [I3,I4]=constructUtilMats(p);
-
+%%
 for ii=1:5
+    ploc=p;
     switch ii
         case 1
             tloc=t_unif;
-            ploc=p;
             cloc=c1;
         case 2
             tloc=t_nu;
-            ploc=p;
             cloc=c2;
         case 3
             tloc=t_rand;
-            ploc=p;
             cloc=c3;
         case 4
             tloc=t_jit;
-            ploc=p;
             cloc=c4;
         case 5 
-            tloc=t_hires;
-            ploc=p;
+            tloc=0:.001:1;
             ploc.Nmeas=length(tloc);
             cloc='black';
     end
     
     Y=getSimulatedData(tloc,ploc);
     Y=Y(:,:,:,acind);
-    [pxx,f]=periodogram(Y',[],[],ploc.Nmeas);
+    %[pxx,f]=periodogram(Y',[],[],ploc.Nmeas);
+    [~,ind]=sort(tloc);
+    [pxx,f]=plomb(Y(ind)',tloc(ind),[],20);
     if ii<5
         plot(f,pxx,'-k','HandleVisibility','off','color',cloc)
     else
