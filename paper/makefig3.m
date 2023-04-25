@@ -1,4 +1,5 @@
 testing=false;
+parpool(parpool_size)
 addpath('utils_core/')
 addpath('utils_cost_fun/')
 tiledlayout(2,5,'TileSpacing','tight','Padding','tight')
@@ -49,6 +50,7 @@ end
 % phivec=linspace(0,2*pi,p.Nacro+1);
 % phivec=phivec(1:end-1);
 fopt_pareto_master=[]
+%while size(fopt_pareto_master,1)<5e2
 while size(fopt_pareto_master,1)<5e2
     [xopt_pareto,fopt_pareto] = paretosearch(@(t) wrap_getCostFun(t,p,I3,I4,[1:5]),p.Nmeas,Aineq,bineq,[],[],zeros(1,p.Nmeas),ones(1,p.Nmeas),[],opts_pareto);
     fopt_pareto_master=[fopt_pareto_master; fopt_pareto];
@@ -67,3 +69,4 @@ for ii=1:4
         hold on
     end
 end
+savefig('figs/fig3.fig')
