@@ -1,4 +1,4 @@
-function [pwr_est,amp_est,phi_est] = getPower(t,p,I3,I4)
+function [pwr_est,amp_est,phi_est,bin_mat] = getPower(t,p)
 %%%%%%%%%%%%%%
 %GETPOWER compute power as a function of acrophase
 % INPUT:   
@@ -21,16 +21,11 @@ fits_obs  = pagetranspose(pagemtimes(X,betas_obs));
 SSres_obs = sqrt(sum((fits_obs-Y).^2,2));
 clear betas_obs fits_obs
 
-switch p.permMethod
-    case 'slow'
-        R  = getPermutations(p.Nresidual,p.Nmeas,p.Nperm,p.Nacro);
-        YI = getPermutedData(Y,R,I3,I4);
-    case 'fast'
-        YI = getFastPerms(p,Y);
-end
+YI      = getPermDataAllMethods(p,Y);
 
 betas   = pagemldivide(X'*X,pagemtimes(X',pagetranspose(YI)));
 fits    = pagetranspose(pagemtimes(X,betas));
 SSres   = sqrt(sum((fits-YI).^2,2));
-pwr_est = sum(sum(SSres>SSres_obs,3)/p.Nperm>.95)/p.Nresidual;
+bin_mat  = SSres<SSres_obs;
+pwr_est = sum(sum(bin_mat,3)/p.Nperm<.05)/p.Nresidual;
 end

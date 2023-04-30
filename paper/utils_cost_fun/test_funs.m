@@ -1,5 +1,5 @@
 % test of wrapper for cost function
-close all
+figure
 p.Nmeas     = 8;
 p.Nacro     = 32;
 p.Nresidual = 1e3;
@@ -7,14 +7,14 @@ p.Nperm     = 1e2;
 p.freq      = 3.9;
 p.Amp       = 1.5;
 p.noise     = 1.5;
-p.Nbatch    = 40;
+p.Nbatch    = 10;
 
 addpath('../utils_core')
 
 clf
 [t_unif,~]=getSamplingSchedules(p.Nmeas,0,0,0);
 [I3,I4]=constructUtilMats(p);
-N=3*5;
+N=5;
 sc=1e-1;    
 % wrap_getCostFun(t_unif,p,I3,I4)
 tic
@@ -29,18 +29,11 @@ for kk=1:2
     disp(p.permMethod)
     % plot power only
     for ii=1:N
-        if ii<=N/3
-            [pwr,~,~]=getPowerBatch(t_unif,p,I3,I4);
-            [~,ind]=max(mean(pwr,1));
-            disp(ind)
-            plot(mean(pwr,1),'-k')
-%         elseif N/3<ii && ii<=2*N/3
-%             [pwr,~,~]=getPowerBatch(rand(1,p.Nmeas),p,I3,I4);
-%             plot(mean(pwr,1),'-r')    
-%         else
-%             [pwr,~,~]=getPowerBatch(t_unif+sc*rand(1,p.Nmeas),p,I3,I4);
-%             plot(mean(pwr,1),'-b')    
-        end
+        [pwr,~,~]=getPowerBatch(t_unif,p,I3,I4);
+        [~,ind]=max(mean(pwr,1));
+        disp(ind)
+        plot(mean(pwr,1),'-k')
+
         hold on
         ylim([0,1])
         drawnow
