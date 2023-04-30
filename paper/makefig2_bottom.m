@@ -5,8 +5,8 @@ testing=false;
 addpath('utils_core/')
 addpath('utils_cost_fun/')
 tiledlayout(2,1,'TileSpacing','tight','Padding','tight')
+p.permMethod       = 'FY_double_for_loop'; permActionMethod = 'index'; % options index or matrix for 'naive_make_perms_first'
 
-p.permMethod='fast'
 if testing
     p.Nmeas     = 8;
     p.Nacro     = 4;
