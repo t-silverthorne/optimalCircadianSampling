@@ -4,7 +4,7 @@ testing=false;
 addpath('utils_core/')
 addpath('utils_cost_fun/')
 tiledlayout(2,1,'TileSpacing','tight','Padding','tight')
-p.permMethod       = 'FY_double_for_loop'; p.permActionMethod = 'index'; % options index or matrix for 'naive_make_perms_first'
+p.permMethod       = 'naive_reuse_perms';% p.permActionMethod = 'index'; % options index or matrix for 'naive_make_perms_first'
 
 if testing
     popu_size   = 3;
@@ -22,7 +22,7 @@ else
     p.Nmeas     = 8;
     p.Nacro     = 32;
     p.Nresidual = 1e3;
-    p.Nperm     = 1e2;
+    p.Nperm     = 2e2;
     p.noise     = 1;
     p.Nbatch    = 40;
     p.Amp       = 2;
@@ -65,11 +65,11 @@ if testing
                       'MeshTolerance',1e-2,'MaxIterations',3);
 else
     opts_pareto=optimoptions('paretosearch','Display','iter',...
-                      'UseParallel',true, 'InitialPoints',repmat(t_unif,popu_size,1),...
-                      'MeshTolerance',1e-2,'MaxIterations',20);
+                      'UseParallel',true, 'InitialPoints',sort(rand(popu_size,length(t_unif))),...
+                      'MeshTolerance',1e-2,'MaxIterations',max_iter);
 end
 nexttile(2)
-Npar=5;
+Npar=2;
 for ii=1:Npar
     [xopt_pareto,fopt_pareto] = paretosearch(@(t) wrap_getCostFun(t,p,[4,5]),p.Nmeas,Aineq,bineq,[],[],zeros(1,p.Nmeas),ones(1,p.Nmeas),[],opts_pareto);
     for ii=1:size(fopt_pareto,1)

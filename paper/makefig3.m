@@ -38,11 +38,11 @@ bineq=-eps_cstr*ones(p.Nmeas-1,1);
 if testing
     opts_pareto=optimoptions('paretosearch','Display','iter',...
                       'UseParallel',false, 'InitialPoints',repmat(t_unif,popu_size,1),...
-                      'MeshTolerance',1e-2,'MaxIterations',3);
+                      'MeshTolerance',1e-2,'MaxIterations',max_iter);
 else
     opts_pareto=optimoptions('paretosearch','Display','iter',...
                       'UseParallel',true, 'InitialPoints',repmat(t_unif,popu_size,1),...
-                      'MeshTolerance',1e-2,'MaxIterations',20);
+                      'MeshTolerance',1e-2,'MaxIterations',max_iter);
 end
 
 
@@ -51,7 +51,7 @@ end
 % phivec=phivec(1:end-1);
 fopt_pareto_master=[]
 %while size(fopt_pareto_master,1)<5e2
-while size(fopt_pareto_master,1)<5e2
+while size(fopt_pareto_master,1)<num_pareto_points
     [xopt_pareto,fopt_pareto] = paretosearch(@(t) wrap_getCostFun(t,p,I3,I4,[1:5]),p.Nmeas,Aineq,bineq,[],[],zeros(1,p.Nmeas),ones(1,p.Nmeas),[],opts_pareto);
     fopt_pareto_master=[fopt_pareto_master; fopt_pareto];
 end

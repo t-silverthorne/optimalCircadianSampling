@@ -25,11 +25,11 @@ for ii=1:length(Nmeasvals)
     else
         p.Nacro     = 32;
         p.Nresidual = 1e3;
-        p.Nperm     = 1e2;
+        p.Nperm     = 2e2;
         p.noise     = 1;
         p.Nbatch    = 1;
     end
-    p.permMethod       = 'FY_double_for_loop'; p.permActionMethod = 'index'; % options index or matrix for 'naive_make_perms_first'
+    p.permMethod       = 'naive_reuse_perms'; %p.permActionMethod = 'index'; % options index or matrix for 'naive_make_perms_first'
     freqvals=linspace(1,32,numFgrid);
     Ampvals =logspace(-1,1,numAgrid);
     
