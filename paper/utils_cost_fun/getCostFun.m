@@ -9,7 +9,13 @@ Jvec(1)=max(abs(amp_bias));
 Jvec(2)=max(abs(acro_bias));
 Jvec(3)=max(amp_var);  
 Jvec(4)=-min(acro_var);
-Jvec(5)=-min(pwr);                                      
+Jvec(5)=-min(pwr);              
+
+if p.positive_cost_fun % useful for scalarization
+    Jvec(4)=Jvec(4)+1;
+    Jvec(5)=Jvec(5)+1;
+end
+
 Jvec   =Jvec(active_inds);
 end
 

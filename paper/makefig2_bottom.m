@@ -24,7 +24,7 @@ else
     p.Nresidual = 1e3;
     p.Nperm     = 2e2;
     p.noise     = 1;
-    p.Nbatch    = 40;
+    p.Nbatch    = Nbatch;
     p.Amp       = 2;
     p.freq      = 3.8;
 end
