@@ -2,8 +2,8 @@
 active_inds = 1:5;
 
 nouter = 10; % number of outer optimzation loops
-ninner = 10; % number of inner optimization loops
-parpool_size=6;Nbatch=5;popu_size=24;
+ninner = 20; % number of inner optimization loops
+parpool_size=15;Nbatch=5;popu_size=30;
 
 numOpt = length(active_inds);    % dimension of multi-objective optimization problem
 % construct weight matrix
