@@ -63,16 +63,61 @@ end
 
 save(fname)
 %%
-% disp("finished1")
-% clf
-% for ii=1:nouter
-%    t=[0 cumsum(xmaster(ii,:))];
-%    J=wrap_getCostFun(t,p,active_inds)
-%    plot(J(4),J(5),'ok')
-%    hold on
-% end
-% disp("finished2")
-% 
+close all
+addpath('../utils_core/')
+addpath('../utils_cost_fun/')
+tiledlayout(3,2)
+
+set(groot,'defaultAxesTickLabelInterpreter','latex');  
+set(groot,'defaulttextinterpreter','latex');
+set(groot,'defaultLegendInterpreter','latex');
+
+xlab_list={'amp bias','acro bias','amp variance', 'acro variance', '1-power'};
+
+
+[t_unif,~]=getSamplingSchedules(p.Nmeas,0,0,0);
+J_unif = wrap_getCostFun(t_unif,p,active_inds);
+
+
+disp("finished1")
+
+for ii=1:size(xmaster,1)
+    t=[0 cumsum(xmaster(ii,:))];
+    J=wrap_getCostFun(t,p,active_inds);
+    
+    for jj=1:5
+        nexttile(jj)    
+        if jj==5
+            plot(J(jj),J(1),'ok')
+            hold on
+            if ii==1
+               plot(J_unif(jj),J_unif(1),'or');
+            end
+        else
+            plot(J(jj),J(jj+1),'ok')
+            hold on
+            if ii==1
+               plot(J_unif(jj),J_unif(jj+1),'or');
+            end
+        end
+        
+    end
+
+    for jj=1:5
+        nexttile(jj)
+        xlabel(xlab_list{jj})
+        if jj==5
+            ylabel(xlab_list{1});
+        else
+            ylabel(xlab_list{jj+1});
+        end
+    end
+    drawnow
+   
+end
+
+disp("finished2")
+
 % 
 
 

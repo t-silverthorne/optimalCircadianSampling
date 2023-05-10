@@ -4,7 +4,7 @@ addpath('utils_cost_fun')
 set(groot,'defaultAxesTickLabelInterpreter','latex');  
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
-
+lw=3;
 font_size = 10;
 set(0, 'DefaultAxesFontSize', font_size);
 set(0, 'DefaultTextFontSize', font_size);
@@ -23,7 +23,7 @@ addpath('utils_core')
 rng(2345)
 p.Nmeas=8;
 N=p.Nmeas;
-p.permMethod='fast';
+p.permMethod='naive_reuse_perms';
 tauL=0.4;
 tauR=0.6;
 [t_unif,t_nu]=getSamplingSchedules(4,4,tauL,tauR);
@@ -85,7 +85,7 @@ for ii=1:4
     [beta,Y]=get_beta(tloc,p);
     plot(tloc,Y(:,:,:,acind),'ok','MarkerEdgeColor','none','MarkerFaceColor',cloc)
     hold on
-    plot(t_hires,Xhr*beta(:,:,:,acind),'-k','color',cloc)
+    plot(t_hires,Xhr*beta(:,:,:,acind),'-k','color',cloc,'Linewidth',lw)
     ylim([-3 3])
     if ii==4
         xlabel('$t$','Interpreter','latex')
@@ -114,7 +114,7 @@ for ii=1:4
             cloc=c4;
     end
 
-    [pwr_est,amp_est,phi_est] = getPowerBatch(tloc,p,I3,I4);
+    [pwr_est,amp_est,phi_est] = getPowerBatch(tloc,p);
     histogram(amp_est(:,acind),'EdgeColor','none','FaceColor',cloc,'Normalization','probability')
 
     hold on
@@ -132,7 +132,7 @@ for ii=1:4
     nexttile(tileind(ny1+1,1),[ny2,nx1])
     acrovec=linspace(0,2*pi,p.Nacro+1);
     acrovec=acrovec(1:end-1); % get acrophases
-    plot(acrovec,reshape(mean(pwr_est,1),1,p.Nacro),'-k','Color',cloc)
+    plot(acrovec,reshape(mean(pwr_est,1),1,p.Nacro),'-k','Color',cloc,'Linewidth',lw)
     ylim([0,1])
     xlim([0,2*pi])
     % x axis for angular variable
@@ -178,9 +178,9 @@ for ii=1:4
     [~,ind]=sort(tloc);
     [pxx,f]=plomb(Y(ind)',tloc(ind),[],20);
     if ii<5
-        plot(f,pxx,'-k','HandleVisibility','off','color',cloc)
+        plot(f,pxx,'-k','HandleVisibility','off','color',cloc,'LineWidth',lw)
     else
-        plot(f,pxx,'-k','HandleVisibility','off','color',cloc,'LineWidth',2)
+        plot(f,pxx,'-k','HandleVisibility','off','color',cloc,'LineWidth',lw)
     end
     hold on
     if ii==4
