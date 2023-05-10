@@ -1,9 +1,9 @@
 % generate weights
 active_inds = 1:5;
 
-nouter = 10; % number of outer optimzation loops
+nouter = 120; % number of outer optimzation loops
 ninner = 100; % number of inner optimization loops
-parpool_size=15;Nbatch=5;popu_size=30;fname='scalarized_test_simulanneal.mat';
+parpool_size=30;Nbatch=5;popu_size=30;fname='scalarized_test_simulanneal_larger_batch.mat';
 parpool(parpool_size)
 numOpt = length(active_inds);    % dimension of multi-objective optimization problem
 % construct weight matrix
