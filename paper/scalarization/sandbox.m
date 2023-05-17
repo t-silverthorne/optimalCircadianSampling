@@ -1,9 +1,10 @@
 % generate weights
 active_inds = 1:5;
 
-nouter = 120/5;                    % number of outer optimzation loops
-ninner = 100/5;                    % number of inner optimization loops
-parpool_size=6;
+nouter = 120;                    % number of outer optimzation loops
+ninner = 1e2;                    % number of inner optimization loops
+parpool_size=30;
+
 Nbatch=5;
 popu_size=30;
 fname='run_sandbox_out.mat';

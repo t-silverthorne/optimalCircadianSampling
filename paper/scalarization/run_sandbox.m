@@ -1,10 +1,10 @@
 active_inds = 1:5;
 
-nouter = 300;                    % number of outer optimzation loops
-ninner = 100;                    % number of inner optimization loops
+nouter = 60;                    % number of outer optimzation loops
+ninner = 1000;                    % number of inner optimization loops
 parpool_size=30;
 Nbatch=8;
-fname='run_sandbox_out.mat';
+fname='run_sandbox_out_amp_higher.mat';
 parpool(parpool_size)
 numOpt = length(active_inds);    % dimension of multi-objective optimization problem
 % construct weight matrix
@@ -26,7 +26,7 @@ p.Nresidual = 1e3;
 p.Nperm     = 1e2;
 p.noise     = 1;
 p.Nbatch    = Nbatch;
-p.Amp       = 2;
+p.Amp       = 4;
 p.freq      = 3.8;
 p.positive_cost_fun = true;
 
@@ -45,7 +45,7 @@ end
 
 parfor ii=1:nouter
     opts = optimoptions(@simulannealbnd,'Display','iter', ...
-            'MaxIterations',ninner,'DisplayInterval',1,'ReannealInterval',15);
+            'MaxIterations',ninner,'DisplayInterval',1,'ReannealInterval',50);
     
     switch pmethod
     	case 1
