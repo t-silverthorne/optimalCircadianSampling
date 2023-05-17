@@ -9,8 +9,8 @@ if testing
     Nmeasvals=8:15; 
     partname='test'
 else
-    numFgrid=10;
-    numAgrid=32;
+    numFgrid=32;
+    numAgrid=10;
 end
 
 for ii=1:length(Nmeasvals)
@@ -72,7 +72,7 @@ cb.Label.Interpreter='latex';
 cb.Label.String='$\textrm{min}_\phi \gamma(\phi)$';
 set(cb,'TickLabelInterpreter','latex')
 cb.Label.Interpreter='latex';
-savefig(strcat('fig2topsweep_',partname,'.fig'))
+savefig(strcat('fig2topsweep_',string(partname),'.fig'))
 
 
 function pmin=arrayfun_wrap_getPowerBatch(Amp,freq,t,p)
