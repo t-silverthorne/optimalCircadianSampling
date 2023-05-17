@@ -1,12 +1,12 @@
 % generate weights
 active_inds = 1:5;
 
-nouter = 120;                    % number of outer optimzation loops
-ninner = 100;                    % number of inner optimization loops
-parpool_size=30;
+nouter = 120/5;                    % number of outer optimzation loops
+ninner = 100/5;                    % number of inner optimization loops
+parpool_size=6;
 Nbatch=5;
 popu_size=30;
-fname='scalarized_test_simulanneal_larger_batch.mat';
+fname='run_sandbox_out.mat';
 parpool(parpool_size)
 numOpt = length(active_inds);    % dimension of multi-objective optimization problem
 % construct weight matrix
@@ -65,6 +65,7 @@ end
 
 save(fname)
 %%
+load('scalarized_test_simulanneal_larger_batch.mat')
 close all
 addpath('../utils_core/')
 addpath('../utils_cost_fun/')
@@ -90,16 +91,16 @@ for ii=1:size(xmaster,1)
     for jj=1:5
         nexttile(jj)    
         if jj==5
-            plot(J(jj),J(1),'ok')
+            plot(J(jj),J(1),'.k','MarkerSize',7);
             hold on
-            if ii==1
-               plot(J_unif(jj),J_unif(1),'or');
+            if (ii==1 || ii == size(xmaster,1))
+               plot(J_unif(jj),J_unif(1),'.r','MarkerSize',10);
             end
         else
-            plot(J(jj),J(jj+1),'ok')
+            plot(J(jj),J(jj+1),'.k','MarkerSize',7);
             hold on
-            if ii==1
-               plot(J_unif(jj),J_unif(jj+1),'or');
+            if (ii==1 || ii == size(xmaster,1))
+               plot(J_unif(jj),J_unif(jj+1),'.r','MarkerSize',20);
             end
         end
         
@@ -117,16 +118,13 @@ for ii=1:size(xmaster,1)
     drawnow
    
 end
-
 disp("finished2")
-
-
 
 function J=hvol_scalar_costfun(dt,p,active_inds,lambdaloc)
 t=NaN(1,length(dt)+1);
 t(1)=0;
 for ii=2:length(t)
-    t(ii) = t(ii-1) + t(ii)*(1-t(ii-1));
+    t(ii) = t(ii-1) + dt(ii)*(1-t(ii-1));
 end
 J=max(wrap_getCostFun(t,p,active_inds)./lambdaloc);
 end
