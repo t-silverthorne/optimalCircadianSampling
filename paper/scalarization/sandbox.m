@@ -2,7 +2,7 @@
 active_inds = 1:5;
 
 nouter = 120;                    % number of outer optimzation loops
-ninner = 100;                    % number of inner optimization loops
+ninner = 1e2;                    % number of inner optimization loops
 parpool_size=30;
 Nbatch=5;
 popu_size=30;
@@ -83,42 +83,42 @@ J_unif = wrap_getCostFun(t_unif,p,active_inds);
 
 disp("finished1")
 
-for ii=1:size(xmaster,1)
-    t=[0 cumsum(xmaster(ii,:))];
-    J=wrap_getCostFun(t,p,active_inds);
-    
-    for jj=1:5
-        nexttile(jj)    
-        if jj==5
-            plot(J(jj),J(1),'ok')
-            hold on
-            if ii==1
-               plot(J_unif(jj),J_unif(1),'or');
-            end
-        else
-            plot(J(jj),J(jj+1),'ok')
-            hold on
-            if ii==1
-               plot(J_unif(jj),J_unif(jj+1),'or');
-            end
-        end
-        
-    end
-
-    for jj=1:5
-        nexttile(jj)
-        xlabel(xlab_list{jj})
-        if jj==5
-            ylabel(xlab_list{1});
-        else
-            ylabel(xlab_list{jj+1});
-        end
-    end
-    drawnow
-   
-end
-
-disp("finished2")
+% for ii=1:size(xmaster,1)
+%     t=[0 cumsum(xmaster(ii,:))];
+%     J=wrap_getCostFun(t,p,active_inds);
+%     
+%     for jj=1:5
+%         nexttile(jj)    
+%         if jj==5
+%             plot(J(jj),J(1),'ok')
+%             hold on
+%             if ii==1
+%                plot(J_unif(jj),J_unif(1),'or');
+%             end
+%         else
+%             plot(J(jj),J(jj+1),'ok')
+%             hold on
+%             if ii==1
+%                plot(J_unif(jj),J_unif(jj+1),'or');
+%             end
+%         end
+%         
+%     end
+% 
+%     for jj=1:5
+%         nexttile(jj)
+%         xlabel(xlab_list{jj})
+%         if jj==5
+%             ylabel(xlab_list{1});
+%         else
+%             ylabel(xlab_list{jj+1});
+%         end
+%     end
+%     drawnow
+%    
+% end
+% 
+% disp("finished2")
 
 
 
@@ -126,7 +126,7 @@ function J=hvol_scalar_costfun(dt,p,active_inds,lambdaloc)
 t=NaN(1,length(dt)+1);
 t(1)=0;
 for ii=2:length(t)
-    t(ii) = t(ii-1) + t(ii)*(1-t(ii-1));
+    t(ii) = t(ii-1) + dt(ii)*(1-t(ii-1));
 end
 J=max(wrap_getCostFun(t,p,active_inds)./lambdaloc);
 end
