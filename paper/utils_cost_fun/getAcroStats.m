@@ -10,8 +10,7 @@ function [acro_bias,acro_var] = getAcroStats(acro_mat,phivec)
 %%%%%%%%%%%%%%
 zacro_mean  = mean(exp(1j*acro_mat),1);
 acro_mean_angle =angle(zacro_mean);
-acro_bias  = min([mod(acro_mean_angle-phivec,2*pi); ...
-                  mod(phivec-acro_mean_angle,2*pi)],[],1);
+acro_bias  = abs(exp(1j*acro_mean_angle)- exp(1j*phi_vec));
 acro_var   = arrayfun(@norm,zacro_mean.*exp(-1j*phivec));
 end
 
