@@ -22,7 +22,7 @@ for kk=1:nin
     Y=p.Amp*cos(2*pi*t*p.freq-acro)+p.noise*eps;
     X=constructX(t,p);
     
-    betas_obs = (X'*X)\(X'*Y'); %pagemldivide(X'*X,pagemtimes(X',pagetranspose(Y))); 
+    betas_obs = (X'*X)\(X'*Y');
     phi_est   = atan2(betas_obs(2,:),betas_obs(3,:));
     amp_est   = sqrt(betas_obs(2,:).^2 + betas_obs(3,:).^2);
     
