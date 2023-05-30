@@ -1,11 +1,11 @@
 load('run_sandbox_out_amp_higher.mat')
-close all
+figure
 addpath('../utils_core/')
 addpath('../utils_cost_fun/')
 tiledlayout(3,2)
 
 set(groot,'defaultAxesTickLabelInterpreter','latex');  
-set(groot,'defaulttextinterpreter','latex');
+set(groot,'defaulttextinterpreter','latex');    
 set(groot,'defaultLegendInterpreter','latex');
 
 xlab_list={'amp bias','acro bias','amp variance', 'acro variance', '1-power'};
