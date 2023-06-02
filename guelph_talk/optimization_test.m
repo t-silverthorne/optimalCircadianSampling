@@ -19,7 +19,8 @@ else
     p.Nperm     = 2e2;
     p.Nacro     = 16; % choose random acrophase
     nouter      = 60; % number of outer optimzation loops
-    ninner      = 1000; % number of inner optimization loops
+%    ninner      = 1000; % number of inner optimization loops
+    ninner      = 100; % number of inner optimization loops
     parpool_size=30;
 end
 parpool(parpool_size)

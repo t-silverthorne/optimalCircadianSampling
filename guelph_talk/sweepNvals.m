@@ -9,7 +9,8 @@ if testing
     Nmeasvals=8:15; 
     partname='test';
 else
-    numFgrid=32;
+    %numFgrid=32;
+    numFgrid=2;
     numAgrid=10;
 end
 
