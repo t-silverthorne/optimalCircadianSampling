@@ -1,0 +1,74 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx2g
+Opening log file:  /tmp/java.log.47832
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2022 The MathWorks, Inc.
+             R2022b Update 2 (9.13.0.2105380) 64-bit (glnxa64)
+                              October 26, 2022
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to the parallel pool (number of workers: 30).
+
+ans = 
+
+ ProcessPool with properties: 
+
+            Connected: true
+           NumWorkers: 30
+                 Busy: false
+              Cluster: Processes (Local Cluster)
+        AttachedFiles: {}
+    AutoAddClientPath: true
+            FileStore: [1x1 parallel.FileStore]
+           ValueStore: [1x1 parallel.ValueStore]
+          IdleTimeout: 30 minutes (30 minutes remaining)
+          SpmdEnabled: true
+
+[Warning: The temporary variable 'xopt' will be cleared at the beginning of each
+iteration of the parfor-loop. If 'xopt' is used before it is set, a runtime
+error will occur. For more information, see Parallel for Loops in MATLAB,
+"Uninitialized Temporaries".] 
+[> In run_sandbox (line 46)] 
+Analyzing and transferring files to the workers ...done.
+{Error using getAcroStats
+An UndefinedFunction error was thrown on the workers for 'phi_vec'.  This might
+be because the file containing 'phi_vec' is not accessible on the workers. Use
+addAttachedFiles(pool, files) to specify the required files to be attached.
+For more information, see the documentation for
+'parallel.Pool/addAttachedFiles'.
+
+Error in getCostFun (line 4)
+[acro_bias,acro_var] = getAcroStats(acro_mat,acrovec);
+
+Error in wrap_getCostFun (line 4)
+Jvec = getCostFun(p,pwr_mat,amp_mat,acro_mat,active_inds);
+
+Error in run_sandbox>hvol_scalar_costfun_v2 (line 76)
+J=max(wrap_getCostFun(t,p,active_inds)./lambdaloc);
+
+Error in @(t)hvol_scalar_costfun_v2(t,p,active_inds,lambdaMaster(ii,:))
+
+Error in globaloptim.simulannealbnd.samakedata (line 21)
+        problem.objective(globaloptim.internal.validate.reshapeinput(problem.x0,solverData.currentx));
+
+Error in globaloptim.simulannealbnd.simulannealcommon (line 122)
+solverData = globaloptim.simulannealbnd.samakedata(solverData,problem,options);
+
+Error in globaloptim.simulannealbnd.driver (line 18)
+    globaloptim.simulannealbnd.simulannealcommon(FUN,x0,Aineq, bineq, Aeq, beq, lb, ub,options,defaultopt);
+
+Error in simulannealbnd (line 193)
+    globaloptim.simulannealbnd.driver(FUN, x0, [], [], [], [], lb, ub, options, defaultopt);
+
+Error in run_sandbox (line 46)
+parfor ii=1:nouter
+
+Caused by:
+    Failure in initial user-supplied objective function evaluation.
+    Unrecognized function or variable 'phi_vec'.
+        Failure in initial user-supplied objective function evaluation.
+} 

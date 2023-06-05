@@ -1,0 +1,38 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx2g
+Opening log file:  /tmp/java.log.27798
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2022 The MathWorks, Inc.
+             R2022b Update 2 (9.13.0.2105380) 64-bit (glnxa64)
+                              October 26, 2022
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to the parallel pool (number of workers: 30).
+
+ans = 
+
+ ProcessPool with properties: 
+
+            Connected: true
+           NumWorkers: 30
+                 Busy: false
+              Cluster: Processes (Local Cluster)
+        AttachedFiles: {}
+    AutoAddClientPath: true
+            FileStore: [1x1 parallel.FileStore]
+           ValueStore: [1x1 parallel.ValueStore]
+          IdleTimeout: 30 minutes (30 minutes remaining)
+          SpmdEnabled: true
+
+[Warning: The temporary variable 'xopt' will be cleared at the beginning of each
+iteration of the parfor-loop. If 'xopt' is used before it is set, a runtime
+error will occur. For more information, see Parallel for Loops in MATLAB,
+"Uninitialized Temporaries".] 
+[> In run_sandbox (line 39)] 
+{Error using run_sandbox
+Unrecognized field name "Nmeas1".
+} 

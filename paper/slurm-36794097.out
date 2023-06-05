@@ -1,0 +1,53 @@
+Picked up JAVA_TOOL_OPTIONS: -Xmx2g
+Opening log file:  /tmp/java.log.59977
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2022 The MathWorks, Inc.
+             R2022b Update 2 (9.13.0.2105380) 64-bit (glnxa64)
+                              October 26, 2022
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to the parallel pool (number of workers: 30).
+
+
+Iter     Func-count       f(x)      MeshSize     Method
+    0           1        -0.2196             1      
+    1           1        -0.2196           0.5     Refine Mesh
+    2           1        -0.2196          0.25     Refine Mesh
+    3           1        -0.2196         0.125     Refine Mesh
+    4           2      -0.254775          0.25     Successful Poll
+    5           2      -0.254775         0.125     Refine Mesh
+    6           5      -0.277325          0.25     Successful Poll
+    7           5      -0.277325         0.125     Refine Mesh
+    8           7        -0.2904          0.25     Successful Poll
+    9           7        -0.2904         0.125     Refine Mesh
+   10           9       -0.29695          0.25     Successful Poll
+   11           9       -0.29695         0.125     Refine Mesh
+Maximum number of iterations exceeded: increase options.MaxIterations.
+
+Iter   F-count   NumSolutions  Spread       Volume 
+   0         1         1          -            -      
+   1         5         1          -            -      
+   2         7         1          -            -      
+   3        12         1          -            -      
+   4        18         1          -            -      
+   5        34         1          -            -      
+   6        36         1          -            -      
+   7        42         1          -            -      
+   8        66         3       9.8678e-01   1.0066e+00
+   9       135         6       5.1471e-01   1.0050e+00
+  10       239         7       9.5460e-01   1.0304e+00
+  11       369         4       0.0000e+00   1.0304e+00
+  12       557         5       0.0000e+00   1.0304e+00
+  13       740         5       0.0000e+00   1.0304e+00
+  14       923         7       2.1163e-01   1.0304e+00
+  15      1111         7       4.2957e-01   1.0304e+00
+  16      1298         7       5.2449e-01   1.0304e+00
+  17      1410         7       5.2449e-01   1.0304e+00
+  18      1521         7       5.2449e-01   1.0304e+00
+  19      1631         8       5.4280e-01   1.0304e+00
+slurmstepd: error: *** JOB 36794097 ON bc11947 CANCELLED AT 2023-04-30T23:53:51 DUE TO TIME LIMIT ***
