@@ -4,7 +4,7 @@ nouter = 60;                    % number of outer optimzation loops
 ninner = 1000;                    % number of inner optimization loops
 parpool_size=30;
 Nbatch=8;
-fname='run_sandbox_out_amp_higher.mat';
+fname='run_sandbox_out.mat';
 parpool(parpool_size)
 numOpt = length(active_inds);    % dimension of multi-objective optimization problem
 % construct weight matrix
@@ -26,7 +26,7 @@ p.Nresidual = 1e3;
 p.Nperm     = 1e2;
 p.noise     = 1;
 p.Nbatch    = Nbatch;
-p.Amp       = 4;
+p.Amp       = 8;
 p.freq      = 3.8;
 p.positive_cost_fun = true;
 

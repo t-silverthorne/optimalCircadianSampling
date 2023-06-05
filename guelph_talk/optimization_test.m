@@ -1,6 +1,6 @@
 %% setup parameters
 testing=false;
-fname = 'test';
+fname = 'test_amp4';
 addpath('utils_core')
 addpath('utils_cost_fun/')
 
@@ -18,16 +18,16 @@ else
     p.Nresidual = 5e3;
     p.Nperm     = 2e2;
     p.Nacro     = 16; % choose random acrophase
-    nouter      = 60; % number of outer optimzation loops
-%    ninner      = 1000; % number of inner optimization loops
-    ninner      = 100; % number of inner optimization loops
+    nouter      = 30; % number of outer optimzation loops
+    ninner      = 1000; % number of inner optimization loops
+%    ninner      = 100; % number of inner optimization loops
     parpool_size=30;
 end
 parpool(parpool_size)
 
 p.Nmeas     = 8;  % eventually loop over this
-p.freq      = 3.7;
-p.Amp       = 2;
+p.freq      = 3;
+p.Amp       = 4;
 p.noise     = 1;
 p.Nbatch    = 1;
 
