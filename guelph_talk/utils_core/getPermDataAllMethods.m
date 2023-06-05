@@ -44,7 +44,44 @@ switch p.permMethod
             I4=reshape(1:p.Nacro,[1 1 1 p.Nacro]).*ones([p.Nresidual,p.Nmeas,1,p.Nacro]);
             Y(:,:,ii,:) = Y(sub2ind(size(Y),I1,I2,I3,I4));
         end
-
+    case 'FY_randsample2'
+        Y=NaN(p.Nresidual,p.Nmeas,p.Nperm,p.Nacro);
+        d=p.Nmeas;n=p.Nresidual;
+        for kk=1:p.Nacro
+            for jj=1:p.Nperm
+                Yloc = Y_in(:,:,1,kk);
+                Yloc =Yloc';
+                for ii=1:(d-1)
+                    S=randsample(ii:d,n,true);
+                    shift=d*(0:(n-1));
+                    temp=Yloc(ii+shift);
+                    Yloc(ii+shift)=Y(S+shift);
+                    Y(S+shift)=temp;
+                end
+                Y(:,:,jj,kk)=Yloc';
+            end
+        end
+    case 'FY_randsample'
+        Y = repmat(Y_in,[1 1 p.Nperm 1]);
+        N1=p.Nresidual;d=p.Nmeas;N2=d;N3=p.Nperm;N4=p.Nacro;
+        n=N1*N3*N4;
+        I3=NaN(N1,N2,N3); % make indexing matrices
+        I4=NaN(N1,N2,N3,N4);
+        for ii=1:N3
+            I3(:,:,ii)=ii*ones(N1,N2);
+        end
+        for ii=1:N4
+            I4(:,:,:,ii)=ii*ones(N1,N2,N3);
+        end
+        P=repmat(1:d,n,1); % make permutation matrix using FY shuffle
+        for ii=1:d
+            inds=randsample((ii:d)',n,true);
+            ptemp=P(:,ii);
+            P(:,ii)=P(sub2ind(size(P),(1:n)',inds));
+            P(sub2ind(size(P),(1:n)',inds))=ptemp;
+        end
+        P=pagetranspose(reshape(P',d,N1,N3,N4));
+        Y=Y(sub2ind(size(Y),repmat((1:N1)',1,N2,N3,N4),P,repmat(I3,1,1,1,N4),I4));        
     case 'FY_double_for_loop'
     % implementation of the Fisher-Yates shuffle, no reusing of
     % permutations

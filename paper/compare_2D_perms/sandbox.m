@@ -1,3 +1,5 @@
+N=5e5;
+d=8;
 % vectorized FY method
 Ydat=rand(N,d);
 useGPU=false;
