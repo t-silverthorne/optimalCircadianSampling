@@ -21,6 +21,23 @@ set(fig, 'PaperUnits', 'inches', ...
          'Position', [0 0 fig_width fig_height]);
 
 
+tiledlayout(1,2)
+nexttile(1)
 [M,c]=contourf(Agr,Fgr,Pmin,100,'LineColor','none');%,'FaceAlpha',0.5)
 set(gca,'XScale','log')
+
+
+
+p.Nbatch=1;
+p.Nacro=4;
+p.Amp=1;
+p.freq=3.7;
+[pwr,~,~,~]=getPower(t_unif,p)
+
+xline()
+nexttile(2)
+acrovec=linspace(0,2*pi,p.Nacro+1);
+acrovec=acrovec(1:end-1); % get acrophases
+plot(acrovec,reshape(pwr,[1 p.Nacro 1 1]),'-k')
+
 drawnow

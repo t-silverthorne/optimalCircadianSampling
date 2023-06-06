@@ -42,7 +42,6 @@ for kk=1:nin
     bin_mat  = SSres<SSres_obs;
     pwr_est = sum(sum(bin_mat,3)/p.Nperm<.05)/p.Nresidual;
 
-    kk
     amp_stat_vec(kk)  = mean(amp_est-p.Amp);
     phase_stat_vec(kk) =abs(mean(exp(1j*phi_est)));
     pwr_est_vec(kk)   =pwr_est;
