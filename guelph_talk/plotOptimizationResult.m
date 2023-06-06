@@ -132,4 +132,9 @@ linkaxes([ax1 ax4],'x')
 linkaxes([ax2 ax5],'x')
 linkaxes([ax3 ax6],'x')
 
+for ii=1:6 % log scale
+    nexttile(ii)
+    set(gca,'YScale','log')
+    set(gca,'XScale','log')
+end
 savefig(fname)
