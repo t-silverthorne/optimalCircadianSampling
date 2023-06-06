@@ -1,5 +1,7 @@
 % path and data
-load('data/test_amp4.mat')
+% testing=false;
+% load('data/test_amp4.mat')
+% fname='test_amp4fig';
 addpath('utils_core')
 addpath('utils_cost_fun')
 
@@ -34,13 +36,20 @@ c4="#FE6100"; % jittered colour
 c5="#000000";
 cols=[c1,c5,c3];
 
-p.Nperm=1e2;
-p.Nresidual=1e1;
+if testing
+    p.Nbatch    = 1;
+    p.Nperm     = 1e2;
+    p.Nresidual = 1e1;
+else
+    p.Nbatch    = 1;
+    p.Nperm     = 1e2;
+    p.Nresidual = 1e3;
+end
+
 ntypes=3;
 names={'uniform','optimal','random'};
 
-for jj=1:ntypes
-
+for jj=3:-1:1
     for pind=1:nout(jj)
         if jj==1
             [t,~] = getSamplingSchedules(p.Nmeas,0,0,0);
@@ -55,28 +64,28 @@ for jj=1:ntypes
         end
         Jvec = wrap_getCostFun(t,p,active_inds);
     
-        nexttile(1)
+        ax1=nexttile(1);
         plot(Jvec(1),Jvec(3),'.k','Color',cols(jj),'MarkerSize',10, ...
             'DisplayName',names{jj},"HandleVisibility",hvbool)
         hold on
-        nexttile(2)
+        ax2=nexttile(2);
         plot(Jvec(4),Jvec(3),'.k','Color',cols(jj),'MarkerSize',10, ...
             'DisplayName',names{jj},"HandleVisibility",hvbool)
         hold on
-        nexttile(3)
+        ax3=nexttile(3);
         plot(Jvec(5),Jvec(3),'.k','Color',cols(jj),'MarkerSize',10, ...
             'DisplayName',names{jj},"HandleVisibility",hvbool)
         hold on
         
-        nexttile(4)
+        ax4=nexttile(4);
         plot(Jvec(1),Jvec(4),'.k','Color',cols(jj),'MarkerSize',10, ...
             'DisplayName',names{jj},"HandleVisibility",hvbool)
         hold on
-        nexttile(5)
+        ax5=nexttile(5);
         plot(Jvec(2),Jvec(4),'.k','Color',cols(jj),'MarkerSize',10, ...
             'DisplayName',names{jj},"HandleVisibility",hvbool)
         hold on
-        nexttile(6)
+        ax6=nexttile(6);
         plot(Jvec(5),Jvec(4),'.k','Color',cols(jj),'MarkerSize',10, ...
             'DisplayName',names{jj},"HandleVisibility",hvbool)
         hold on
@@ -85,14 +94,14 @@ for jj=1:ntypes
     end
 end
 
-% more aesthetics 
+%% more aesthetics 
 nexttile(1)
 xlabel('amp bias')
 ylabel('amp var')
 set(gca,'XTickLabel',[]);
 
 nexttile(2)
-xlabel('1+acro var')
+xlabel('acro var')
 set(gca,'YTickLabel',[]);
 
 nexttile(3)
@@ -115,3 +124,12 @@ set(gca,'YTickLabel',[]);
 
 nexttile(5)
 legend('Location','southoutside','NumColumns',3)
+
+%% even more aesthetics
+linkaxes([ax1 ax2 ax3],'y')
+linkaxes([ax4 ax5 ax6],'y')
+linkaxes([ax1 ax4],'x')
+linkaxes([ax2 ax5],'x')
+linkaxes([ax3 ax6],'x')
+
+savefig(fname)
