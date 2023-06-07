@@ -1,8 +1,10 @@
-clf
+close all
 clear
-load('data/test_amp4.mat')
+fname='test';
+load('data/ignore_power.mat')
+%%
 fname='test_amp4fig';
-testing=true;
+testing=false;
 
 addpath('utils_core')
 addpath('utils_cost_fun')
@@ -11,8 +13,8 @@ addpath('utils_cost_fun')
 set(groot,'defaultAxesTickLabelInterpreter','latex');  
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
-fig_width = 10; % width in inches
-fig_height = 5; % height in inches
+fig_width  = 5; % width in inches
+fig_height = 3; % height in inches
 fig_aspect_ratio = fig_width / fig_height;
 fig = figure;
 set(fig, 'PaperUnits', 'inches', ...
@@ -25,10 +27,11 @@ set(fig, 'PaperUnits', 'inches', ...
 
 lab_list = {'amp bias','acro bias','amp var','1-acro var', '1-power'};
 
-tiledlayout(4,4,'TileSpacing','none')
+tiledlayout(4,4,'TileSpacing','tight')
+set(findall(gcf,'-property','FontSize'),'FontSize',4)
 nout(1)=1;
 nout(2)=size(xmaster,1);
-nout(3)=size(xmaster,1);
+nout(3)=10;
 nin = 1;
 c1="#648FFF"; % uniform colour
 c2="#785EF0"; % 2-uniform colour
@@ -45,6 +48,8 @@ else
     p.Nbatch    = 1;
     p.Nperm     = 1e2;
     p.Nresidual = 1e3;
+    p.permMethod       = 'FY_double_for_loop'; %p.permActionMethod = 'index'; % options index or matrix for 'naive_make_perms_first'
+    p.permActionMethod = 'index';
 end
 
 names    = {'uniform','optimal','random'};
@@ -90,7 +95,29 @@ linkaxes([nexttile(13) nexttile(14) nexttile(15) nexttile(16)],'y')
 linkaxes([nexttile(1) nexttile(5) nexttile(9) nexttile(13)],'x')
 linkaxes([nexttile(6) nexttile(10) nexttile(14)],'x')
 linkaxes([nexttile(11) nexttile(15)],'x')
+%%
+for ii=1:4
+    for jj=1:ii
+        nexttile(jj + 4*(ii-1))
+        xl=xlim;
+        xticks([linspace(xl(1),0.8*xl(2),3)])
+        round(xticks,1)
+        tix=get(gca,'xtick')';
+        set(gca,'xticklabel',num2str(tix,'%0.1f'))
+    end
+end
 
+for ii=1:4
+    for jj=1:ii
+        nexttile(jj + 4*(ii-1))
+        yl=ylim;
+        yticks(yl)
+        tix=get(gca,'ytick')';
+        set(gca,'yticklabel',num2str(tix,'%0.1f'))
+    end
+end
+
+%%
 
 xklist=[1 5 9 6 10 11];
 for ii=1:length(xklist)
@@ -105,3 +132,23 @@ for ii=1:length(yklist)
     ylabel('')
     set(gca,'YTickLabel',[])
 end
+
+
+%%
+nexttile(1)
+ylim([0,.04])
+%%
+linkaxes([nexttile(5) nexttile(6)],'y')
+nexttile(5)
+ylim([.1 1.2])
+
+%%
+linkaxes([nexttile(9) nexttile(10) nexttile(11)],'y')
+nexttile(9)
+ylim([0 .04])
+xlim([0 .2])
+%%
+set(findall(gcf,'-property','FontSize'),'FontSize',6)
+print(gcf,strcat('/home/turner/research/overleaf/guelph_talk/figs_csc/',fname),'-dpng','-r600') % -r sets the resolution
+savefig(fname)
+

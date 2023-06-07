@@ -26,7 +26,7 @@ end
 parpool(parpool_size)
 
 p.Nmeas     = 8;  % eventually loop over this
-p.freq      = 3;
+p.freq      = 3.7;
 p.Amp       = 4;
 p.noise     = 1;
 p.Nbatch    = 1;
