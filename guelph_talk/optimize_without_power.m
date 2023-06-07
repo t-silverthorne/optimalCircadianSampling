@@ -1,13 +1,12 @@
-clear all
 addpath('utils_core')
 addpath('utils_cost_fun')
 numOpt=4;
 nouter=100;
 ninner=5e4;
-p.Nmeas     = 8;
-p.freq      = 3.8;
-p.Amp       = 2;
-save('data/ignore_power.mat')
+%p.Nmeas     = 8;
+%p.freq      = 3.8;
+%p.Amp       = 2;
+fname='data/ignore_power1.mat'
 
 [t,~]=getSamplingSchedules(p.Nmeas,0,0,0);
 p.Nresidual = 1e3;
@@ -42,6 +41,7 @@ parfor ii=1:nouter
 end
 toc
 
+save(fname)
 
 function Jvec = getScalarizedCfun(t,p,lambda)
 t=sort(t);

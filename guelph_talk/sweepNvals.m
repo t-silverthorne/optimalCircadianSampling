@@ -1,5 +1,5 @@
 testing=false;
-fname='sweepNvals_test';
+fname='sweepNvals_largerN';
 addpath('utils_core')
 addpath('utils_cost_fun/')
 tiledlayout(2,4,'TileSpacing','tight','Padding','tight')
@@ -10,8 +10,8 @@ if testing
     Nmeasvals=8:15; 
     partname='test';
 else
-    numFgrid=32;
-    numAgrid=10;
+    numFgrid=32*4;
+    numAgrid=20;
 end
 
 if testing
@@ -28,12 +28,12 @@ p.Nmeas     = 8;  % eventually loop over this
 p.freq      = 3.7;
 p.Amp       = 2;
 p.noise     = 1;
-p.Nbatch    = 2;
+p.Nbatch    = 1;
 
 
 p.permMethod       = 'FY_double_for_loop'; %p.permActionMethod = 'index'; % options index or matrix for 'naive_make_perms_first'
 p.permActionMethod = 'index';
-freqvals        = linspace(1,32,numFgrid);
+freqvals        = linspace(1,18,numFgrid);
 Ampvals         = logspace(-1,1,numAgrid);
 
 [t_unif,~]=getSamplingSchedules(p.Nmeas,0,0,0);
