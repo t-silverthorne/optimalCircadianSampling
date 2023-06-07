@@ -15,8 +15,8 @@ if testing
     ninner      = 10; % number of inner optimization loops
     parpool_size=2;
 else
-    p.Nresidual = 5e3;
-    p.Nperm     = 2e2;
+    p.Nresidual = 1e3;
+    p.Nperm     = 1e2;
     p.Nacro     = 16; % choose random acrophase
     nouter      = 30; % number of outer optimzation loops
     ninner      = 1000; % number of inner optimization loops
