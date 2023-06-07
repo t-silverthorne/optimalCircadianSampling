@@ -21,3 +21,4 @@ ans =
     0.3206    0.4832    0.7973    0.2054
 
 Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to the parallel pool (number of workers: 12).

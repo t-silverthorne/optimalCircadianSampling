@@ -7,6 +7,9 @@
 node_modules/
 dist/
 
+# slurm output
+*.out
+
 # Compiled Java class files
 *.class
 

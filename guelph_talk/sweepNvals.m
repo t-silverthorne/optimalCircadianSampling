@@ -19,8 +19,8 @@ if testing
     p.Nperm     = 10;
     p.Nacro     = 8; % choose random acrophase
 else
-    p.Nresidual = 5e3;
-    p.Nperm     = 2e2;
+    p.Nresidual = 1e3;
+    p.Nperm     = 1e2;
     p.Nacro     = 16; % choose random acrophase
 end
 p.Nmeas     = 8;  % eventually loop over this

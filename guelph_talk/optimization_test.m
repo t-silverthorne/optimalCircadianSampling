@@ -26,8 +26,8 @@ end
 parpool(parpool_size)
 
 p.Nmeas     = 8;  % eventually loop over this
-p.freq      = 3.7;
-p.Amp       = 4;
+p.freq      = 3.8;
+p.Amp       = 2;
 p.noise     = 1;
 p.Nbatch    = 1;
 
@@ -50,7 +50,7 @@ eps_cstr    = 1e-3;
 active_inds = 1:5;
 parfor ii=1:nouter
     opts = optimoptions(@simulannealbnd,'Display','iter', ...
-            'MaxIterations',ninner,'DisplayInterval',1,'ReannealInterval',50);
+            'MaxIterations',ninner,'DisplayInterval',1,'ReannealInterval',50,'TemperatureFcn','temperaturefast');
     x0=rand(1,p.Nmeas);
     xopt = simulannealbnd(@(t) hvol_scalar_costfun_v2(t,p,active_inds,lambdaMaster(ii,:)), ...
 			       x0,eps_cstr*ones(1,p.Nmeas),ones(1,p.Nmeas),opts);

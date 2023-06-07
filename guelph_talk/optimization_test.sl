@@ -5,7 +5,7 @@
 #SBATCH --nodes=1      
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=30      # currently set for parallel commands
-#SBATCH --mem-per-cpu=7500      # currently set for parallel
+#SBATCH --mem-per-cpu=4500      # currently set for parallel
 #SBATCH --mail-user=turner.silverthorne@utoronto.ca 
 #SBATCH --mail-type=ALL
 
