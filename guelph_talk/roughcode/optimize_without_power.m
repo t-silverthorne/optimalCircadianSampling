@@ -1,11 +1,11 @@
 addpath('utils_core')
 addpath('utils_cost_fun')
 numOpt=4;
-nouter=100;
+nouter=12;
 ninner=5e4;
-%p.Nmeas     = 8;
-%p.freq      = 3.8;
-%p.Amp       = 2;
+p.Nmeas     = 8;
+p.freq      = 3.8;
+p.Amp       = 2;
 fname='data/ignore_power1.mat'
 
 [t,~]=getSamplingSchedules(p.Nmeas,0,0,0);
@@ -25,10 +25,7 @@ while size(lambdaMaster,1)<nouter
     lambdaMaster = [lambdaMaster; lambdaMat(sum(lambdaMat>0,2)==numOpt,:)];
 end
 
-
-
 eps_cstr    = 1e-3;
-active_inds = 1:5;
 tic
 parfor ii=1:nouter
     opts = optimoptions(@simulannealbnd,'Display','none', ...

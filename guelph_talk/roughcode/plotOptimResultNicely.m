@@ -1,9 +1,12 @@
 close all
 clear
-fname='test';
-load('data/ignore_power.mat')
+
+% load('data/test_opt_full.mat')
+% fname='test_opt_full';
+
+load('data/test_opt_full.mat')
+fname='test_rand';
 %%
-fname='test_amp4fig';
 testing=false;
 
 addpath('utils_core')
@@ -14,7 +17,7 @@ set(groot,'defaultAxesTickLabelInterpreter','latex');
 set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 fig_width  = 5; % width in inches
-fig_height = 3; % height in inches
+fig_height = 3.25; % height in inches
 fig_aspect_ratio = fig_width / fig_height;
 fig = figure;
 set(fig, 'PaperUnits', 'inches', ...
@@ -27,17 +30,22 @@ set(fig, 'PaperUnits', 'inches', ...
 
 lab_list = {'amp bias','acro bias','amp var','1-acro var', '1-power'};
 
-tiledlayout(4,4,'TileSpacing','tight')
+tiledlayout(4,4,'TileSpacing','compact')
 set(findall(gcf,'-property','FontSize'),'FontSize',4)
+
+% p.Nmeas     = 8;
+% f1=3.8;
+% f2=4.8;
+% p.Amp       = 3.5;
 nout(1)=1;
 nout(2)=size(xmaster,1);
-nout(3)=10;
+nout(3)=20;
 nin = 1;
 c1="#648FFF"; % uniform colour
 c2="#785EF0"; % 2-uniform colour
 c3="#DC267F"; % Unif(0,1) colour
 c4="#FE6100"; % jittered colour
-c5="#000000";
+c5="#000000";   
 cols=[c1,c5,c3];
 
 if testing
@@ -53,8 +61,8 @@ else
 end
 
 names    = {'uniform','optimal','random'};
-marksize = [20 10 10];
-for kk=3:-1:1
+marksize = [15 8 8];
+for kk=3:-2:1
     for pind=1:nout(kk)
         % construct measurement grid
         if kk==1
@@ -69,7 +77,7 @@ for kk=3:-1:1
             hvbool='on';
         end
         Jvec = wrap_getCostFun(t,p,active_inds); % get cost fun
-
+%         Jvec = wrap_twoper_cfun(t,p,active_inds,f1,f2);
         % plot
         for ii=1:4
             for jj=1:ii
@@ -86,7 +94,7 @@ for kk=3:-1:1
     end
 end
 
-
+%%
 
 linkaxes([nexttile(5) nexttile(6)],'y')
 linkaxes([nexttile(9) nexttile(10) nexttile(11)],'y')
@@ -95,27 +103,27 @@ linkaxes([nexttile(13) nexttile(14) nexttile(15) nexttile(16)],'y')
 linkaxes([nexttile(1) nexttile(5) nexttile(9) nexttile(13)],'x')
 linkaxes([nexttile(6) nexttile(10) nexttile(14)],'x')
 linkaxes([nexttile(11) nexttile(15)],'x')
-%%
-for ii=1:4
-    for jj=1:ii
-        nexttile(jj + 4*(ii-1))
-        xl=xlim;
-        xticks([linspace(xl(1),0.8*xl(2),3)])
-        round(xticks,1)
-        tix=get(gca,'xtick')';
-        set(gca,'xticklabel',num2str(tix,'%0.1f'))
-    end
-end
-
-for ii=1:4
-    for jj=1:ii
-        nexttile(jj + 4*(ii-1))
-        yl=ylim;
-        yticks(yl)
-        tix=get(gca,'ytick')';
-        set(gca,'yticklabel',num2str(tix,'%0.1f'))
-    end
-end
+% %%
+% for ii=1:4
+%     for jj=1:ii
+%         nexttile(jj + 4*(ii-1))
+%         xl=xlim;
+%         xticks([linspace(xl(1),0.5*xl(2),3)])
+%         round(xticks,1)
+%         tix=get(gca,'xtick')';
+%         set(gca,'xticklabel',num2str(tix,'%0.1f'))
+%     end
+% end
+% 
+% for ii=1:4
+%     for jj=1:ii
+%         nexttile(jj + 4*(ii-1))
+%         yl=ylim;
+%         yticks(yl)
+%         tix=get(gca,'ytick')';
+%         set(gca,'yticklabel',num2str(tix,'%0.1f'))
+%     end
+% end
 
 %%
 
@@ -132,23 +140,19 @@ for ii=1:length(yklist)
     ylabel('')
     set(gca,'YTickLabel',[])
 end
-
-
 %%
-nexttile(1)
-ylim([0,.04])
+leg=legend('Location','southoutside','NumColumns',3)
+leg.Layout.Tile='south'
 %%
-linkaxes([nexttile(5) nexttile(6)],'y')
-nexttile(5)
-ylim([.1 1.2])
-
-%%
-linkaxes([nexttile(9) nexttile(10) nexttile(11)],'y')
-nexttile(9)
-ylim([0 .04])
-xlim([0 .2])
-%%
-set(findall(gcf,'-property','FontSize'),'FontSize',6)
+set(findall(gcf,'-property','FontSize'),'FontSize',7)
 print(gcf,strcat('/home/turner/research/overleaf/guelph_talk/figs_csc/',fname),'-dpng','-r600') % -r sets the resolution
 savefig(fname)
 
+function Jvec = wrap_twoper_cfun(t,p,active_inds,f1,f2)
+p.freq=f1;
+Jvec1=wrap_getCostFun(t,p,active_inds);
+p.freq=f2;
+Jvec2=wrap_getCostFun(t,p,active_inds);
+
+Jvec=0.5*(Jvec1+Jvec2);
+end

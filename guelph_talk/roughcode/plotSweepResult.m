@@ -1,12 +1,11 @@
 % path and data
 close all
-
 fig=gcf
 
-load('data/sweepNvals_test.mat')
+load('data/sweepNvals.mat')
 addpath('utils_core')
 addpath('utils_cost_fun')
-
+%%
 % aesthetics 
 set(groot,'defaultAxesTickLabelInterpreter','latex');  
 set(groot,'defaulttextinterpreter','latex');
@@ -25,14 +24,14 @@ set(fig, 'PaperUnits', 'inches', ...
 clf
 tiledlayout(2,2,'TileSpacing','tight')
 nexttile(1,[2 1])
-[M,c]=contourf(Agr,Fgr,Pmin,100,'LineColor','none');%,'FaceAlpha',0.5)
+[M,c]=contourf(Agr,Fgr,Pmin,50,'LineColor','none');%,'FaceAlpha',0.5)
 set(gca,'XScale','log')
-
+%%
 clim manual
 clim([0,1])
 
 cb = colorbar;
-cb.Layout.Tile = 'east';
+cbc
 cb.Label.Interpreter='latex'
 cb.Label.String='$\textrm{min}_\phi \gamma(\phi;A,f)$';
 set(cb,'TickLabelInterpreter','latex')
@@ -48,9 +47,9 @@ if testing
     p.Nperm     = 1e2;
     p.Nacro=8;
 else
-    p.Nresidual = 5e3;
-    p.Nperm     = 2e2;
-    p.Nacro=16;
+    p.Nresidual = 1e3;
+    p.Nperm     = 1e2;
+    p.Nacro=32;
     p.Nbatch=1;
 
 end
@@ -101,7 +100,8 @@ xlabel('$t$')
 ylabel('$\cos(2\pi f t - \pi/2)$','Interpreter','latex')
 
 
-
-print(gcf,'outputfigs/sweepNvals.png','-dpng','-r600') % -r sets the resolution
+%%
+print(gcf,strcat('/home/turner/research/overleaf/guelph_talk/figs_csc/','sweepNvals.png'),'-dpng','-r600') % -r sets the resolution
+savefig(fname)
 
 
