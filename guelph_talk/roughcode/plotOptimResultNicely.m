@@ -66,7 +66,7 @@ for kk=3:-2:1
     for pind=1:nout(kk)
         % construct measurement grid
         if kk==1
-            [t,~] = getSamplingSchedules(p.Nmeas,0,0,0);
+            [t,~] 
         elseif kk==2
             t = xmaster(pind,:);
         elseif kk==3
