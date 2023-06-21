@@ -1,6 +1,6 @@
 %% preamble
-load('data/test_opt_full.mat')
-fname='test_rand';
+load('data/guelph_opt.mat')
+close all
 testing=false;
 def_colours
 addpath('utils_core')
@@ -29,7 +29,7 @@ if testing
     p.Nperm     = 1e1;
     p.Nresidual = 1e1;
     nout           = [3 3 3 3 1];
-    designs_to_run = {'2-uniform','random','jittered','optimal','uniform'};
+    designs_to_run = {'random','2-uniform','jittered','optimal','uniform'};
 else
     p.Nbatch    = 1;
     p.Nperm     = 1e2;
@@ -37,13 +37,18 @@ else
     p.permMethod       = 'FY_double_for_loop'; %p.permActionMethod = 'index'; % options index or matrix for 'naive_make_perms_first'
     p.permActionMethod = 'index';
     
-    nout           = [50 50 50 1];
-    designs_to_run = {'2-uniform','random','jittered','uniform'};
+%     fname='test_rand';    
+%     nout           = [50 50 50 1];
+%     designs_to_run = {'random','2-uniform','jittered','uniform'};
+
+    fname='optim_result';
+    nout           = [50 50 50 size(xmaster,1) 1];
+    designs_to_run = {'random','2-uniform','jittered','optimal','uniform'};
 end
 
 
 
-lab_list = {'amp bias','acro bias','amp var','1-acro var', '1-power'};
+lab_list = {'amp bias','acro bias','amp var','acro var', '$1-\textrm{power}$'};
 
 for kk=1:length(designs_to_run)
     for pind=1:nout(kk)
@@ -85,7 +90,12 @@ for kk=1:length(designs_to_run)
         for ii=1:4
             for jj=1:ii
                 nexttile(jj + 4*(ii-1))
-                loglog(Jvec(jj),Jvec(ii+1),'.k','Color',cloc,'MarkerFaceColor',cloc, ...
+                if strcmp(designs_to_run{kk},'uniform')
+                    cloc_out=[177, 3, 252]./255;
+                else
+                    cloc_out=cloc;
+                end
+                loglog(Jvec(jj),Jvec(ii+1),'.k','Color',cloc_out,'MarkerFaceColor',cloc, ...
                     'MarkerSize',marksize, ...
                     'DisplayName',dname,'HandleVisibility',hvbool, ...
                     'Marker',marktype);
@@ -98,7 +108,43 @@ for kk=1:length(designs_to_run)
     end
 end
 
+
+linkaxes([nexttile(5) nexttile(6)],'y')
+linkaxes([nexttile(9) nexttile(10) nexttile(11)],'y')
+linkaxes([nexttile(13) nexttile(14) nexttile(15) nexttile(16)],'y')
+
+linkaxes([nexttile(1) nexttile(5) nexttile(9) nexttile(13)],'x')
+linkaxes([nexttile(6) nexttile(10) nexttile(14)],'x')
+linkaxes([nexttile(11) nexttile(15)],'x')
 %%
+leg=legend('Location','southoutside','NumColumns',length(designs_to_run))
+leg.Layout.Tile='south'
+set(findall(gcf,'-property','FontSize'),'FontSize',8)
+
+for ii=1:4
+    for jj=1:ii
+        nexttile(jj + 4*(ii-1))
+        xl=xlim;
+        xticks([xl(1) xl(end)])
+        tix=get(gca,'xtick')';
+        set(gca,'xticklabel',num2str(tix,'%0.1f'))
+    end
+end
+
+for ii=1:4
+    for jj=1:ii
+        nexttile(jj + 4*(ii-1))
+        yl=ylim;
+        yticks([yl(1) yl(end)])
+        tix=get(gca,'ytick')';
+        set(gca,'yticklabel',num2str(tix,'%0.1f'))
+        a = get(gca,'XTickLabel');  
+        set(gca,'XTickLabel',a,'fontsize',6)
+        a = get(gca,'YTickLabel');  
+        set(gca,'YTickLabel',a,'fontsize',6)
+    end
+end
+
 xklist=[1 5 9 6 10 11];
 for ii=1:length(xklist)
     nexttile(xklist(ii))
@@ -112,6 +158,11 @@ for ii=1:length(yklist)
     ylabel('')
     set(gca,'YTickLabel',[])
 end
-set(findall(gcf,'-property','FontSize'),'FontSize',7)
+
+
+
+
+
+%%
 print(gcf,strcat('/home/turner/research/overleaf/guelph_talk/figs_csc/',fname),'-dpng','-r600') % -r sets the resolution
 savefig(fname)
