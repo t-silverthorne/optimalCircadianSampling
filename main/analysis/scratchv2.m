@@ -1,9 +1,8 @@
 dd = @(i,j) (i==j);% could be sped up using kroneckerDelta from v2023
 
 % want to evaluate E_pi[ y' pi' A pi y ]
-N=4;
+N=6;
 A=rand(N,N);
-A=A*A';
 %E=eye(N)
 y=rand(N,1);
 rho1=factorial(N)/factorial(N-1);
@@ -41,6 +40,7 @@ t5=@(i,j,k,l,m,n,r,s) ((1-dd(i,k))*(1-dd(i,m))*(1-dd(i,r))*(1-dd(k,m))*(1-dd(k,r
 resExact=0;
 t1c=0;t2c=0;t3c=0;t4c=0;t5c=0;
 countoff=0;
+tic
 for i=1:N
     for j=1:N
         for k=1:N
@@ -62,6 +62,18 @@ for i=1:N
         end
     end
 end
+toc
+
+tic
+resExactSubInd=0;
+parfor ind=1:N^8
+    [i,j,k,l,m,n,r,s]=ind2sub(N*ones(1,8),ind);
+    term=y(j)*A(i,k)*y(l)*y(n)*A(m,r)*y(s)*( t1(i,j,k,l,m,n,r,s) + ...
+            t2(i,j,k,l,m,n,r,s) + t3(i,j,k,l,m,n,r,s) + t4(i,j,k,l,m,n,r,s) + ...
+            t5(i,j,k,l,m,n,r,s) );
+    resExactSubInd=resExactSubInd+term;
+end
+toc
 
 resNum =0;
 P=perms(1:N);
@@ -74,3 +86,4 @@ resNum=resNum/factorial(N);
 
 resNum
 resExact
+resExactSubInd
