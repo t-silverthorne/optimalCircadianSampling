@@ -1,17 +1,44 @@
+close all
+clear
 addpath('../utils/')
+% settings
 Nmeas=8;
-%% power as a function of acrophase
+Amp=2;
+freq=3;
+maxit=1e3;
+
+fast_run=true;
+
+% power as a function of acrophase
 [mt,~]   = getSamplingSchedules(Nmeas,0,0,0);
 
-acros   = linspace(0,2*pi,2^7);
-powvals = arrayfun(@(x) getPowerExact(2,x,3.8,mt),acros);
+acros   = linspace(0,2*pi,2^5);
+powvals = arrayfun(@(x) getPowerExact(Amp,x,freq,mt),acros);
 plot(acros,powvals,'-ok')
+hold on
 
+% optimize power
+opts = optimoptions(@simulannealbnd,'Display','iter', ...
+            'MaxIterations',maxit,'DisplayInterval',100,'ReannealInterval',50);
+x0=rand(1,Nmeas);
+xopt = simulannealbnd(@(t) -getMinPower(Amp,freq,t), ...
+		       x0,zeros(1,Nmeas),ones(1,Nmeas),opts);
 
+@(t) getMinPower(Amp,freq,t)
+
+acros   = linspace(0,2*pi,2^5);
+powvals = arrayfun(@(x) getPowerExact(2,x,3.8,xopt),acros);
+plot(acros,powvals,'-ob')
+xlim([0,2*pi])
+ylim([0,1])
 %% 2D grid
 tic
 numFgrid=2^7;
 numAgrid=2^4;
+if fast_run
+    numFgrid=2^5;
+    numAgrid=2^3;
+end
 freqvals        = linspace(1,18,numFgrid);
 Ampvals         = logspace(-1,1,numAgrid);
 
@@ -23,16 +50,5 @@ xlabel('amplitude')
 toc
 
 
-function beta=getPowerExact(Amp,acro,freq,mt)
-Nmeas    = length(mt); % num samples
-alpha    = 0.05; % type I error rate
 
-csq    = cos(2*pi*freq*mt-acro);
-lambda   =  Amp^2*csq*csq'; % non-centrality
 
-beta=1-ncfcdf( finv(1-alpha,2,Nmeas-3) ,2,Nmeas-3,lambda);
-end
-
-function betamin=getMinPower(Amp,freq,mt)
-[~,betamin]=fminbnd(@(phi) getPowerExact(Amp,phi,freq,mt),0,2*pi);
-end
