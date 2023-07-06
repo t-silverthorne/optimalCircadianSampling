@@ -45,7 +45,6 @@ f=zeros(length(mu),1);
 
 f=arrayfun(@(ind) sum((Pomega-Pomega').*exp(1j*(omegas-omegas').*(t-tau(ind))),'all'),(1:length(mu))')
 
-H=
 %%
 omega=2*pi*3.5;
 R=sum([cos(omega*t);sin(omega*t)].*[cos(omega*t) sin(omega*t)],3);
@@ -80,6 +79,7 @@ function Pomega=custom_LSP(t,y,omegas)
 N=length(t);
 omegas=reshape(omegas,1,1,1,length(omegas));
 R=sum([cos(omegas.*t);sin(omegas.*t)].*[cos(omegas.*t) sin(omegas.*t)],3);
+CC=arrayfun(@(ind) cond(R(:,:,ind)),1:length(omegas));
 r=sum([cos(omegas.*t);sin(omegas.*t)].*y,3);
 Pomega=(1/N)*reshape(pagemtimes(pagetranspose(r),pagemldivide(R,r)),length(omegas),1);
 end
