@@ -1,6 +1,8 @@
 addpath('../../guelph_talk/utils_core/')
 clear all
-Nmeas=4;
+
+
+Nmeas=4; % good to set small number of measurements
 mt=linspace(0,1,Nmeas+1);
 mt=mt(1:end-1);
 nMC=2;
@@ -55,7 +57,7 @@ sum(ft.pval<.05)/Nres
 % hold on
 % plot(x,ncfpdf(x,2,Nmeas-3,lambda),'-k', 'linewidth',2)
 
-pwr_exact=getPowerExact(Amp,acro,freq,mt);
+pwr_exact=getPowerExact(Amp,acro,freq,mt); 
 pwr_est=0;
 
 for nn=1:nMC
