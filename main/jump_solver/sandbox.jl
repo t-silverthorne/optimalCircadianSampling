@@ -1,7 +1,5 @@
-#===============
-# Functions
-===============#
-
+#%# Functions
+using LinearAlgebra
 function constructX(t,p)
 # Construct the design matrix 
     x0=ones(length(t),1);
@@ -24,11 +22,11 @@ Base.@kwdef mutable struct harmonic_param
     phase::Float64=0;
 end
 
-#===============
-# Main program 
-===============#
+
+#%# Main program
 p=harmonic_param();
 t=[0:.1:1;];
 t=t[1:end-1];
 
 X=constructX(t,p);
+
