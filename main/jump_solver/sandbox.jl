@@ -1,5 +1,8 @@
 #%# Functions
-using LinearAlgebra
+using JuMP
+import SCS
+import LinearAlgebra
+import Random
 function constructX(t,p)
 # Construct the design matrix 
     x0=ones(length(t),1);
@@ -28,5 +31,5 @@ p=harmonic_param();
 t=[0:.1:1;];
 t=t[1:end-1];
 
-X=constructX(t,p);
+X=constructReducedX(t,p);
 

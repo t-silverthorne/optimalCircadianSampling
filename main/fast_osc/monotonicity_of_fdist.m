@@ -28,7 +28,7 @@ hold on
 plot(lv,T0(x,n1,n2,lv),'--k')
 
 %% check monotonic naively
-N=randsample(1`:15,1);
+N=randsample(4:15,1);
 xv=0:.001:1;
 x=100*rand;
 prod(diff(ncfcdf(x,2,N-3,xv))<0)
@@ -75,3 +75,6 @@ plot(Skp,'-k')
 hold on
 plot(-0.5*Tk,'--k')
 
+%%
+syms k lambda
+diff(exp(-lambda/2)*lambda^k/factorial(k),lambda)
