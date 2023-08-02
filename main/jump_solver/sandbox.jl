@@ -3,6 +3,7 @@ using JuMP
 import SCS
 import LinearAlgebra
 import Random
+
 function constructX(t,p)
 # Construct the design matrix 
     x0=ones(length(t),1);
@@ -33,3 +34,4 @@ t=t[1:end-1];
 
 X=constructReducedX(t,p);
 
+eOpt
