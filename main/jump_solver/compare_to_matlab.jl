@@ -1,29 +1,45 @@
-# For comparing Julia code with Matlab code
-#
-include("utils.jl")
+# imports
+using Optim: minimizer
 using LinearAlgebra
-Nmeas=12;
+using Optim
+using Printf
+include("utils.jl")
+
+# parameters 
+Nmeas=16;
 Amp  =2.23;
-freq =4.8
+freq =Nmeas*0.9;
 
-t =[0:.1:1;]
+# measurement grid 
+t = LinRange(0,1,Nmeas+1)'
+t = Vector(t[1:Nmeas]);
+t = t .+ minimum(diff(t))/2; # penalty methods dont like starting on boundary
 
-# code for making reduced X
+# optimizer options 
+lower   = zeros(length(t));
+upper   = ones(length(t));
+initial = t;
 
-function diffMinLambdaDt(t,freq)
-  x1 = cos.(2*pi*freq*t);
-  x2 = sin.(2*pi*freq*t);
-  X  = [x1 x2]
+# Method 1: directly optimize power
+f(t) = -getMinPower(t,Amp,freq)
+res1=optimize(f,lower,upper,initial);
 
-  D=eigvals(X'*X);
-  W=eigvecs(X'*X);
-  emin=findmin(D)[2];  # index of min eigenvalue
-  v = W[:,emin];
-  v = v/norm(v)
 
-  t3  = reshape(t,1,1,length(t));
-  pf2 = 2*pi*freq;
-  dX  = pf2*[2*cos.(pf2*t3).*sin.(pf2*t3)      cos.(pf2*t3).^2-sin.(pf2*t3).^2;
-         cos.(pf2*t3).^2-sin.(pf2*t3).^2  -2*cos.(pf2*t3).*sin.(pf2*t3)];
-  return [v'*dX[:,:,ii]*v for ii=1:length(t)]
+# Method 2: optimize lambda, (FD derivative)
+f(t) = -getMinLambda(t,freq)
+res2=optimize(f,lower,upper,initial);
+res2_fval=getMinPower(res.minimizer,Amp,freq)
+
+# Method 3: optimize lambda with user-supplied gradient
+function grad_wrapper!(storage,x)
+  storage[1:length(t)]=diffMinLambdaDt(x,freq)
 end
+initial
+res3=optimize(f,grad_wrapper!,lower,upper,initial);
+res3_fval=getMinPower(res3.minimizer,Amp,freq)
+
+# Summary
+@printf "\nUniform:              %2.3f\n" getMinPower(t,Amp,freq) 
+@printf "LBFGS naive:          %2.3f   %2.3f\n" res1.minimum  res1.time_run  
+@printf "LBFGS lambda:         %2.3f   %2.3f\n" res2_fval     res2.time_run  
+@printf "LBFGS diff lambda:    %2.3f   %2.3f\n" res3_fval     res3.time_run
