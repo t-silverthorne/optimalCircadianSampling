@@ -6,7 +6,7 @@ using Printf
 include("utils.jl")
 
 # parameters 
-Nmeas=16;
+Nmeas=8;
 Amp  =2.23;
 freq =Nmeas*0.9;
 
@@ -19,6 +19,7 @@ t = t .+ minimum(diff(t))/2; # penalty methods dont like starting on boundary
 lower   = zeros(length(t));
 upper   = ones(length(t));
 initial = t;
+
 
 # Method 1: directly optimize power
 f(t) = -getMinPower(t,Amp,freq)
@@ -38,6 +39,10 @@ initial
 res3=optimize(f,grad_wrapper!,lower,upper,initial);
 res3_fval=getMinPower(res3.minimizer,Amp,freq)
 
+#%# Method 4: use Eoptimality
+eOpt=getLambdaEoptMethod(freq,Int(1e2),Nmeas)
+
+#%#
 # Summary
 @printf "\nUniform:              %2.3f\n" getMinPower(t,Amp,freq) 
 @printf "LBFGS naive:          %2.3f   %2.3f\n" res1.minimum  res1.time_run  
