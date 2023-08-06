@@ -1,5 +1,8 @@
 addpath('../utils/')
 %%
+c1rgb=[1.0, 0.01, 0.2]; % sparse color
+c4rgb=[.6 .4 .8];       % dense color
+
 Nmeas    = 12;
 Amp      = 2.23;
 freq     = 3.8;
