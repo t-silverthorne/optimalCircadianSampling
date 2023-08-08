@@ -11,17 +11,18 @@ function cosinor_stats=fit_cosinor_model(Y,zts,per)
 % outputs:
 % for each row - acrophase,amplitude,mesor,rsq,Fstatistic,pvalue
 
-x1=sin(2*pi*zts/per);
-x2=cos(2*pi*zts/per);
+x1=cos(2*pi*zts/per);
+x2=sin(2*pi*zts/per);
 x0=ones(1,size(Y,2));
 X= [x0' x1' x2'];
 
 % do linear regression 
 betas=(X'*X)\X'*Y'; 
-cosinor_stats.acrophases_rad=atan2(betas(2,:),betas(3,:)); % acrophase in radians
+cosinor_stats.acrophases_rad=atan2(betas(3,:),betas(2,:)); % acrophase in radians
 cosinor_stats.acrophases=mod(per/2/pi*cosinor_stats.acrophases_rad,per); % acrophase in hours
 cosinor_stats.amplitudes=sqrt(betas(2,:).*betas(2,:)+betas(3,:).*betas(3,:));% modified from definition in R code
 cosinor_stats.mesor=betas(1,:);
+cosinor_stats.betas=betas;
 
 fits=(X*betas)';
 
