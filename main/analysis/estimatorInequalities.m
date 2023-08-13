@@ -13,13 +13,13 @@ for ii=1:nreps % chec
     Amp=10*rand; % amplitude
     freq=10*rand; % freq
     phi=2*pi*rand; % acro
-    beta1=rand;
-    beta2=Amp*cos(phi);
-    beta3=Amp*sin(phi);
+    beta0=rand;
+    beta1=Amp*cos(phi);
+    beta2=Amp*sin(phi);
     
-    fit=fit_cosinor_model(beta1+ beta2*cos(2*pi*freq*mt)+beta3*sin(2*pi*freq*mt) +randn(Nbatch,N),mt,1/freq);
+    fit=fit_cosinor_model(beta0+ beta1*cos(2*pi*freq*mt)+beta2*sin(2*pi*freq*mt) +randn(Nbatch,N),mt,1/freq);
     
-    beta_vec = [beta1;beta2;beta3];
+    beta_vec = [beta0;beta1;beta2];
     p.freq=freq;
     X = constructX(mt,p);
     L=(X'*X)\X';
@@ -41,28 +41,25 @@ fprintf("variance amplitude bound: %d\n", prod(varvec))
 
 % verify lower bound
 %% Acrophase
-
-N=randsample(10:20,1); % random number of measurements
-mt=rand(1,N); % random measurement schedule
-
-Amp=randsample(5:15,1)+rand; % amplitude
-freq=1+rand; % freq
-phi=2*pi*rand; % acro
-beta1=rand;
-beta2=Amp*cos(phi);
-beta3=Amp*sin(phi);
-
-Nbatch=1e5;
-Nbvals =logspace(3,5,3);
-
-for ii=1:length(Nbvals)
-    Nbatch=Nbvals(ii);
-    fit   = fit_cosinor_model(beta1+ beta2*cos(2*pi*freq*mt)+beta3*sin(2*pi*freq*mt) +randn(Nbatch,N),mt,1/freq);
+for ii=1:1e3
+    N=randsample(5:10,1); % random number of measurements
+    mt=rand(1,N); % random measurement schedule
+    Amp=rand; % amplitude
+    freq=10*rand; % freq
+    phi=2*pi*rand; % acro
+    beta0=rand;
+    beta1=Amp*cos(phi);
+    beta2=Amp*sin(phi);
+    
+    Nbatch=1e3;
+    fit   = fit_cosinor_model(beta0+ beta1*cos(2*pi*freq*mt)+beta2*sin(2*pi*freq*mt) +randn(Nbatch,N),mt,1/freq);
     Xr    = constructReducedX(mt,freq);
-    Delta = mean(fit.amplitudes-Amp)/Amp;
     est=mean(abs(exp(1j*fit.acrophases_rad) - exp(1j*phi) ).^2) ;
-    exact=(var(fit.betas(1,:))+var(fit.betas(2,:)))/Amp^2;
-    (est-exact)/exact
+    exact=sqrt(1+2*abs(beta1+beta2)*sqrt(3/N)/(abs(beta1)+abs(beta2))  + 3 * norm([beta1 beta2],2)^2/norm([beta1 beta2],1)^2 )*...
+        sqrt(1+2*(beta1+beta2)/Amp/sqrt(N) + norm([beta1 beta2],2)^2/Amp^2+ trace(inv(Xr'*Xr))/Amp^2) - (beta1+beta2)/sqrt(N)/Amp + abs(beta1+beta2)*sqrt(3/N)/norm([beta1 beta2],1);
+    if est/exact>0.5
+        disp("HOORAY")
+    end
 end
 %(1-2*Delta)*mean(var(fit.betas(1,:))+var(fit.betas(2,:)))/Amp^2
 %trace(inv(Xr'*Xr))

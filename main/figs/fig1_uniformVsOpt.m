@@ -51,6 +51,7 @@ ylim([freqvals(1), freqvals(end)])
 set(gca,'XScale','log') % rescale x axis
 xlabel('amplitude') % xlabel
 ylabel('frequency') % ylabel
+yticks([1 4 8 12 16 20 24])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TOP RIGHT 
@@ -79,6 +80,7 @@ yline(freqs(end),'--k','Color',c4rgb,'LineWidth',2)
 ylim([freqvals(1), freqvals(end)])
 set(gca,'XScale','log') % rescale x axis
 xlabel('amplitude') % xlabel
+yticks([1 4 8 12 16 20 24])
 set(gca,'YTickLabel',[]);
 
 
@@ -132,9 +134,8 @@ cb_osc.Label.String='frequency';
 cbtop.Label.Interpreter='latex';
 
 
-%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% EXPORT 
+% EXPORT for paper
 plot_filename='/Users/turnersilverthorn/research/overleaf/samplingPaper/figures/fig1.png';
 ht=2.5*2; % height
 wd=6.5; % width
@@ -142,3 +143,21 @@ set(gcf,'PaperUnits','inches')
 set(gcf,'PaperPositionMode','manual','PaperSize',[wd,ht],'PaperPosition',[0 0 wd ht])
 print(gcf,plot_filename, ...
     '-dpng','-r600') % -r sets the resolution
+
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXPORT for presentation
+set(findall(gcf,'-property','FontSize'),'FontSize',7)
+plot_filename='/Users/turnersilverthorn/research/overleaf/samplingTalk/figsAMMCS/fig1.png';
+% Full slide dimensions
+ht=2.9; % height
+wd=4; % width
+set(gcf,'PaperUnits','inches')
+set(gcf,'PaperPositionMode','manual','PaperSize',[wd,ht],'PaperPosition',[0 0 wd ht])
+print(gcf,plot_filename, ...
+    '-dpng','-r600') % -r sets the resolution
+
+
+
+

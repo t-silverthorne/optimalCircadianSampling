@@ -28,8 +28,8 @@ end
 freqvals  = linspace(1,18,numFgrid);
 
 for nn=1:length(nvals)
-    Nmeas    = nvals(nn);
-    [mt,~]   = getSamplingSchedules(Nmeas,0,0,0);
+    Nmeas   = nvals(nn);
+    [mt,~]  = getSamplingSchedules(Nmeas,0,0,0);
 
 
     powvals = NaN(1,numFgrid);
@@ -50,7 +50,7 @@ for nn=1:length(nvals)
     
     
     sh(1)=nexttile(1);
-    ee=errorbar(freqvals,tvals,lvals,uvals,'color',cloc(nn,:));
+    ee=errorbar(freqvals,1e3*tvals,lvals,uvals,'color',cloc(nn,:));
     
     hold on
 
@@ -69,15 +69,16 @@ cbtop.Label.Interpreter='latex';
 
 %%
 nexttile(1)
-ylabel('computation time [sec]')
-xlabel('frequency')
+ylabel('wall time (ms)')
+xlabel('frequency $f$')
 
 nexttile(2)
 ylabel('$\textrm{min}_\phi \gamma(\phi;A,f)$')
-xlabel('frequency')
+xlabel('frequency $f$')
 ylim([0,1])
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXPORT for paper
 plot_filename='/Users/turnersilverthorn/research/overleaf/samplingPaper/figures/fig2.png';
 ht=2.5; % height
 wd=6.5; % width
@@ -85,6 +86,20 @@ set(gcf,'PaperUnits','inches')
 set(gcf,'PaperPositionMode','manual','PaperSize',[wd,ht],'PaperPosition',[0 0 wd ht])
 print(gcf,plot_filename, ...
     '-dpng','-r600') % -r sets the resolution
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXPORT for presentation
+set(findall(gcf,'-property','FontSize'),'FontSize',7)
+plot_filename='/Users/turnersilverthorn/research/overleaf/samplingTalk/figsAMMCS/fig2.png';
+% Full slide dimensions
+ht=2.9; % height
+wd=4; % width
+set(gcf,'PaperUnits','inches')
+set(gcf,'PaperPositionMode','manual','PaperSize',[wd,ht],'PaperPosition',[0 0 wd ht])
+print(gcf,plot_filename, ...
+    '-dpng','-r600') % -r sets the resolution
+
+
 
 function power_time = directOptimize(Amp,freq,Nmeas)
 options=optimoptions('fmincon',...

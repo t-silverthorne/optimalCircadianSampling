@@ -27,3 +27,12 @@ N*det(inv(X'*X))
 
 eig(inv(X'*X))
 1/N
+
+%% Verify acrophase estimate
+N=randsample(1:1e2,1);
+u=10^rand*rand(N,1);
+v=10^rand*rand(N,1);
+
+e=ones(N,1)/sqrt(N);
+1-v'*u
+(e-v)'*(e+u)- e'*u+e'*v
